@@ -9,18 +9,18 @@ import {
 } from "lucide-react";
 
 const destinations = [
-  {name:"Havelock Island", image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85", text:"White-sand beaches, clear water and unforgettable island experiences."},
-  {name:"Neil Island", image:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=85", text:"Quiet beaches, coral reefs and a slower island escape."},
-  {name:"Port Blair", image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85", text:"Your gateway to the islands, history and coastal experiences."}
+  {name:"Havelock Island", image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=100", text:"White-sand beaches, clear water and unforgettable island experiences."},
+  {name:"Neil Island", image:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=2400&q=100", text:"Quiet beaches, coral reefs and a slower island escape."},
+  {name:"Port Blair", image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2400&q=100", text:"Your gateway to the islands, history and coastal experiences."}
 ];
 
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 
 const partnerMarks = ["ISLAND STAYS","OCEAN EXPERIENCES","TRAVEL PARTNER","ANDAMAN HOSTS","DISCOVER INDIA","ISLAND ADVENTURES","TRAVEL PARTNER","OCEAN EXPERIENCES"];
 const heroSlides = [
-  {image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=88", title:"Experience the", accent:"Andaman"},
-  {image:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1800&q=88", title:"Dive into", accent:"Island Life"},
-  {image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1800&q=88", title:"Escape to", accent:"Paradise"}
+  {image:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=100", title:"Experience the", accent:"Andaman"},
+  {image:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=2400&q=100", title:"Dive into", accent:"Island Life"},
+  {image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2400&q=100", title:"Escape to", accent:"Paradise"}
 ];
 
 const packageItineraries = {
@@ -52,16 +52,16 @@ const packageItineraries = {
 
 
 const packages = [
-  {name:"Andaman Escape", days:"5 Nights / 6 Days", price:"₹35,000", image:destinations[0].image, tag:"Popular"},
-  {name:"Island Discovery", days:"4 Nights / 5 Days", price:"₹29,500", image:destinations[1].image, tag:"Best Seller"},
-  {name:"Honeymoon Islands", days:"6 Nights / 7 Days", price:"₹46,000", image:destinations[2].image, tag:"Couples"}
+  {name:"Andaman Escape", days:"5 Nights / 6 Days", actualPrice:"₹41,000", price:"₹35,000", image:destinations[0].image, tag:"Popular"},
+  {name:"Island Discovery", days:"4 Nights / 5 Days", actualPrice:"₹35,000", price:"₹29,500", image:destinations[1].image, tag:"Best Seller"},
+  {name:"Honeymoon Islands", days:"6 Nights / 7 Days", actualPrice:"₹54,000", price:"₹46,000", image:destinations[2].image, tag:"Couples"}
 ];
 
 const activities = [
-  {name:"Scuba Diving", icon:Waves, text:"Discover vibrant coral reefs and marine life."},
-  {name:"Sea Walk", icon:Compass, text:"Walk beneath the sea and experience the reef."},
-  {name:"Island Transfers", icon:MapPin, text:"Comfortable transfers planned around your itinerary."},
-  {name:"Kayaking", icon:Waves, text:"Explore calm tropical waters at your own pace."}
+  {name:"Scuba Diving", icon:Waves, text:"Discover vibrant coral reefs and marine life.", price:"From ₹3,500", details:"Guided beginner-friendly dive with equipment, instructor support and reef exploration."},
+  {name:"Sea Walk", icon:Compass, text:"Walk beneath the sea and experience the reef.", price:"From ₹3,000", details:"Helmeted underwater walk with trained guides and a close-up view of colourful marine life."},
+  {name:"Island Transfers", icon:MapPin, text:"Comfortable transfers planned around your itinerary.", price:"From ₹1,500", details:"Comfortable point-to-point transfers arranged around ferry, hotel and sightseeing timings."},
+  {name:"Kayaking", icon:Waves, text:"Explore calm tropical waters at your own pace.", price:"From ₹1,800", details:"A relaxed guided paddle through calm tropical waters, subject to weather and sea conditions."}
 ];
 
 function ScrollToTop(){
@@ -134,7 +134,7 @@ function DestinationCard({d}){ return <Link className="destination-card" to={`/d
 function PackageCard({p}){
  return <Link className="package-card package-link" to={`/packages/${slugify(p.name)}`}>
   <div className="package-image"><img src={p.image} alt={p.name}/><span>{p.tag}</span><div className="package-hover"><span>View itinerary</span><ArrowRight size={15}/></div></div>
-  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Starting from</small><strong>{p.price}</strong></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
+  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Special offer</small><div className="package-prices"><del>{p.actualPrice}</del><strong>{p.price}</strong></div></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
  </Link>
 }
 function PartnerMarquee(){
@@ -171,7 +171,7 @@ function Experiences(){
   <div className="container">
    <span className="eyebrow">ISLAND EXPERIENCES</span><h1 className="page-title">Make your trip memorable</h1>
    <p className="page-lead">Choose experiences and build an island holiday that feels personal, not packaged.</p>
-   <div className="experience-grid">{activities.map(({name,icon:Icon,text})=><Link className="experience-card" to="/contact" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><span>Plan this experience <ArrowRight size={15}/></span></Link>)}</div>
+   <div className="experience-grid">{activities.map(({name,icon:Icon,text,price})=><Link className="experience-card" to={`/activities/${slugify(name)}`} key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><b className="activity-price">{price}</b><span>View details <ArrowRight size={15}/></span></Link>)}</div>
    <section className="video-section">
     <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Get inspired before you go</h2><p>Watch a real Andaman travel guide and start planning your own route.</p><div className="video-actions"><a className="btn youtube-subscribe" href="https://www.youtube.com/@NomadicSoulmates?sub_confirmation=1" target="_blank" rel="noreferrer"><Youtube size={17}/> Subscribe</a></div></div>
     <div className="video-frame"><iframe src="https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0" title="Andaman and Nicobar Tourism video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div>
@@ -309,7 +309,7 @@ function Home(){
 
     <section className="section"><div className="container">
       <div className="section-head"><div><span className="eyebrow">ISLAND EXPERIENCES</span><h2><Link className="heading-link" to="/experiences">Make your trip memorable <ArrowRight size={24}/></Link></h2></div></div>
-      <div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><Link className="mini-link" to="/contact">Add to trip <ArrowRight size={14}/></Link></div>)}</div>
+      <div className="activity-grid">{activities.map(({name,icon:Icon,text,price})=><Link className="activity-card" to={`/activities/${slugify(name)}`} key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><b className="activity-price">{price}</b><span className="mini-link">View details <ArrowRight size={14}/></span></Link>)}</div>
       <div className="center"><Link className="btn outline" to="/contact">Build My Custom Trip <ArrowRight size={17}/></Link></div>
     </div></section>
 
@@ -350,6 +350,13 @@ function SectionHead({eyebrow,title,text}){return <div className="section-head">
 function CTA(){return <section className="cta"><div className="container cta-inner"><div><span className="eyebrow light">READY TO GO?</span><h2>Let's plan your island escape.</h2><p>Tell us your dates and what you want to experience. We'll help shape the trip.</p></div><Link className="btn white" to="/contact">Get a Free Quotation <ArrowRight size={18}/></Link></div></section>}
 
 function Listing({type}){ const data=type==="Packages"?packages:destinations; return <main className="page"><div className="container"><span className="eyebrow">BLUEVOWS</span><h1 className="page-title">{type}</h1><p className="page-lead">Explore our {type.toLowerCase()} and choose what fits your journey.</p><div className={type==="Packages"?"package-grid":"destination-grid"}>{data.map((x,i)=>type==="Packages"?<PackageCard p={x} key={i}/>:<DestinationCard d={x} key={i}/>)}</div></div></main> }
+
+function ActivityDetail(){
+ const {slug}=useParams();
+ const a=activities.find(x=>slugify(x.name)===slug)||activities[0];
+ const Icon=a.icon;
+ return <main className="page activity-detail-page"><div className="container narrow"><span className="eyebrow">ISLAND EXPERIENCE</span><h1 className="page-title">{a.name}</h1><p className="page-lead">{a.details}</p><div className="activity-detail-card"><div className="activity-detail-icon"><Icon/></div><div><span className="eyebrow">EXPERIENCE PRICE</span><h2>{a.price}</h2><p>{a.text}</p><Link className="btn primary" to="/contact">Enquire for this experience <ArrowRight size={17}/></Link></div></div></div></main>
+}
 
 function SimplePage({title,eyebrow,children}){return <main className="page"><div className="container narrow"><span className="eyebrow">{eyebrow}</span><h1 className="page-title">{title}</h1>{children}</div></main>}
 
@@ -416,7 +423,8 @@ function App(){
   <Route path="/packages/:slug" element={<PackageDetail/>}/>
   <Route path="/experiences" element={<Experiences/>}/>
   <Route path="/hotels" element={<SimplePage title="Hotels & Resorts" eyebrow="STAY COMFORTABLY"><p className="page-lead">A clean hotel directory will be connected to Supabase in the next setup stage.</p></SimplePage>}/>
-  <Route path="/activities" element={<SimplePage title="Activities" eyebrow="EXPERIENCES"><div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p></div>)}</div></SimplePage>}/>
+  <Route path="/activities" element={<SimplePage title="Activities" eyebrow="EXPERIENCES"><div className="activity-grid">{activities.map(({name,icon:Icon,text,price})=><Link className="activity-card" to={`/activities/${slugify(name)}`} key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><b className="activity-price">{price}</b><span className="mini-link">View details <ArrowRight size={14}/></span></Link>)}</div></SimplePage>}/>
+  <Route path="/activities/:slug" element={<ActivityDetail/>}/>
   <Route path="/about" element={<SimplePage title="About BlueVows" eyebrow="OUR STORY"><p className="page-lead">A modern travel platform focused on simple planning, clear quotations and memorable Andaman experiences.</p></SimplePage>}/>
   <Route path="/contact" element={<Contact/>}/>
   <Route path="/admin" element={<Admin/>}/>
@@ -425,6 +433,7 @@ function App(){
   <div><b>Explore</b><Link to="/">Home</Link><Link to="/destinations">Destinations</Link><Link to="/packages">Packages</Link><Link to="/activities">Activities</Link></div>
   <div><b>Contact</b><span><Phone size={15}/> +91 XXXXX XXXXX</span><span><Mail size={15}/> hello@example.com</span><Link to="/contact"><MessageCircle size={15}/> Send an enquiry</Link></div>
   <div className="footer-highlight"><span className="eyebrow light">LET'S PLAN</span><h3>Your island escape starts with one message.</h3><p>Share your dates and we'll prepare a clear quotation for you.</p><Link className="footer-trip-btn" to="/contact">Get a free quotation <ArrowRight size={15}/></Link>
+    <div className="subscribe-glass"><span>Stay in the loop</span><div><input type="email" placeholder="Your email" aria-label="Email for BlueVows updates"/><button type="button">Subscribe</button></div></div>
     <div className="social-links" aria-label="Social media"><a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram/></a><a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook/></a><a href="https://x.com/" target="_blank" rel="noreferrer" aria-label="X">X</a><a href="https://www.youtube.com/" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube/></a><a href="https://wa.me/" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle/></a></div>
   </div>
 </div><div className="container footer-bottom">© 2026 BlueVows. All rights reserved.<span>Made for island journeys.</span></div></footer></>
