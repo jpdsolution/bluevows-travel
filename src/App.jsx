@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, Route, Routes, useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
@@ -251,7 +251,7 @@ function FlightPath(){
     <div className="container">
       <SectionHead eyebrow="YOUR ISLAND ROUTE" title="Fly in. Island hop. Explore." text="A simple visual route from Port Blair to the islands you can discover with BlueVows."/>
       <div className="flight-map" aria-label="Animated route Port Blair to Havelock to Neil Island">
-        <svg className="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path className="route-glow" d="M14 62 Q31 39 51 34 Q63 40 77 57"/><path d="M14 62 Q31 39 51 34 Q63 40 77 57"/></svg>
+        <svg className="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path className="route-glow" d="M14 62 L51 34 L77 57"/><path d="M14 62 L51 34 L77 57"/></svg>
         <div className="route-stop stop-port"><span></span><b>Port Blair</b></div>
         <div className="route-stop stop-havelock"><span></span><b>Havelock</b></div>
         <div className="route-stop stop-neil"><span></span><b>Neil Island</b></div>
@@ -353,7 +353,14 @@ function Listing({type}){ const data=type==="Packages"?packages:destinations; re
 
 function SimplePage({title,eyebrow,children}){return <main className="page"><div className="container narrow"><span className="eyebrow">{eyebrow}</span><h1 className="page-title">{title}</h1>{children}</div></main>}
 
-function Contact(){return <SimplePage title="Plan your trip" eyebrow="GET IN TOUCH"><p className="page-lead">Share your travel plans and our team will prepare a quotation for you.</p><form className="contact-form" onSubmit={e=>e.preventDefault()}><div className="form-grid"><label>Full name<input placeholder="Your name"/></label><label>Phone number<input placeholder="+91"/></label><label>Email<input type="email" placeholder="you@example.com"/></label><label className="date-field">Travel date<input type="date"/></label><label>Adults<input type="number" min="1" defaultValue="2"/></label><label>Children<input type="number" min="0" defaultValue="0"/></label></div><label>Message<textarea rows="5" placeholder="Tell us about your trip"></textarea></label><button className="btn primary submit"><Send size={17}/> Send Enquiry</button></form></SimplePage>}
+function DateField({label="Travel date"}){
+  const [value,setValue]=useState("");
+  const inputRef=useRef(null);
+  const display=value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select travel date";
+  return <label className="date-field date-field-modern">{label}<div className="date-control"><span className={value?"has-date":"placeholder"}>{display}</span><CalendarDays size={18}/><input ref={inputRef} type="date" value={value} onChange={e=>setValue(e.target.value)} aria-label={label}/></div></label>
+}
+
+function Contact(){return <SimplePage title="Plan your trip" eyebrow="GET IN TOUCH"><p className="page-lead">Share your travel plans and our team will prepare a quotation for you.</p><form className="contact-form" onSubmit={e=>e.preventDefault()}><div className="form-grid"><label>Full name<input placeholder="Your name"/></label><label>Phone number<input placeholder="+91"/></label><label>Email<input type="email" placeholder="you@example.com"/></label><DateField/><label>Adults<input type="number" min="1" defaultValue="2"/></label><label>Children<input type="number" min="0" defaultValue="0"/></label></div><label>Message<textarea rows="5" placeholder="Tell us about your trip"></textarea></label><button className="btn primary submit"><Send size={17}/> Send Enquiry</button></form></SimplePage>}
 
 function Admin(){return <main className="admin-page"><div className="admin-shell"><aside className="admin-side"><div className="brand admin-brand"><img className="brand-logo admin-logo" src="/bluevows-logo.png" alt="BlueVows" /> <span>ADMIN</span></div>{["Dashboard","Enquiries","Quotations","Bookings","Customers","Packages","Hotels","Activities","Gallery","Reviews","Website Content","Email Templates","QR / Payment","Settings"].map((x,i)=><div className={i===0?"admin-link active":"admin-link"} key={x}><LayoutDashboard size={17}/>{x}</div>)}<div className="admin-link logout"><LogOut size={17}/>Logout</div></aside><section className="admin-main"><div className="admin-top"><div><span className="eyebrow">CONTROL CENTER</span><h1>Dashboard</h1></div><div className="admin-user">Admin</div></div><div className="stats">{[["Enquiries","24"],["Quotations","12"],["Confirmed","7"],["Pending Payment","4"]].map(x=><div className="stat" key={x[0]}><span>{x[0]}</span><strong>{x[1]}</strong></div>)}</div><div className="admin-grid"><div className="admin-card"><div className="admin-card-head"><h3>Recent enquiries</h3><span>View all</span></div>{["Rahul Sharma","Priya Singh","Arjun Das","Meera Nair"].map((x,i)=><div className="enquiry-row" key={x}><div><b>{x}</b><span>{i+2} Adults · {5+i}N / {6+i}D</span></div><span className="status">{i===0?"New":"Pending"}</span></div>)}</div><div className="admin-card"><div className="admin-card-head"><h3>Quick actions</h3></div><div className="quick-actions"><button><FileText/>Create quotation</button><button><Package/>Add package</button><button><ImageIcon/>Upload gallery</button><CreditCard/> <span className="qr-label">Manage QR</span></div></div></div></section></div></main>}
 

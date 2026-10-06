@@ -602,3 +602,26 @@ footer{background:linear-gradient(135deg,#f97316 0%,#ed5b0a 52%,#c94808 100%)!im
   .map-island span{width:21px!important;height:21px!important}
   .map-island b{font-size:9px!important}
 }
+
+/* ===== BlueVows V10: ONLY requested final fixes ===== */
+html,body,#root{width:100%;max-width:100%;min-width:0;overflow-x:hidden!important}
+footer{width:100vw!important;max-width:100vw!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important}
+
+/* Travel date: fixed-size custom control so iPhone/Safari cannot stretch the native date field. */
+.date-field-modern{min-width:0!important;width:100%!important;position:relative!important}
+.date-control{position:relative!important;width:100%!important;min-width:0!important;max-width:100%!important;height:48px!important;box-sizing:border-box!important;margin-top:8px!important;padding:13px 42px 13px 14px!important;border:1px solid var(--line)!important;border-radius:8px!important;background:#fff!important;color:var(--ink)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;overflow:hidden!important}
+.date-control span{display:block!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:14px!important;font-weight:600!important;line-height:20px!important}
+.date-control span.placeholder{color:#98a2b3!important}
+.date-control svg{flex:0 0 auto!important;color:#98a2b3!important}
+.date-control input[type=date]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;opacity:0!important;cursor:pointer!important;appearance:auto!important;-webkit-appearance:auto!important}
+
+/* Straight, clean Port Blair → Havelock → Neil Island route. */
+.route-svg path{stroke-linecap:round!important;stroke-linejoin:round!important}
+.route-svg .route-glow{stroke:#fff!important;stroke-width:3!important;opacity:.8!important}
+.route-svg path:not(.route-glow){stroke:#f6a26b!important;stroke-width:.7!important;stroke-dasharray:2.2 2.1!important;opacity:.9!important}
+
+@media(max-width:600px){
+  .date-control{height:48px!important;min-height:48px!important;padding:13px 40px 13px 14px!important}
+  .date-control input[type=date]{height:100%!important}
+  footer{margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important}
+}
