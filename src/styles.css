@@ -368,3 +368,128 @@ footer{background:linear-gradient(135deg,#f97316 0%,#ed5b0a 52%,#c94808 100%)!im
   .footer-brand-block,.footer-highlight{grid-column:1/-1!important}
   .footer-bottom{font-size:9px!important}
 }
+
+/* ===== BlueVows V8: hero alignment, mobile date repair, counters, parallax, waves, routes, map + call button ===== */
+.hero-content{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:900px;margin:0 auto}
+.hero-content .eyebrow,.hero-content h1,.hero-content p{margin-left:auto;margin-right:auto}
+.hero-content p{max-width:680px}
+.hero-actions{justify-content:center;align-items:center}
+.hero-dots{justify-content:center}
+
+/* iPhone/Safari date input: remove the native oversized control that was escaping the right edge. */
+.contact-form .date-field{position:relative;min-width:0;width:100%;overflow:hidden}
+.contact-form .date-field input[type=date]{appearance:none;-webkit-appearance:none;width:100%!important;min-width:0!important;max-width:100%!important;height:48px!important;box-sizing:border-box!important;padding:0 44px 0 14px!important;overflow:hidden!important;border:1px solid #e7e7e7!important;border-radius:7px!important;background:#fff!important;color:#1f2937!important}
+.contact-form .date-field::after{content:"▣";position:absolute;right:15px;bottom:15px;color:#98a2b3;font-size:15px;line-height:18px;pointer-events:none}
+.contact-form input[type=date]::-webkit-calendar-picker-indicator{opacity:0!important;width:22px;height:22px;margin:0!important;padding:0!important}
+
+/* Compact floating contact buttons */
+.floating-contact{position:fixed;right:16px;bottom:18px;z-index:80;display:flex;flex-direction:column;gap:9px}
+.floating-btn{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff!important;box-shadow:0 10px 25px rgba(15,23,42,.18);transition:transform .25s ease,box-shadow .25s ease;text-decoration:none!important}
+.floating-btn:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.24)}
+.floating-btn.whatsapp{background:#25D366}
+.floating-btn.phone-call{background:linear-gradient(135deg,#ff8a28,#f15b0a)}
+.floating-btn svg{width:22px;height:22px}
+
+/* Counter section */
+.counter-section{padding:30px 0 38px;background:#fff;border-bottom:1px solid #f0f0f0}
+.counter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.counter-card{position:relative;text-align:center;padding:18px 12px;border:1px solid #eee;border-radius:9px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.05);overflow:hidden}
+.counter-card::after{content:"";position:absolute;left:20%;right:20%;bottom:0;height:3px;background:linear-gradient(90deg,transparent,#f97316,transparent);opacity:.65}
+.counter-card strong{display:block;font-size:clamp(30px,4vw,44px);line-height:1;font-weight:800;letter-spacing:-1.5px;color:#1f2937}
+.counter-card span{display:block;margin-top:7px;font-size:12px;color:#6b7280;font-weight:600}
+
+/* Beach/sea parallax */
+.parallax-island{position:relative;min-height:390px;overflow:hidden;display:flex;align-items:center;background:#102a43}
+.parallax-back,.parallax-front{position:absolute;inset:-8%;background-position:center;background-size:cover;background-repeat:no-repeat;will-change:transform}
+.parallax-back{background-image:linear-gradient(180deg,rgba(15,23,42,.10),rgba(15,23,42,.40)),url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=88");transform:scale(1.08);background-attachment:fixed}
+.parallax-front{background:linear-gradient(180deg,transparent 45%,rgba(15,23,42,.48)),url("https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1800&q=82");background-blend-mode:normal;opacity:.28;transform:translateY(0) scale(1.05);animation:parallaxFloat 7s ease-in-out infinite alternate}
+.parallax-content{position:relative;z-index:2;text-align:center;color:#fff;padding:72px 20px}
+.parallax-content h2{max-width:760px;margin:10px auto 12px;font-size:clamp(32px,5vw,54px);line-height:1.02;letter-spacing:-2px;font-weight:800}
+.parallax-content p{max-width:610px;margin:0 auto 22px;font-size:15px;color:rgba(255,255,255,.9)}
+@keyframes parallaxFloat{from{transform:translate3d(0,0,0) scale(1.05)}to{transform:translate3d(0,-22px,0) scale(1.07)}}
+
+/* Liquid/water transition */
+.liquid-wave{height:58px;position:relative;background:#fff;overflow:hidden;margin-bottom:-1px}
+.liquid-wave::before{content:"";position:absolute;width:120%;height:95px;left:-10%;top:-56px;background:#fafafa;border-radius:0 0 52% 48%/0 0 75% 75%;box-shadow:0 -10px 0 rgba(249,115,22,.08);animation:waveMove 7s ease-in-out infinite alternate}
+.liquid-wave::after{content:"";position:absolute;width:105%;height:70px;left:-2%;top:-40px;border-radius:50%;border-top:2px solid rgba(249,115,22,.18);animation:waveMove 5s ease-in-out infinite alternate-reverse}
+@keyframes waveMove{from{transform:translateX(-2%) rotate(-1deg)}to{transform:translateX(2%) rotate(1deg)}}
+
+/* Package hover reveal */
+.package-reveal{display:flex;gap:8px;flex-wrap:wrap;max-height:0;opacity:0;overflow:hidden;transform:translateY(5px);transition:max-height .35s ease,opacity .35s ease,transform .35s ease;margin:0}
+.package-reveal span{font-size:10px;font-weight:700;color:#667085;background:#fff7f0;border:1px solid #ffe1cd;padding:5px 7px;border-radius:5px}
+.package-card:hover .package-reveal{max-height:40px;opacity:1;transform:translateY(0);margin:0 0 10px}
+.package-card:hover .package-bottom{transform:translateY(-1px)}
+.package-bottom{transition:transform .3s ease}
+
+/* Flight path */
+.flight-section{padding-top:60px!important;padding-bottom:62px!important;background:#fafafa}
+.flight-map{position:relative;height:260px;max-width:900px;margin:10px auto 0;border:1px solid #ececec;border-radius:12px;background:radial-gradient(circle at 20% 35%,rgba(249,115,22,.08),transparent 28%),linear-gradient(145deg,#fff,#fff7f0);overflow:hidden;box-shadow:0 15px 38px rgba(15,23,42,.06)}
+.route-line{position:absolute;height:2px;background:repeating-linear-gradient(90deg,#f97316 0 8px,transparent 8px 15px);transform-origin:left center;opacity:.7}
+.route-one{width:37%;left:19%;top:54%;transform:rotate(-19deg)}
+.route-two{width:26%;left:54%;top:42%;transform:rotate(31deg)}
+.route-stop{position:absolute;z-index:3;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:#1f2937}
+.route-stop span{width:14px;height:14px;border-radius:50%;background:#fff;border:4px solid #f97316;box-shadow:0 0 0 7px rgba(249,115,22,.10)}
+.stop-port{left:14%;top:62%}.stop-havelock{left:51%;top:34%}.stop-neil{left:77%;top:57%}
+.flight-plane{position:absolute;z-index:4;left:16%;top:59%;color:#f97316;animation:flightTravel 6s ease-in-out infinite;filter:drop-shadow(0 5px 8px rgba(249,115,22,.22))}
+@keyframes flightTravel{0%{transform:translate(0,0) rotate(-18deg)}45%{transform:translate(290px,-62px) rotate(-5deg)}72%{transform:translate(505px,8px) rotate(20deg)}100%{transform:translate(0,0) rotate(-18deg)}}
+
+/* Interactive island map */
+.map-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:42px;align-items:center}
+.map-layout h2{font-size:clamp(30px,4vw,46px);line-height:1.05;letter-spacing:-1.5px;margin:9px 0 12px}
+.map-buttons{display:grid;gap:8px;margin-top:22px}
+.map-buttons button{appearance:none;text-align:left;border:1px solid #e8e8e8;background:#fff;border-radius:8px;padding:10px 12px;cursor:pointer;transition:.25s ease;display:flex;flex-direction:column}
+.map-buttons button span{font-size:13px;font-weight:800;color:#1f2937}.map-buttons button small{font-size:10px;color:#7b8490;margin-top:2px}.map-buttons button:hover,.map-buttons button.active{border-color:#f6b98f;background:#fff7f0;transform:translateX(4px)}
+.andaman-map{position:relative;height:390px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#f8fdff,#e9f7fb);border:1px solid #dceff3;box-shadow:0 18px 45px rgba(15,23,42,.07)}
+.map-ocean-glow{position:absolute;inset:0;background:radial-gradient(circle at 52% 46%,rgba(255,255,255,.95),transparent 38%),radial-gradient(circle at 20% 80%,rgba(249,115,22,.10),transparent 25%)}
+.map-route{position:absolute;height:2px;background:repeating-linear-gradient(90deg,rgba(249,115,22,.55) 0 7px,transparent 7px 13px);transform-origin:left center;opacity:.75}
+.map-route-a{left:20%;top:68%;width:39%;transform:rotate(-29deg)}.map-route-b{left:55%;top:43%;width:29%;transform:rotate(34deg)}
+.map-island{position:absolute;transform:translate(-50%,-50%);border:0;background:none;cursor:pointer;color:#1f2937;z-index:4;display:flex;flex-direction:column;align-items:center;gap:7px}
+.map-island span{display:block;width:28px;height:38px;background:#b8d98d;border:2px solid #7fac52;border-radius:55% 45% 50% 45%;box-shadow:0 5px 14px rgba(73,104,45,.18);transition:.35s ease;transform:rotate(14deg)}
+.map-island b{font-size:11px;white-space:nowrap}.map-island.active span{background:#f97316;border-color:#d94801;transform:rotate(14deg) scale(1.3);box-shadow:0 0 0 9px rgba(249,115,22,.14),0 9px 18px rgba(249,115,22,.25)}
+.map-island.active b{color:#ea580c}
+
+/* Keep the real video obvious and playable */
+.video-home-section .video-frame{min-height:320px;border-radius:10px;overflow:hidden;background:#111;box-shadow:0 18px 45px rgba(15,23,42,.13)}
+.video-home-section .video-frame iframe{display:block;width:100%;height:100%;min-height:320px;border:0}
+
+@media(max-width:900px){
+  .map-layout{grid-template-columns:1fr;gap:26px}
+  .andaman-map{height:330px}
+  .flight-map{height:230px}
+  @keyframes flightTravel{0%{transform:translate(0,0) rotate(-18deg)}45%{transform:translate(25vw,-50px) rotate(-5deg)}72%{transform:translate(50vw,5px) rotate(20deg)}100%{transform:translate(0,0) rotate(-18deg)}}
+}
+@media(max-width:600px){
+  .hero-content{padding-left:18px!important;padding-right:18px!important;text-align:center!important}
+  .hero h1{font-size:42px!important;letter-spacing:-1.8px!important}
+  .hero-content p{font-size:14px;line-height:1.6}
+  .hero-actions{width:100%;flex-direction:column;gap:9px}
+  .hero-actions .btn{width:min(290px,100%);justify-content:center}
+  .hero-dots{margin-top:17px}
+  .counter-section{padding:20px 0 25px}
+  .counter-grid{grid-template-columns:1fr 1fr 1fr;gap:7px}
+  .counter-card{padding:14px 5px;border-radius:8px}
+  .counter-card strong{font-size:25px}
+  .counter-card span{font-size:9px;line-height:1.25}
+  .parallax-island{min-height:360px}
+  .parallax-back{background-attachment:scroll;animation:mobileParallax 8s ease-in-out infinite alternate}
+  .parallax-content{padding:60px 18px}
+  .parallax-content h2{font-size:31px;letter-spacing:-1.2px}
+  .parallax-content p{font-size:13px}
+  @keyframes mobileParallax{from{transform:scale(1.08) translateY(0)}to{transform:scale(1.11) translateY(-14px)}}
+  .liquid-wave{height:42px}
+  .flight-section{padding-top:44px!important}
+  .flight-map{height:210px;border-radius:10px}
+  .route-stop{font-size:9px}
+  .route-stop span{width:11px;height:11px;border-width:3px}
+  .stop-port{left:10%;top:63%}.stop-havelock{left:50%;top:32%}.stop-neil{left:82%;top:58%}
+  .flight-plane svg{width:15px;height:15px}
+  .andaman-map{height:290px;border-radius:10px}
+  .map-layout h2{font-size:31px}
+  .map-island b{font-size:9px}
+  .map-island span{width:22px;height:30px}
+  .video-home-section .video-frame,.video-home-section .video-frame iframe{min-height:220px}
+  .floating-contact{right:13px;bottom:16px;gap:8px}
+  .floating-btn{width:46px;height:46px}
+  .floating-btn svg{width:20px;height:20px}
+  .contact-form .date-field input[type=date]{height:48px!important;padding-left:13px!important;padding-right:40px!important}
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Route, Routes, useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
-  Instagram, Facebook, Youtube, Play, Clock, CheckCircle, Heart, Twitter,
+  Instagram, Facebook, Youtube, Plane, PhoneCall,
   CheckCircle2, Phone, Mail, MessageCircle, ShieldCheck,
   Compass, Hotel, Waves, Send, LayoutDashboard, Settings,
   FileText, CreditCard, Image as ImageIcon, Package, LogOut
@@ -66,7 +66,7 @@ const activities = [
 
 function ScrollToTop(){
   const {pathname}=useLocation();
-  useEffect(()=>{window.scrollTo({top:0,left:0,behavior:"smooth"});},[pathname]);
+  useEffect(()=>{window.scrollTo({top:0,left:0,behavior:"auto"});},[pathname]);
   return null;
 }
 function Header(){
@@ -134,7 +134,7 @@ function DestinationCard({d}){ return <Link className="destination-card" to={`/d
 function PackageCard({p}){
  return <Link className="package-card package-link" to={`/packages/${slugify(p.name)}`}>
   <div className="package-image"><img src={p.image} alt={p.name}/><span>{p.tag}</span><div className="package-hover"><span>View itinerary</span><ArrowRight size={15}/></div></div>
-  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-bottom"><div><small>Starting from</small><strong>{p.price}</strong></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
+  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Starting from</small><strong>{p.price}</strong></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
  </Link>
 }
 function PartnerMarquee(){
@@ -196,6 +196,92 @@ function DestinationDetail(){
  </main>
 }
 
+function CounterStats(){
+  const stats=[
+    [500,"Happy Guests","guests"],
+    [50,"Tour Packages","packages"],
+    [10,"Years Experience","years"]
+  ];
+  const [started,setStarted]=useState(false);
+  const ref=React.useRef(null);
+  const [values,setValues]=useState(stats.map(()=>0));
+  useEffect(()=>{
+    const node=ref.current;
+    if(!node) return;
+    const observer=new IntersectionObserver(([entry])=>{
+      if(!entry.isIntersecting || started) return;
+      setStarted(true);
+      const duration=1500;
+      const start=performance.now();
+      const tick=(now)=>{
+        const progress=Math.min((now-start)/duration,1);
+        const eased=1-Math.pow(1-progress,3);
+        setValues(stats.map(([target])=>Math.round(target*eased)));
+        if(progress<1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    },{threshold:.35});
+    observer.observe(node);
+    return()=>observer.disconnect();
+  },[started]);
+  return <section className="counter-section" ref={ref} aria-label="BlueVows achievements">
+    <div className="container counter-grid">
+      {stats.map(([target,label,key],i)=><div className="counter-card" key={key}>
+        <strong>{values[i]}+</strong><span>{label}</span>
+      </div>)}
+    </div>
+  </section>
+}
+
+function ParallaxIsland(){
+  return <section className="parallax-island">
+    <div className="parallax-back" aria-hidden="true"></div>
+    <div className="parallax-front" aria-hidden="true"></div>
+    <div className="container parallax-content">
+      <span className="eyebrow light">THE ANDAMAN FEELING</span>
+      <h2>Sea breeze. Island time. Memories that stay.</h2>
+      <p>Let the water, beaches and open skies become part of your journey.</p>
+      <Link className="btn white" to="/destinations">Explore the islands <ArrowRight size={17}/></Link>
+    </div>
+  </section>
+}
+
+function FlightPath(){
+  return <section className="section flight-section">
+    <div className="container">
+      <SectionHead eyebrow="YOUR ISLAND ROUTE" title="Fly in. Island hop. Explore." text="A simple visual route from Port Blair to the islands you can discover with BlueVows."/>
+      <div className="flight-map" aria-label="Animated route Port Blair to Havelock to Neil Island">
+        <div className="route-line route-one"></div><div className="route-line route-two"></div>
+        <div className="route-stop stop-port"><span></span><b>Port Blair</b></div>
+        <div className="route-stop stop-havelock"><span></span><b>Havelock</b></div>
+        <div className="route-stop stop-neil"><span></span><b>Neil Island</b></div>
+        <div className="flight-plane"><Plane size={18}/></div>
+      </div>
+    </div>
+  </section>
+}
+
+function IslandMap(){
+  const [active,setActive]=useState(0);
+  const islands=[
+    ["Port Blair","Gateway to Andaman",18,68],
+    ["Havelock","Beaches & adventures",54,39],
+    ["Neil Island","Peaceful island escape",70,68]
+  ];
+  useEffect(()=>{const t=setInterval(()=>setActive(v=>(v+1)%islands.length),2200);return()=>clearInterval(t)},[]);
+  return <section className="section island-map-section">
+    <div className="container map-layout">
+      <div><span className="eyebrow">ISLAND GUIDE</span><h2>Explore the islands on the map</h2><p className="page-lead">Tap an island to highlight it. The map animation cycles automatically too.</p>
+        <div className="map-buttons">{islands.map(([name,text],i)=><button key={name} className={active===i?"active":""} onClick={()=>setActive(i)}><span>{name}</span><small>{text}</small></button>)}</div>
+      </div>
+      <div className="andaman-map" aria-label="Interactive Andaman island map">
+        <div className="map-ocean-glow"></div><div className="map-route map-route-a"></div><div className="map-route map-route-b"></div>
+        {islands.map(([name,text,x,y],i)=><button key={name} className={`map-island ${active===i?"active":""}`} style={{left:`${x}%`,top:`${y}%`}} onClick={()=>setActive(i)} aria-label={name}><span></span><b>{name}</b></button>)}
+      </div>
+    </div>
+  </section>
+}
+
 function Home(){
  return <>
   <Hero/>
@@ -206,16 +292,20 @@ function Home(){
       <div><span className="trust-icon">₹</span><div><b>Clear Quotations</b><small>No confusing pricing</small></div></div>
       <div><span className="trust-icon">24</span><div><b>Human Support</b><small>Help before your trip</small></div></div>
     </div></section>
+    <CounterStats/>
+    <ParallaxIsland/>
     <section className="section"><div className="container">
       <SectionHead eyebrow="EXPLORE THE ISLANDS" title="Places worth travelling for" text="Discover the islands through local knowledge, beautiful stays and carefully planned days."/>
       <div className="destination-grid">{destinations.map((d,i)=><DestinationCard d={d} key={i}/>)}</div>
     </div></section>
 
+    <div className="liquid-wave" aria-hidden="true"></div>
     <section className="section soft"><div className="container">
       <SectionHead eyebrow="CURATED JOURNEYS" title="Popular packages" text="Flexible itineraries that make planning your Andaman holiday simple."/>
       <div className="package-grid">{packages.map((p,i)=><PackageCard p={p} key={i}/>)}</div>
       <div className="center"><Link className="btn outline" to="/packages">View all packages <ArrowRight size={17}/></Link></div>
     </div></section>
+    <FlightPath/>
 
     <section className="section"><div className="container">
       <div className="section-head"><div><span className="eyebrow">ISLAND EXPERIENCES</span><h2><Link className="heading-link" to="/experiences">Make your trip memorable <ArrowRight size={24}/></Link></h2></div></div>
@@ -224,6 +314,7 @@ function Home(){
     </div></section>
 
     <PartnerMarquee/>
+    <IslandMap/>
     <section className="section video-home-section">
       <div className="container">
         <div className="video-section">
@@ -262,7 +353,7 @@ function Listing({type}){ const data=type==="Packages"?packages:destinations; re
 
 function SimplePage({title,eyebrow,children}){return <main className="page"><div className="container narrow"><span className="eyebrow">{eyebrow}</span><h1 className="page-title">{title}</h1>{children}</div></main>}
 
-function Contact(){return <SimplePage title="Plan your trip" eyebrow="GET IN TOUCH"><p className="page-lead">Share your travel plans and our team will prepare a quotation for you.</p><form className="contact-form" onSubmit={e=>e.preventDefault()}><div className="form-grid"><label>Full name<input placeholder="Your name"/></label><label>Phone number<input placeholder="+91"/></label><label>Email<input type="email" placeholder="you@example.com"/></label><label>Travel date<input type="date"/></label><label>Adults<input type="number" min="1" defaultValue="2"/></label><label>Children<input type="number" min="0" defaultValue="0"/></label></div><label>Message<textarea rows="5" placeholder="Tell us about your trip"></textarea></label><button className="btn primary submit"><Send size={17}/> Send Enquiry</button></form></SimplePage>}
+function Contact(){return <SimplePage title="Plan your trip" eyebrow="GET IN TOUCH"><p className="page-lead">Share your travel plans and our team will prepare a quotation for you.</p><form className="contact-form" onSubmit={e=>e.preventDefault()}><div className="form-grid"><label>Full name<input placeholder="Your name"/></label><label>Phone number<input placeholder="+91"/></label><label>Email<input type="email" placeholder="you@example.com"/></label><label className="date-field">Travel date<input type="date"/></label><label>Adults<input type="number" min="1" defaultValue="2"/></label><label>Children<input type="number" min="0" defaultValue="0"/></label></div><label>Message<textarea rows="5" placeholder="Tell us about your trip"></textarea></label><button className="btn primary submit"><Send size={17}/> Send Enquiry</button></form></SimplePage>}
 
 function Admin(){return <main className="admin-page"><div className="admin-shell"><aside className="admin-side"><div className="brand admin-brand"><img className="brand-logo admin-logo" src="/bluevows-logo.png" alt="BlueVows" /> <span>ADMIN</span></div>{["Dashboard","Enquiries","Quotations","Bookings","Customers","Packages","Hotels","Activities","Gallery","Reviews","Website Content","Email Templates","QR / Payment","Settings"].map((x,i)=><div className={i===0?"admin-link active":"admin-link"} key={x}><LayoutDashboard size={17}/>{x}</div>)}<div className="admin-link logout"><LogOut size={17}/>Logout</div></aside><section className="admin-main"><div className="admin-top"><div><span className="eyebrow">CONTROL CENTER</span><h1>Dashboard</h1></div><div className="admin-user">Admin</div></div><div className="stats">{[["Enquiries","24"],["Quotations","12"],["Confirmed","7"],["Pending Payment","4"]].map(x=><div className="stat" key={x[0]}><span>{x[0]}</span><strong>{x[1]}</strong></div>)}</div><div className="admin-grid"><div className="admin-card"><div className="admin-card-head"><h3>Recent enquiries</h3><span>View all</span></div>{["Rahul Sharma","Priya Singh","Arjun Das","Meera Nair"].map((x,i)=><div className="enquiry-row" key={x}><div><b>{x}</b><span>{i+2} Adults · {5+i}N / {6+i}D</span></div><span className="status">{i===0?"New":"Pending"}</span></div>)}</div><div className="admin-card"><div className="admin-card-head"><h3>Quick actions</h3></div><div className="quick-actions"><button><FileText/>Create quotation</button><button><Package/>Add package</button><button><ImageIcon/>Upload gallery</button><CreditCard/> <span className="qr-label">Manage QR</span></div></div></div></section></div></main>}
 
@@ -279,7 +370,7 @@ function App(){
   <Route path="/about" element={<SimplePage title="About BlueVows" eyebrow="OUR STORY"><p className="page-lead">A modern travel platform focused on simple planning, clear quotations and memorable Andaman experiences.</p></SimplePage>}/>
   <Route path="/contact" element={<Contact/>}/>
   <Route path="/admin" element={<Admin/>}/>
- </Routes><a className="whatsapp" href="https://wa.me/" aria-label="WhatsApp"><MessageCircle/></a><footer><div className="container footer-grid">
+ </Routes><div className="floating-contact" aria-label="Quick contact"><a className="floating-btn whatsapp" href="https://wa.me/" aria-label="WhatsApp"><MessageCircle/></a><a className="floating-btn phone-call" href="tel:+91XXXXXXXXXX" aria-label="Call BlueVows"><PhoneCall/></a></div><footer><div className="container footer-grid">
   <div className="footer-brand-block"><div className="brand footer-brand"><img className="brand-logo footer-logo" src="/bluevows-logo.png" alt="BlueVows" /></div><p>Thoughtfully planned island holidays in the Andaman Islands.</p><Link className="footer-trip-btn" to="/contact">Plan your trip <ArrowRight size={15}/></Link></div>
   <div><b>Explore</b><Link to="/">Home</Link><Link to="/destinations">Destinations</Link><Link to="/packages">Packages</Link><Link to="/activities">Activities</Link></div>
   <div><b>Contact</b><span><Phone size={15}/> +91 XXXXX XXXXX</span><span><Mail size={15}/> hello@example.com</span><Link to="/contact"><MessageCircle size={15}/> Send an enquiry</Link></div>
