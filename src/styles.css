@@ -868,3 +868,26 @@ img{image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:
   .package-prices{gap:4px}
   .package-prices strong{font-size:19px!important}
 }
+
+
+/* ===== V17: requested final refinements ===== */
+/* Keep rounded lower corners on every animated hero slide permanently. */
+.hero-slide{border-radius:0 0 24px 24px!important;overflow:hidden!important;clip-path:none!important}
+.hero-overlay{border-radius:0 0 24px 24px!important;overflow:hidden!important}
+
+/* Contact address */
+.contact-address{display:flex;align-items:flex-start;gap:10px;margin:18px 0 22px;padding:14px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+.contact-address svg{color:var(--orange);flex:0 0 auto;margin-top:2px}
+.contact-address b{display:block;font-size:13px;margin-bottom:3px}
+.contact-address span{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+
+/* Keep subscription input and button exactly the same height. */
+.subscribe-glass input,.subscribe-glass button{height:36px!important;min-height:36px!important;box-sizing:border-box!important}
+.subscribe-glass input{padding:0 9px!important;line-height:36px!important}
+.subscribe-glass button{padding:0 12px!important;display:inline-flex!important;align-items:center;justify-content:center;line-height:1!important;white-space:nowrap}
+
+@media(max-width:600px){
+  .hero-slide,.hero-overlay{border-radius:0 0 18px 18px!important}
+  .subscribe-glass input,.subscribe-glass button{height:36px!important;min-height:36px!important}
+  .contact-address{margin-top:16px}
+}
