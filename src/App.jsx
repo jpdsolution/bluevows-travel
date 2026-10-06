@@ -364,8 +364,51 @@ function Contact(){return <SimplePage title="Plan your trip" eyebrow="GET IN TOU
 
 function Admin(){return <main className="admin-page"><div className="admin-shell"><aside className="admin-side"><div className="brand admin-brand"><img className="brand-logo admin-logo" src="/bluevows-logo.png" alt="BlueVows" /> <span>ADMIN</span></div>{["Dashboard","Enquiries","Quotations","Bookings","Customers","Packages","Hotels","Activities","Gallery","Reviews","Website Content","Email Templates","QR / Payment","Settings"].map((x,i)=><div className={i===0?"admin-link active":"admin-link"} key={x}><LayoutDashboard size={17}/>{x}</div>)}<div className="admin-link logout"><LogOut size={17}/>Logout</div></aside><section className="admin-main"><div className="admin-top"><div><span className="eyebrow">CONTROL CENTER</span><h1>Dashboard</h1></div><div className="admin-user">Admin</div></div><div className="stats">{[["Enquiries","24"],["Quotations","12"],["Confirmed","7"],["Pending Payment","4"]].map(x=><div className="stat" key={x[0]}><span>{x[0]}</span><strong>{x[1]}</strong></div>)}</div><div className="admin-grid"><div className="admin-card"><div className="admin-card-head"><h3>Recent enquiries</h3><span>View all</span></div>{["Rahul Sharma","Priya Singh","Arjun Das","Meera Nair"].map((x,i)=><div className="enquiry-row" key={x}><div><b>{x}</b><span>{i+2} Adults · {5+i}N / {6+i}D</span></div><span className="status">{i===0?"New":"Pending"}</span></div>)}</div><div className="admin-card"><div className="admin-card-head"><h3>Quick actions</h3></div><div className="quick-actions"><button><FileText/>Create quotation</button><button><Package/>Add package</button><button><ImageIcon/>Upload gallery</button><CreditCard/> <span className="qr-label">Manage QR</span></div></div></div></section></div></main>}
 
+function ScrollRevealObserver(){
+  const {pathname}=useLocation();
+  useEffect(()=>{
+    const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if(reduceMotion) return;
+    const selectors=[
+      ".section-head > div", ".section-head > p", ".page-title", ".page-lead",
+      ".section > .container > .eyebrow", ".trust-grid > div", ".counter-card",
+      ".destination-card", ".package-card", ".activity-card", ".review",
+      ".partner-heading", ".partner-logo-pill", ".itinerary-head > *", ".itinerary-item",
+      ".experience-card", ".video-section > *", ".why-grid > div", ".why-list > div",
+      ".map-layout > div", ".cta-inner > *", ".detail-content > *", ".detail-feature-grid > div",
+      ".contact-form > *", ".admin-card", ".stat", ".quick-actions > *"
+    ];
+    const elements=Array.from(document.querySelectorAll(selectors.join(",")));
+    const images=Array.from(document.querySelectorAll(".destination-card img, .package-image img"));
+    if(!elements.length && !images.length) return;
+    const mark=(el,index)=>{
+      if(el.dataset.scrollRevealReady) return;
+      el.dataset.scrollRevealReady="1";
+      el.classList.add("scroll-reveal");
+      if(index!==undefined) el.style.setProperty("--reveal-delay", `${Math.min(index,5)*70}ms`);
+    };
+    elements.forEach((el)=>{
+      const parent=el.parentElement;
+      const index=parent ? Array.from(parent.children).indexOf(el) : 0;
+      mark(el,index);
+    });
+    images.forEach(el=>{ if(!el.dataset.scrollRevealImage){el.dataset.scrollRevealImage="1";el.classList.add("scroll-reveal-image");} });
+    const observed=[...elements,...images];
+    const observer=new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },{threshold:.12,rootMargin:"0px 0px -8% 0px"});
+    observed.forEach(el=>observer.observe(el));
+    return()=>observer.disconnect();
+  },[pathname]);
+  return null;
+}
+
 function App(){
- return <><ScrollToTop/><Header/><Routes>
+ return <><ScrollToTop/><ScrollRevealObserver/><Header/><Routes>
   <Route path="/" element={<Home/>}/>
   <Route path="/destinations" element={<Listing type="Destinations"/>}/>
   <Route path="/destinations/:slug" element={<DestinationDetail/>}/>
