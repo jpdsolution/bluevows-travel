@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useParams } from "react-router-dom";
 import {
   Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
   CheckCircle2, Phone, Mail, MessageCircle, ShieldCheck,
@@ -12,6 +12,10 @@ const destinations = [
   {name:"Neil Island", image:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=85", text:"Quiet beaches, coral reefs and a slower island escape."},
   {name:"Port Blair", image:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85", text:"Your gateway to the islands, history and coastal experiences."}
 ];
+
+const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+
+const partnerMarks = ["ISLAND STAYS","OCEAN EXPERIENCES","TRAVEL PARTNER","ANDAMAN HOSTS","DISCOVER INDIA","ISLAND ADVENTURES","TRAVEL PARTNER","OCEAN EXPERIENCES"];
 
 const packages = [
   {name:"Andaman Escape", days:"5 Nights / 6 Days", price:"₹35,000", image:destinations[0].image, tag:"Popular"},
@@ -97,15 +101,41 @@ function Hero(){
     </div>
   </section>
 }
-function DestinationCard({d}){ return <Link className="destination-card" to="/destinations">
+function DestinationCard({d}){ return <Link className="destination-card" to={`/destinations/${slugify(d.name)}`}>
   <img src={d.image} alt={d.name}/><div className="destination-shade"></div>
-  <div className="destination-info"><span>Explore</span><h3>{d.name}</h3><p>{d.text}</p></div>
+  <div className="destination-info"><span>Explore</span><h3>{d.name}</h3><p>{d.text}</p><span className="destination-link">View destination <ArrowRight size={14}/></span></div>
 </Link>}
 
 function PackageCard({p}){ return <div className="package-card">
   <div className="package-image"><img src={p.image} alt={p.name}/><span>{p.tag}</span></div>
   <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-bottom"><div><small>Starting from</small><strong>{p.price}</strong></div><Link to="/contact" className="icon-btn" aria-label="Get quote"><ArrowRight/></Link></div></div>
 </div>}
+
+function PartnerMarquee(){
+ return <section className="partner-marquee" aria-label="Travel partners">
+   <div className="container"><div className="partner-heading"><span className="eyebrow">OUR NETWORK</span><h3>Travel made easier with trusted local partners</h3></div></div>
+   <div className="marquee-window"><div className="marquee-track">
+     {[...partnerMarks,...partnerMarks].map((name,i)=><div className="partner-logo-pill" key={i}><span className="partner-dot"></span>{name}</div>)}
+   </div></div>
+ </section>
+}
+
+function DestinationDetail(){
+ const {slug}=useParams();
+ const d=destinations.find(x=>slugify(x.name)===slug) || destinations[0];
+ return <main className="destination-detail">
+   <section className="detail-hero" style={{backgroundImage:`url(${d.image})`}}>
+     <div className="detail-overlay"></div><div className="container detail-content">
+       <span className="eyebrow light">DESTINATION GUIDE</span><h1>{d.name}</h1><p>{d.text}</p>
+       <div className="detail-actions"><Link className="btn primary" to="/contact">Plan this destination <ArrowRight size={17}/></Link><Link className="btn ghost" to="/packages">View packages</Link></div>
+     </div>
+   </section>
+   <section className="section"><div className="container detail-grid">
+     <div><span className="eyebrow">WHY GO</span><h2>Plan a better island stay</h2><p className="page-lead">{d.text} Choose the right stay, experiences and transfers with a quotation built around your dates.</p></div>
+     <div className="detail-feature-grid"><div><CheckCircle2/><b>Handpicked stays</b><span>Comfortable options in useful locations.</span></div><div><Compass/><b>Curated experiences</b><span>Activities matched to your trip style.</span></div><div><MapPin/><b>Easy transfers</b><span>Simple island movement planning.</span></div><div><MessageCircle/><b>Local support</b><span>Human assistance when you need it.</span></div></div>
+   </div></section>
+ </main>
+}
 
 function Home(){
  return <>
@@ -133,6 +163,8 @@ function Home(){
       <div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><Link className="mini-link" to="/contact">Add to trip <ArrowRight size={14}/></Link></div>)}</div>
       <div className="center"><Link className="btn outline" to="/contact">Build My Custom Trip <ArrowRight size={17}/></Link></div>
     </div></section>
+
+    <PartnerMarquee/>
 
     <section className="why-section"><div className="container why-grid">
       <div><span className="eyebrow">WHY TRAVEL WITH US</span><h2>Local knowledge.<br/>Thoughtful planning.</h2><p>From your first enquiry to the day you return home, we keep your island journey clear, comfortable and personal.</p></div>
@@ -171,12 +203,18 @@ function App(){
  return <><Header/><Routes>
   <Route path="/" element={<Home/>}/>
   <Route path="/destinations" element={<Listing type="Destinations"/>}/>
+  <Route path="/destinations/:slug" element={<DestinationDetail/>}/>
   <Route path="/packages" element={<Listing type="Packages"/>}/>
   <Route path="/hotels" element={<SimplePage title="Hotels & Resorts" eyebrow="STAY COMFORTABLY"><p className="page-lead">A clean hotel directory will be connected to Supabase in the next setup stage.</p></SimplePage>}/>
   <Route path="/activities" element={<SimplePage title="Activities" eyebrow="EXPERIENCES"><div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p></div>)}</div></SimplePage>}/>
   <Route path="/about" element={<SimplePage title="About BlueVows" eyebrow="OUR STORY"><p className="page-lead">A modern travel platform focused on simple planning, clear quotations and memorable Andaman experiences.</p></SimplePage>}/>
   <Route path="/contact" element={<Contact/>}/>
   <Route path="/admin" element={<Admin/>}/>
- </Routes><a className="whatsapp" href="https://wa.me/" aria-label="WhatsApp"><MessageCircle/></a><footer><div className="container footer-grid"><div><div className="brand footer-brand"><img className="brand-logo footer-logo" src="/bluevows-logo.png" alt="BlueVows" /></div><p>Thoughtfully planned island holidays in the Andaman Islands.</p></div><div><b>Explore</b><Link to="/destinations">Destinations</Link><Link to="/packages">Packages</Link><Link to="/activities">Activities</Link></div><div><b>Contact</b><span><Phone size={15}/> +91 XXXXX XXXXX</span><span><Mail size={15}/> hello@example.com</span></div></div><div className="container footer-bottom">© 2026 BlueVows. All rights reserved.</div></footer></>
+ </Routes><a className="whatsapp" href="https://wa.me/" aria-label="WhatsApp"><MessageCircle/></a><footer><div className="container footer-grid">
+  <div className="footer-brand-block"><div className="brand footer-brand"><img className="brand-logo footer-logo" src="/bluevows-logo.png" alt="BlueVows" /></div><p>Thoughtfully planned island holidays in the Andaman Islands.</p><Link className="footer-trip-btn" to="/contact">Plan your trip <ArrowRight size={15}/></Link></div>
+  <div><b>Explore</b><Link to="/">Home</Link><Link to="/destinations">Destinations</Link><Link to="/packages">Packages</Link><Link to="/activities">Activities</Link></div>
+  <div><b>Contact</b><span><Phone size={15}/> +91 XXXXX XXXXX</span><span><Mail size={15}/> hello@example.com</span><Link to="/contact"><MessageCircle size={15}/> Send an enquiry</Link></div>
+  <div className="footer-highlight"><span className="eyebrow light">LET'S PLAN</span><h3>Your island escape starts with one message.</h3><p>Share your dates and we'll prepare a clear quotation for you.</p><Link className="footer-trip-btn" to="/contact">Get a free quotation <ArrowRight size={15}/></Link></div>
+</div><div className="container footer-bottom">© 2026 BlueVows. All rights reserved.<span>Made for island journeys.</span></div></footer></>
 }
 export default App;
