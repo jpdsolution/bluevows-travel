@@ -224,6 +224,14 @@ function Home(){
     </div></section>
 
     <PartnerMarquee/>
+    <section className="section video-home-section">
+      <div className="container">
+        <div className="video-section">
+          <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Watch Andaman before you go</h2><p>Get a real look at the islands, beaches and experiences that can be part of your BlueVows journey.</p><Link className="btn primary" to="/experiences">Explore Experiences <ArrowRight size={17}/></Link></div>
+          <div className="video-frame"><iframe src="https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0" title="Andaman and Nicobar Tourism video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div>
+        </div>
+      </div>
+    </section>
 
     <section className="why-section"><div className="container why-grid">
       <div><span className="eyebrow">WHY TRAVEL WITH US</span><h2>Local knowledge.<br/>Thoughtful planning.</h2><p>From your first enquiry to the day you return home, we keep your island journey clear, comfortable and personal.</p></div>
