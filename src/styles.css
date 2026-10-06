@@ -891,3 +891,48 @@ img{image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:
   .subscribe-glass input,.subscribe-glass button{height:36px!important;min-height:36px!important}
   .contact-address{margin-top:16px}
 }
+
+
+/* ===== V18: only requested final fixes ===== */
+/* Keep every hero layer rounded permanently, including the base image visible during slide transitions. */
+.hero-image,.hero-slide,.hero-overlay{
+  border-radius:0 0 24px 24px!important;
+  overflow:hidden!important;
+}
+
+/* Keep the subscription input and button perfectly aligned on every device. */
+.subscribe-glass>div{
+  align-items:stretch!important;
+}
+.subscribe-glass input,.subscribe-glass button{
+  margin-top:0!important;
+  height:42px!important;
+  min-height:42px!important;
+  box-sizing:border-box!important;
+}
+.subscribe-glass input{
+  padding:0 11px!important;
+  line-height:42px!important;
+}
+.subscribe-glass button{
+  padding:0 14px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+}
+
+.footer-address{
+  align-items:flex-start!important;
+  line-height:1.45!important;
+}
+.footer-address svg{
+  flex:0 0 auto;
+  margin-top:1px;
+}
+
+@media(max-width:600px){
+  .hero-image,.hero-slide,.hero-overlay{border-radius:0 0 18px 18px!important}
+  .subscribe-glass input,.subscribe-glass button{height:42px!important;min-height:42px!important}
+  .footer-address{max-width:280px}
+}
