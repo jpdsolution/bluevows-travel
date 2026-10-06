@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Route, Routes, useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
-  Instagram, Facebook, Youtube, Plane, PhoneCall,
+  Instagram, Facebook, Youtube, PhoneCall, Ship,
   CheckCircle2, Phone, Mail, MessageCircle, ShieldCheck,
   Compass, Hotel, Waves, Send, LayoutDashboard, Settings,
   FileText, CreditCard, Image as ImageIcon, Package, LogOut
@@ -251,11 +251,11 @@ function FlightPath(){
     <div className="container">
       <SectionHead eyebrow="YOUR ISLAND ROUTE" title="Fly in. Island hop. Explore." text="A simple visual route from Port Blair to the islands you can discover with BlueVows."/>
       <div className="flight-map" aria-label="Animated route Port Blair to Havelock to Neil Island">
-        <div className="route-line route-one"></div><div className="route-line route-two"></div>
+        <svg className="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path className="route-glow" d="M14 62 Q31 39 51 34 Q63 40 77 57"/><path d="M14 62 Q31 39 51 34 Q63 40 77 57"/></svg>
         <div className="route-stop stop-port"><span></span><b>Port Blair</b></div>
         <div className="route-stop stop-havelock"><span></span><b>Havelock</b></div>
         <div className="route-stop stop-neil"><span></span><b>Neil Island</b></div>
-        <div className="flight-plane"><Plane size={18}/></div>
+        <div className="flight-boat"><Ship size={19}/></div>
       </div>
     </div>
   </section>
@@ -275,7 +275,7 @@ function IslandMap(){
         <div className="map-buttons">{islands.map(([name,text],i)=><button key={name} className={active===i?"active":""} onClick={()=>setActive(i)}><span>{name}</span><small>{text}</small></button>)}</div>
       </div>
       <div className="andaman-map" aria-label="Interactive Andaman island map">
-        <div className="map-ocean-glow"></div><div className="map-route map-route-a"></div><div className="map-route map-route-b"></div>
+        <div className="map-ocean-glow"></div><svg className="map-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path className="map-route-glow" d="M18 68 Q35 46 54 39 Q62 47 70 68"/><path d="M18 68 Q35 46 54 39 Q62 47 70 68"/></svg>
         {islands.map(([name,text,x,y],i)=><button key={name} className={`map-island ${active===i?"active":""}`} style={{left:`${x}%`,top:`${y}%`}} onClick={()=>setActive(i)} aria-label={name}><span></span><b>{name}</b></button>)}
       </div>
     </div>

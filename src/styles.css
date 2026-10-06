@@ -493,3 +493,112 @@ footer{background:linear-gradient(135deg,#f97316 0%,#ed5b0a 52%,#c94808 100%)!im
   .floating-btn svg{width:20px;height:20px}
   .contact-form .date-field input[type=date]{height:48px!important;padding-left:13px!important;padding-right:40px!important}
 }
+
+/* ===== BlueVows V9: final date control, stacked contact buttons, cleaner route/map, package hover ===== */
+
+/* Date fields: exactly the same height/box model as other enquiry fields and native picker works on desktop. */
+.planner-field input[type="date"],
+.contact-form .date-field input[type="date"]{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:48px!important;
+  min-height:48px!important;
+  box-sizing:border-box!important;
+  margin-top:8px!important;
+  padding:13px 42px 13px 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:var(--ink)!important;
+  font-family:"Plus Jakarta Sans",sans-serif!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:20px!important;
+  appearance:auto!important;
+  -webkit-appearance:auto!important;
+  cursor:pointer;
+}
+.planner-field input[type="date"]{height:26px!important;min-height:26px!important;margin-top:0!important;padding:0 2px 0 0!important;border:0!important;border-radius:0!important;font-size:14px!important}
+.planner-field input[type="date"]::-webkit-calendar-picker-indicator,
+.contact-form .date-field input[type="date"]::-webkit-calendar-picker-indicator{
+  opacity:1!important;
+  width:18px!important;
+  height:18px!important;
+  margin:0!important;
+  padding:0!important;
+  cursor:pointer;
+}
+.contact-form .date-field::after{display:none!important}
+.contact-form .date-field{overflow:visible!important}
+
+/* Floating contact buttons must stay in one vertical stack. */
+.floating-contact{position:fixed!important;right:16px!important;bottom:20px!important;z-index:100!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:10px!important}
+.floating-contact .floating-btn{position:static!important;inset:auto!important;flex:0 0 50px!important;width:50px!important;height:50px!important;margin:0!important;border-radius:50%!important}
+.floating-contact .whatsapp{background:#25D366!important}
+.floating-contact .phone-call{background:linear-gradient(135deg,#ff8a28,#f15b0a)!important}
+
+/* Package hover: remove the large dark bar crossing the photo. Use a compact pill only. */
+.package-image .package-hover{
+  inset:auto 12px 12px auto!important;
+  width:max-content!important;
+  max-width:calc(100% - 24px)!important;
+  padding:8px 11px!important;
+  gap:7px!important;
+  background:#fff!important;
+  color:var(--orange)!important;
+  border:1px solid rgba(249,115,22,.14)!important;
+  border-radius:7px!important;
+  box-shadow:0 8px 20px rgba(15,23,42,.14)!important;
+  backdrop-filter:none!important;
+}
+.package-image .package-hover span{position:static!important;background:transparent!important;color:var(--orange)!important;padding:0!important;border-radius:0!important;font-size:11px!important}
+.package-image .package-hover svg{color:var(--orange)!important}
+
+/* Flight route: clean connected route with a boat instead of a plane. */
+.flight-map{height:250px!important;max-width:900px!important;border-radius:14px!important;background:linear-gradient(145deg,#fff,#fff8f2)!important}
+.route-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1}
+.route-svg path{fill:none;stroke:#f6a26b;stroke-width:0.7;stroke-dasharray:2.2 2.1;vector-effect:non-scaling-stroke}
+.route-svg .route-glow{stroke:#fff;stroke-width:3;stroke-dasharray:none;opacity:.65;filter:blur(1.5px)}
+.route-stop{z-index:3!important}
+.stop-port{left:14%!important;top:62%!important}.stop-havelock{left:51%!important;top:34%!important}.stop-neil{left:77%!important;top:57%!important}
+.flight-boat{position:absolute;z-index:5;left:14%;top:62%;transform:translate(-50%,-50%) rotate(-15deg);color:var(--orange);filter:drop-shadow(0 5px 8px rgba(249,115,22,.22));animation:boatRoute 6.5s ease-in-out infinite}
+@keyframes boatRoute{
+  0%,8%{left:14%;top:62%;transform:translate(-50%,-50%) rotate(-15deg)}
+  42%{left:51%;top:34%;transform:translate(-50%,-50%) rotate(-5deg)}
+  72%{left:77%;top:57%;transform:translate(-50%,-50%) rotate(18deg)}
+  100%{left:14%;top:62%;transform:translate(-50%,-50%) rotate(-15deg)}
+}
+
+/* Interactive map: route now joins the three island markers exactly. */
+.andaman-map{height:370px!important;border-radius:14px!important}
+.map-route-svg{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.map-route-svg path{fill:none;stroke:rgba(249,115,22,.55);stroke-width:.75;stroke-dasharray:2.3 2.1;vector-effect:non-scaling-stroke}
+.map-route-svg .map-route-glow{stroke:#fff;stroke-width:3;stroke-dasharray:none;opacity:.72;filter:blur(1.4px)}
+.map-route,.map-route-a,.map-route-b{display:none!important}
+.map-island{z-index:4!important}
+.map-island span{width:24px!important;height:24px!important;border-radius:50%!important;transform:none!important}
+.map-island.active span{transform:scale(1.28)!important}
+.map-island b{margin-top:1px}
+
+/* Keep the flight/map sections balanced and centered on small screens. */
+@media(max-width:700px){
+  .flight-map{height:225px!important;margin-top:18px!important}
+  .route-stop{font-size:9px!important}
+  .flight-boat svg{width:17px;height:17px}
+  .andaman-map{height:300px!important}
+  .map-layout{gap:22px!important}
+  .map-route-svg{inset:0}
+  .contact-form .date-field input[type="date"]{height:48px!important;min-height:48px!important;margin-top:8px!important;padding:13px 40px 13px 14px!important;font-size:14px!important}
+  .floating-contact{right:13px!important;bottom:16px!important;gap:9px!important}
+  .floating-contact .floating-btn{width:48px!important;height:48px!important;flex-basis:48px!important}
+}
+@media(max-width:480px){
+  .flight-section .section-head h2{font-size:31px!important;line-height:1.08!important;letter-spacing:-1.2px!important}
+  .flight-section .section-head p{font-size:13px!important;line-height:1.55!important}
+  .flight-map{height:205px!important}
+  .stop-port{left:14%!important;top:62%!important}.stop-havelock{left:51%!important;top:34%!important}.stop-neil{left:77%!important;top:57%!important}
+  .andaman-map{height:285px!important}
+  .map-island span{width:21px!important;height:21px!important}
+  .map-island b{font-size:9px!important}
+}
