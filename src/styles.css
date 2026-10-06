@@ -799,3 +799,72 @@ img{image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:
   .activity-detail-card{grid-template-columns:1fr;padding:20px}
   .subscribe-glass>div{flex-direction:row}
 }
+
+
+/* ===== V16: precise hero corners, single-line hero copy, offer-first pricing, working subscription ===== */
+.hero-slide,.hero-overlay{
+  clip-path:inset(0 0 0 0 round 0 0 24px 24px);
+}
+.hero h1{
+  white-space:nowrap!important;
+}
+.hero-content>p{
+  white-space:nowrap!important;
+  max-width:none!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.package-prices{
+  display:flex!important;
+  align-items:baseline;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.package-prices strong{
+  order:1;
+  font-size:21px!important;
+  color:var(--orange)!important;
+}
+.package-prices .offer-label{
+  order:2;
+  font-size:10px;
+  font-weight:800;
+  color:var(--orange);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.package-prices del{
+  order:3;
+  font-size:12px!important;
+  color:#98a0aa!important;
+  font-weight:600;
+}
+.package-prices .actual-label{
+  order:4;
+  font-size:10px;
+  color:#98a0aa;
+  font-weight:700;
+}
+.subscribe-glass{
+  margin-top:14px;
+}
+.subscribe-glass input:invalid:not(:placeholder-shown){
+  border-color:rgba(255,120,80,.8);
+}
+.subscribe-success{
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  padding:8px 10px;
+  border-radius:7px;
+  background:rgba(255,255,255,.92);
+  color:var(--orange-dark);
+  font:700 11px "Plus Jakarta Sans",sans-serif;
+}
+@media(max-width:600px){
+  .hero-slide,.hero-overlay{clip-path:inset(0 0 0 0 round 0 0 18px 18px)}
+  .hero h1{font-size:clamp(18px,6.2vw,32px)!important;letter-spacing:-1.2px!important}
+  .hero-content>p{font-size:10.5px!important;line-height:1.35!important}
+  .package-prices{gap:4px}
+  .package-prices strong{font-size:19px!important}
+}

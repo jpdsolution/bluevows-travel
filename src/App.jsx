@@ -102,7 +102,7 @@ function Hero(){
     <div className="hero-overlay"></div>
     <div className="container hero-content">
       <span className="eyebrow light">YOUR ISLAND JOURNEY STARTS HERE</span>
-      <h1>{s.title}<br/><em>{s.accent}</em></h1>
+      <h1>{s.title} <em>{s.accent}</em></h1>
       <p>Beautiful islands, handpicked stays and experiences planned around the way you want to travel.</p>
       <div className="hero-actions">
         <Link className="btn primary" to="/packages">Explore Packages <ArrowRight size={18}/></Link>
@@ -134,7 +134,7 @@ function DestinationCard({d}){ return <Link className="destination-card" to={`/d
 function PackageCard({p}){
  return <Link className="package-card package-link" to={`/packages/${slugify(p.name)}`}>
   <div className="package-image"><img src={p.image} alt={p.name}/><span>{p.tag}</span><div className="package-hover"><span>View itinerary</span><ArrowRight size={15}/></div></div>
-  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Special offer</small><div className="package-prices"><del>{p.actualPrice}</del><strong>{p.price}</strong></div></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
+  <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Special offer</small><div className="package-prices"><strong>{p.price}</strong><span className="offer-label">Offer rate</span><del>{p.actualPrice}</del><span className="actual-label">Actual rate</span></div></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
  </Link>
 }
 function PartnerMarquee(){
@@ -415,6 +415,16 @@ function ScrollRevealObserver(){
 }
 
 function App(){
+ const [subscribeEmail,setSubscribeEmail]=useState("");
+ const [subscribed,setSubscribed]=useState(false);
+ const submitSubscribe=(e)=>{
+   e.preventDefault();
+   const email=subscribeEmail.trim();
+   if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+   try{localStorage.setItem("bluevows_subscriber",email)}catch{}
+   setSubscribed(true);
+   setSubscribeEmail("");
+ };
  return <><ScrollToTop/><ScrollRevealObserver/><Header/><Routes>
   <Route path="/" element={<Home/>}/>
   <Route path="/destinations" element={<Listing type="Destinations"/>}/>
@@ -433,7 +443,7 @@ function App(){
   <div><b>Explore</b><Link to="/">Home</Link><Link to="/destinations">Destinations</Link><Link to="/packages">Packages</Link><Link to="/activities">Activities</Link></div>
   <div><b>Contact</b><span><Phone size={15}/> +91 XXXXX XXXXX</span><span><Mail size={15}/> hello@example.com</span><Link to="/contact"><MessageCircle size={15}/> Send an enquiry</Link></div>
   <div className="footer-highlight"><span className="eyebrow light">LET'S PLAN</span><h3>Your island escape starts with one message.</h3><p>Share your dates and we'll prepare a clear quotation for you.</p><Link className="footer-trip-btn" to="/contact">Get a free quotation <ArrowRight size={15}/></Link>
-    <div className="subscribe-glass"><span>Stay in the loop</span><div><input type="email" placeholder="Your email" aria-label="Email for BlueVows updates"/><button type="button">Subscribe</button></div></div>
+    <form className="subscribe-glass" onSubmit={submitSubscribe}><span>Stay in the loop</span>{subscribed ? <div className="subscribe-success" role="status">Subscribed ✓</div> : <div><input type="email" value={subscribeEmail} onChange={e=>setSubscribeEmail(e.target.value)} placeholder="Your email" aria-label="Email for BlueVows updates" required/><button type="submit">Subscribe</button></div>}</form>
     <div className="social-links" aria-label="Social media"><a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram/></a><a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook/></a><a href="https://x.com/" target="_blank" rel="noreferrer" aria-label="X">X</a><a href="https://www.youtube.com/" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube/></a><a href="https://wa.me/" target="_blank" rel="noreferrer" aria-label="WhatsApp"><MessageCircle/></a></div>
   </div>
 </div><div className="container footer-bottom">© 2026 BlueVows. All rights reserved.<span>Made for island journeys.</span></div></footer></>
