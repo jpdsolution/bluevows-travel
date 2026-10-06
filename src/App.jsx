@@ -173,7 +173,7 @@ function Experiences(){
    <p className="page-lead">Choose experiences and build an island holiday that feels personal, not packaged.</p>
    <div className="experience-grid">{activities.map(({name,icon:Icon,text})=><Link className="experience-card" to="/contact" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><span>Plan this experience <ArrowRight size={15}/></span></Link>)}</div>
    <section className="video-section">
-    <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Get inspired before you go</h2><p>Watch a real Andaman travel guide and start planning your own route.</p></div>
+    <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Get inspired before you go</h2><p>Watch a real Andaman travel guide and start planning your own route.</p><div className="video-actions"><a className="btn youtube-subscribe" href="https://www.youtube.com/@NomadicSoulmates?sub_confirmation=1" target="_blank" rel="noreferrer"><Youtube size={17}/> Subscribe</a></div></div>
     <div className="video-frame"><iframe src="https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0" title="Andaman and Nicobar Tourism video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div>
    </section>
   </div>
@@ -318,7 +318,7 @@ function Home(){
     <section className="section video-home-section">
       <div className="container">
         <div className="video-section">
-          <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Watch Andaman before you go</h2><p>Get a real look at the islands, beaches and experiences that can be part of your BlueVows journey.</p><Link className="btn primary" to="/experiences">Explore Experiences <ArrowRight size={17}/></Link></div>
+          <div><span className="eyebrow">SEE THE ISLANDS</span><h2>Watch Andaman before you go</h2><p>Get a real look at the islands, beaches and experiences that can be part of your BlueVows journey.</p><div className="video-actions"><Link className="btn primary" to="/experiences">Explore Experiences <ArrowRight size={17}/></Link><a className="btn youtube-subscribe" href="https://www.youtube.com/@NomadicSoulmates?sub_confirmation=1" target="_blank" rel="noreferrer"><Youtube size={17}/> Subscribe</a></div></div>
           <div className="video-frame"><iframe src="https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0" title="Andaman and Nicobar Tourism video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div>
         </div>
       </div>
