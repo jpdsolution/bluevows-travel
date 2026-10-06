@@ -737,23 +737,24 @@ footer{width:100vw!important;max-width:100vw!important;margin-left:calc(50% - 50
   .scroll-reveal,.scroll-reveal-image{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
 }
 
-/* ===== V13: compact image cards only ===== */
-/* Keep the existing design intact; reduce image-card visual footprint. */
-.destination-card{height:300px !important}
-.package-image{height:185px !important}
-.package-body{padding:16px !important}
-.package-body h3{font-size:20px !important;margin:6px 0 16px !important}
-.package-bottom strong{font-size:20px !important}
+/* ===== BlueVows V14: compact image cards only ===== */
+.destination-card,
+.package-card{
+  width:100%;
+  max-width:340px;
+  justify-self:center;
+}
+.destination-card{height:300px!important}
+.package-image{height:175px!important}
 
 @media(max-width:900px){
-  .destination-card{height:270px !important}
-  .package-image{height:170px !important}
+  .destination-card,
+  .package-card{max-width:330px}
 }
 
 @media(max-width:600px){
-  .destination-card{height:245px !important}
-  .package-image{height:160px !important}
-  .package-body{padding:14px !important}
-  .package-body h3{font-size:18px !important;margin:5px 0 13px !important}
-  .package-bottom strong{font-size:19px !important}
+  .destination-card,
+  .package-card{max-width:330px!important;margin-left:auto!important;margin-right:auto!important}
+  .destination-card{height:290px!important}
+  .package-image{height:170px!important}
 }
