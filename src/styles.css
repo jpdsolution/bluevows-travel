@@ -54,3 +54,62 @@ footer{background:#062f3c;color:#b9ced2;padding:65px 0 20px}.footer-grid{display
 .why-grid,.cta-inner{animation:bvFadeUp .7s ease both}.whatsapp{animation:bvFloat 3.5s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:600px){.header{height:68px}.brand-logo{height:50px;max-width:165px}.hero{min-height:565px}.hero-content{padding:62px 0 175px}.hero h1{font-size:45px}.planner-wrap{bottom:-118px}.section{padding-top:145px}.destination-card{height:335px}}
+
+/* ===== BlueVows V3: compact cards + working trip planner ===== */
+.nav-links a{display:inline-flex;align-items:center;gap:5px}
+.nav-cta{display:inline-flex!important;align-items:center;justify-content:center}
+.hero{min-height:505px}
+.hero-content{padding:62px 0 126px}
+.hero h1{font-size:clamp(42px,6vw,68px)}
+.planner-wrap{bottom:-30px}
+.planner{grid-template-columns:1fr 1fr 1fr auto;max-width:1040px;margin:auto;padding:7px;border-radius:9px}
+.planner-field{position:relative;cursor:pointer;padding:10px 13px}
+.planner-field select,.planner-field input{appearance:none;border:0;background:transparent;margin:0;padding:0;width:100%;outline:0;color:var(--ink);font-size:14px;font-weight:700;cursor:pointer}
+.planner-field input[type=date]{min-width:130px}
+.field-chevron{width:15px!important;height:15px;color:#98a2b3!important}
+.planner-btn{border:0;cursor:pointer;border-radius:7px;gap:7px}
+.trust-strip{background:#fff;border-bottom:1px solid #eee;padding:24px 0;margin-top:0}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.trust-grid>div{display:flex;align-items:center;gap:10px;padding:6px 10px}
+.trust-icon{width:34px;height:34px;display:grid;place-items:center;background:#fff1e8;color:var(--orange);font-size:13px;font-weight:800;border-radius:7px;flex:0 0 auto}
+.trust-grid b{display:block;font-size:12px;color:#20252d}.trust-grid small{display:block;color:#7b8490;font-size:10px;margin-top:2px}
+.section{padding:82px 0 66px}
+.section-head{margin-bottom:28px}
+.destination-grid{gap:15px}
+.destination-card{height:350px;border-radius:9px}
+.destination-info{left:20px;right:20px;bottom:18px}
+.destination-info h3{font-size:22px}
+.package-grid{gap:15px}
+.package-image{height:205px}
+.package-card{border-radius:9px}
+.package-body{padding:17px}
+.package-body h3{font-size:19px;margin-bottom:17px}
+.activity-grid{gap:13px}
+.activity-card{padding:20px;border-radius:9px}
+.activity-icon{width:40px;height:40px;border-radius:7px;margin-bottom:17px}
+.mini-link{display:inline-flex;align-items:center;gap:5px;color:var(--orange);font-size:12px;font-weight:700;margin-top:14px}
+.review{border-radius:9px;padding:21px}
+.btn{border-radius:7px}
+.icon-btn{border-radius:7px;width:38px;height:38px}
+.cta{padding:62px 0}
+.contact-form,.admin-card,.stat{border-radius:9px}
+input,textarea{border-radius:7px}
+.hero-actions .btn{min-height:43px}
+@media(max-width:900px){
+  .hero{min-height:560px}
+  .hero-content{padding:70px 0 175px}
+  .trust-grid{grid-template-columns:1fr 1fr}
+  .planner{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .hero{min-height:590px}
+  .hero-content{padding:62px 0 182px}
+  .hero h1{font-size:44px}
+  .planner-wrap{bottom:-132px}
+  .planner{grid-template-columns:1fr;padding:6px}
+  .planner-field{border-right:0!important;border-bottom:1px solid var(--line);min-height:58px}
+  .planner-btn{min-height:48px}
+  .trust-strip{margin-top:0;padding:20px 0}
+  .trust-grid{grid-template-columns:1fr 1fr}
+  .trust-grid>div{padding:5px 2px}
+}

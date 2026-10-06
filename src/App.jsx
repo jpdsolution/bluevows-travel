@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import {
-  Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star,
+  Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
   CheckCircle2, Phone, Mail, MessageCircle, ShieldCheck,
   Compass, Hotel, Waves, Send, LayoutDashboard, Settings,
   FileText, CreditCard, Image as ImageIcon, Package, LogOut
@@ -35,41 +35,68 @@ function Header(){
       </Link>
       <button className="menu-btn" onClick={()=>setOpen(!open)} aria-label="Menu">{open?<X/>:<Menu/>}</button>
       <nav className={open?"nav-links open":"nav-links"}>
+        <Link to="/" onClick={()=>setOpen(false)}>Home</Link>
         <Link to="/destinations" onClick={()=>setOpen(false)}>Destinations</Link>
         <Link to="/packages" onClick={()=>setOpen(false)}>Packages</Link>
         <Link to="/hotels" onClick={()=>setOpen(false)}>Hotels</Link>
         <Link to="/activities" onClick={()=>setOpen(false)}>Activities</Link>
         <Link to="/about" onClick={()=>setOpen(false)}>About</Link>
-        <Link className="nav-cta" to="/contact" onClick={()=>setOpen(false)}>Get a Quote</Link>
+        <Link className="nav-cta" to="/contact" onClick={()=>setOpen(false)}>Plan My Trip <ArrowRight size={15}/></Link>
       </nav>
     </div>
   </header>
 }
-
 function Hero(){
- return <section className="hero">
-   <div className="hero-image"></div>
-   <div className="hero-overlay"></div>
-   <div className="container hero-content">
-     <span className="eyebrow light">YOUR ISLAND JOURNEY STARTS HERE</span>
-     <h1>Experience the<br/><em>Andaman</em></h1>
-     <p>Thoughtfully planned island holidays, handpicked stays and experiences made around you.</p>
-     <div className="hero-actions">
-       <Link className="btn primary" to="/packages">Explore Packages <ArrowRight size={18}/></Link>
-       <Link className="btn ghost" to="/contact">Plan My Trip</Link>
-     </div>
-   </div>
-   <div className="container planner-wrap">
-     <div className="planner">
-       <div className="field"><MapPin/><div><small>Destination</small><strong>Andaman</strong></div></div>
-       <div className="field"><CalendarDays/><div><small>Travel Date</small><strong>Select date</strong></div></div>
-       <div className="field"><Users/><div><small>Travellers</small><strong>2 Adults</strong></div></div>
-       <Link className="planner-btn" to="/packages">Search Packages</Link>
-     </div>
-   </div>
- </section>
-}
+  const [destination,setDestination]=useState("Andaman");
+  const [date,setDate]=useState("");
+  const [travellers,setTravellers]=useState(2);
 
+  const search = () => {
+    const params = new URLSearchParams({
+      destination,
+      date: date || "flexible",
+      travellers: String(travellers)
+    });
+    window.location.href = `/packages?${params.toString()}`;
+  };
+
+  return <section className="hero">
+    <div className="hero-image"></div>
+    <div className="hero-overlay"></div>
+    <div className="container hero-content">
+      <span className="eyebrow light">YOUR ISLAND JOURNEY STARTS HERE</span>
+      <h1>Experience the<br/><em>Andaman</em></h1>
+      <p>Beautiful islands, handpicked stays and experiences planned around the way you want to travel.</p>
+      <div className="hero-actions">
+        <Link className="btn primary" to="/packages">Explore Packages <ArrowRight size={18}/></Link>
+        <Link className="btn ghost" to="/contact">Plan My Trip</Link>
+      </div>
+    </div>
+
+    <div className="container planner-wrap">
+      <div className="planner" aria-label="Trip planner">
+        <label className="field planner-field">
+          <MapPin/><div><small>Destination</small>
+          <select value={destination} onChange={e=>setDestination(e.target.value)}>
+            <option>Andaman</option><option>Havelock Island</option><option>Neil Island</option><option>Port Blair</option>
+          </select></div><ChevronDown className="field-chevron"/>
+        </label>
+        <label className="field planner-field">
+          <CalendarDays/><div><small>Travel Date</small>
+          <input type="date" value={date} onChange={e=>setDate(e.target.value)} aria-label="Travel date"/>
+          </div>
+        </label>
+        <label className="field planner-field">
+          <Users/><div><small>Travellers</small>
+          <select value={travellers} onChange={e=>setTravellers(Number(e.target.value))}>
+            {[1,2,3,4,5,6,7,8,9,10].map(n=><option key={n} value={n}>{n} {n===1?"Traveller":"Travellers"}</option>)}
+          </select></div><ChevronDown className="field-chevron"/>
+        </label>
+        <button className="planner-btn" onClick={search}>Search Packages <ArrowRight size={16}/></button>
+      </div>
+    </div>
+  </section>
+}
 function DestinationCard({d}){ return <Link className="destination-card" to="/destinations">
   <img src={d.image} alt={d.name}/><div className="destination-shade"></div>
   <div className="destination-info"><span>Explore</span><h3>{d.name}</h3><p>{d.text}</p></div>
@@ -84,6 +111,12 @@ function Home(){
  return <>
   <Hero/>
   <main>
+    <section className="trust-strip"><div className="container trust-grid">
+      <div><span className="trust-icon">✓</span><div><b>Local Island Experts</b><small>Real Andaman knowledge</small></div></div>
+      <div><span className="trust-icon">★</span><div><b>Handpicked Stays</b><small>Comfort & value checked</small></div></div>
+      <div><span className="trust-icon">₹</span><div><b>Clear Quotations</b><small>No confusing pricing</small></div></div>
+      <div><span className="trust-icon">24</span><div><b>Human Support</b><small>Help before your trip</small></div></div>
+    </div></section>
     <section className="section"><div className="container">
       <SectionHead eyebrow="EXPLORE THE ISLANDS" title="Places worth travelling for" text="Discover the islands through local knowledge, beautiful stays and carefully planned days."/>
       <div className="destination-grid">{destinations.map((d,i)=><DestinationCard d={d} key={i}/>)}</div>
@@ -97,7 +130,8 @@ function Home(){
 
     <section className="section"><div className="container">
       <SectionHead eyebrow="ISLAND EXPERIENCES" title="Make your trip memorable"/>
-      <div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p></div>)}</div>
+      <div className="activity-grid">{activities.map(({name,icon:Icon,text})=><div className="activity-card" key={name}><div className="activity-icon"><Icon/></div><h3>{name}</h3><p>{text}</p><Link className="mini-link" to="/contact">Add to trip <ArrowRight size={14}/></Link></div>)}</div>
+      <div className="center"><Link className="btn outline" to="/contact">Build My Custom Trip <ArrowRight size={17}/></Link></div>
     </div></section>
 
     <section className="why-section"><div className="container why-grid">
