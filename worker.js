@@ -1,5 +1,4 @@
 // worker.js
-// COMPLETE REPLACEMENT
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -28,40 +27,63 @@ function escapeHtml(value) {
 
 /* =========================
    EMAIL-SAFE ICONS
-   CSS ONLY - NO SVG / NO EMOJI
 ========================= */
 
 function icon(type) {
 
-  const base = `
+  const common = `
     display:inline-block;
     position:relative;
-    width:18px;
-    height:18px;
     vertical-align:middle;
   `;
 
-  if (type === "user") {
+  if (type === "mail") {
     return `
-      <span style="${base}">
+      <span style="
+        ${common}
+        width:20px;
+        height:14px;
+        border:1.6px solid #ffffff;
+        border-radius:3px;
+      ">
         <span style="
           position:absolute;
+          left:2px;
+          top:1px;
+          width:10px;
+          height:10px;
+          border-left:1.5px solid #ffffff;
+          border-bottom:1.5px solid #ffffff;
+          transform:rotate(-45deg);
+        "></span>
+      </span>`;
+  }
+
+  if (type === "user") {
+    return `
+      <span style="
+        ${common}
+        width:16px;
+        height:17px;
+      ">
+        <span style="
+          position:absolute;
+          left:5px;
+          top:0;
           width:6px;
           height:6px;
           border:1.5px solid #111827;
           border-radius:50%;
-          left:5px;
-          top:1px;
         "></span>
         <span style="
           position:absolute;
+          left:2px;
+          bottom:0;
           width:12px;
           height:7px;
           border:1.5px solid #111827;
           border-bottom:0;
           border-radius:8px 8px 0 0;
-          left:2px;
-          bottom:1px;
         "></span>
       </span>`;
   }
@@ -69,23 +91,21 @@ function icon(type) {
   if (type === "email") {
     return `
       <span style="
-        display:inline-block;
-        width:17px;
+        ${common}
+        width:16px;
         height:12px;
         border:1.5px solid #111827;
         border-radius:3px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
+          left:2px;
+          top:1px;
           width:9px;
           height:9px;
           border-left:1.5px solid #111827;
           border-bottom:1.5px solid #111827;
           transform:rotate(-45deg);
-          left:3px;
-          top:-1px;
         "></span>
       </span>`;
   }
@@ -93,21 +113,19 @@ function icon(type) {
   if (type === "phone") {
     return `
       <span style="
-        display:inline-block;
+        ${common}
         width:16px;
         height:17px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
-          width:7px;
-          height:13px;
-          border:1.6px solid #111827;
-          border-radius:7px;
-          transform:rotate(-35deg);
           left:4px;
           top:1px;
+          width:7px;
+          height:13px;
+          border:1.5px solid #111827;
+          border-radius:7px;
+          transform:rotate(-35deg);
         "></span>
       </span>`;
   }
@@ -115,13 +133,11 @@ function icon(type) {
   if (type === "calendar") {
     return `
       <span style="
-        display:inline-block;
-        width:16px;
+        ${common}
+        width:15px;
         height:14px;
         border:1.5px solid #111827;
         border-radius:3px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -152,11 +168,9 @@ function icon(type) {
   if (type === "users") {
     return `
       <span style="
-        display:inline-block;
-        width:18px;
+        ${common}
+        width:17px;
         height:17px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -179,22 +193,12 @@ function icon(type) {
         "></span>
         <span style="
           position:absolute;
-          right:1px;
+          right:0;
           top:3px;
           width:5px;
           height:5px;
           border:1.3px solid #111827;
           border-radius:50%;
-        "></span>
-        <span style="
-          position:absolute;
-          right:0;
-          bottom:0;
-          width:7px;
-          height:5px;
-          border:1.3px solid #111827;
-          border-bottom:0;
-          border-radius:6px 6px 0 0;
         "></span>
       </span>`;
   }
@@ -202,23 +206,21 @@ function icon(type) {
   if (type === "location") {
     return `
       <span style="
-        display:inline-block;
-        width:14px;
-        height:14px;
+        ${common}
+        width:13px;
+        height:13px;
         border:1.5px solid #111827;
         border-radius:50% 50% 50% 0;
         transform:rotate(-45deg);
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
+          left:3px;
+          top:3px;
           width:4px;
           height:4px;
           border:1px solid #111827;
           border-radius:50%;
-          left:4px;
-          top:4px;
         "></span>
       </span>`;
   }
@@ -226,13 +228,11 @@ function icon(type) {
   if (type === "package") {
     return `
       <span style="
-        display:inline-block;
+        ${common}
         width:15px;
         height:13px;
         border:1.5px solid #111827;
         border-radius:2px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -256,13 +256,11 @@ function icon(type) {
   if (type === "id") {
     return `
       <span style="
-        display:inline-block;
+        ${common}
         width:16px;
         height:12px;
         border:1.5px solid #111827;
         border-radius:3px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -288,13 +286,11 @@ function icon(type) {
   if (type === "clock") {
     return `
       <span style="
-        display:inline-block;
+        ${common}
         width:15px;
         height:15px;
         border:1.5px solid #111827;
         border-radius:50%;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -318,13 +314,11 @@ function icon(type) {
   if (type === "message") {
     return `
       <span style="
-        display:inline-block;
+        ${common}
         width:16px;
         height:12px;
         border:1.5px solid #111827;
         border-radius:3px;
-        position:relative;
-        vertical-align:middle;
       ">
         <span style="
           position:absolute;
@@ -334,31 +328,6 @@ function icon(type) {
           height:5px;
           border-left:1.5px solid #111827;
           border-bottom:1.5px solid #111827;
-          transform:skewY(-30deg);
-        "></span>
-      </span>`;
-  }
-
-  if (type === "mail") {
-    return `
-      <span style="
-        display:inline-block;
-        width:21px;
-        height:15px;
-        border:1.7px solid #ffffff;
-        border-radius:4px;
-        position:relative;
-        vertical-align:middle;
-      ">
-        <span style="
-          position:absolute;
-          left:2px;
-          top:1px;
-          width:12px;
-          height:12px;
-          border-left:1.5px solid #ffffff;
-          border-bottom:1.5px solid #ffffff;
-          transform:rotate(-45deg);
         "></span>
       </span>`;
   }
@@ -372,30 +341,26 @@ function icon(type) {
 ========================= */
 
 function buildRow(label, value, iconType, mono = false) {
-
   return `
 <tr>
 
 <td style="
-  width:46%;
-  padding:8px 8px;
-  border-bottom:1px solid #e8eaed;
+  width:44%;
+  padding:7px 6px;
+  border-bottom:1px solid #e7e9ec;
   vertical-align:middle;
 ">
 
-<table
-role="presentation"
+<table role="presentation"
 cellspacing="0"
 cellpadding="0"
-border="0"
-style="width:auto;">
+border="0">
 
 <tr>
 
-<td
-width="24"
+<td width="22"
 style="
-  width:24px;
+  width:22px;
   padding:0 5px 0 0;
   vertical-align:middle;
 ">
@@ -423,11 +388,10 @@ ${escapeHtml(label)}
 
 </td>
 
-
 <td style="
-  width:54%;
-  padding:8px 8px;
-  border-bottom:1px solid #e8eaed;
+  width:56%;
+  padding:7px 6px;
+  border-bottom:1px solid #e7e9ec;
   font-size:11px;
   line-height:15px;
   color:#111827;
@@ -450,17 +414,15 @@ ${escapeHtml(value) || "—"}
 ========================= */
 
 function buildBox(title, content, iconType) {
-
   return `
-<table
-role="presentation"
+<table role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
 border="0"
 style="
   width:100%;
-  margin-top:9px;
+  margin-top:8px;
   border:1px solid #d9dde3;
   border-radius:9px;
   background:#ffffff;
@@ -470,24 +432,22 @@ style="
 <tr>
 
 <td style="
-  padding:7px 9px;
+  padding:7px 8px;
   background:#f5f6f8;
   border-bottom:1px solid #e5e7eb;
 ">
 
-<table
-role="presentation"
+<table role="presentation"
 cellspacing="0"
 cellpadding="0"
 border="0">
 
 <tr>
 
-<td
-width="23"
+<td width="22"
 style="
-  width:23px;
-  padding-right:6px;
+  width:22px;
+  padding-right:5px;
   vertical-align:middle;
 ">
 
@@ -519,7 +479,7 @@ ${escapeHtml(title)}
 <tr>
 
 <td style="
-  padding:8px 9px;
+  padding:8px;
   font-size:11px;
   line-height:16px;
   color:#111827;
@@ -538,7 +498,7 @@ ${content}
 
 
 /* =========================
-   EMAIL TEMPLATE
+   EMAIL HTML
 ========================= */
 
 function buildHtml({
@@ -549,63 +509,66 @@ function buildHtml({
   tagline = "Explore Andaman With Us"
 }) {
 
-  const company =
-    textOr(siteName, "BlueVows Travel");
+  const company = textOr(
+    siteName,
+    "BlueVows Travel"
+  );
 
-  const tag =
-    textOr(tagline, "Explore Andaman With Us");
+  const tag = textOr(
+    tagline,
+    "Explore Andaman With Us"
+  );
 
-  const guest =
-    textOr(enquiry.name, "Website Guest");
+  const guest = textOr(
+    enquiry.name,
+    "Website Guest"
+  );
 
-  const email =
-    textOr(enquiry.email, "—");
+  const email = textOr(
+    enquiry.email,
+    "—"
+  );
 
-  const phone =
-    textOr(enquiry.phone, "—");
+  const phone = textOr(
+    enquiry.phone,
+    "—"
+  );
 
-  const travelDate =
-    textOr(
-      enquiry.travelDate ||
-      enquiry.travel_date ||
-      enquiry.date ||
-      enquiry.travelDateValue ||
-      enquiry.checkIn ||
-      enquiry.startDate,
-      "—"
-    );
+  const travelDate = textOr(
+    enquiry.travelDate ||
+    enquiry.travel_date ||
+    enquiry.date ||
+    enquiry.travelDateValue ||
+    enquiry.checkIn ||
+    enquiry.startDate,
+    "—"
+  );
 
-  const packageName =
-    textOr(
-      enquiry.packageName ||
-      enquiry.package_name ||
-      enquiry.package ||
-      enquiry.packageTitle ||
-      enquiry.selectedPackage,
-      "—"
-    );
+  const packageName = textOr(
+    enquiry.packageName ||
+    enquiry.package_name ||
+    enquiry.package ||
+    enquiry.packageTitle ||
+    enquiry.selectedPackage,
+    "—"
+  );
 
-  const av =
-    textOr(
-      adults ??
-      enquiry.adults ??
-      enquiry.adult,
-      "—"
-    );
+  const av = textOr(
+    adults ??
+    enquiry.adults ??
+    enquiry.adult,
+    "—"
+  );
 
-  const cv =
-    textOr(
-      children ??
-      enquiry.children ??
-      enquiry.child,
-      "—"
-    );
+  const cv = textOr(
+    children ??
+    enquiry.children ??
+    enquiry.child,
+    "—"
+  );
 
-  const adultNumber =
-    Number(av);
-
-  const childNumber =
-    Number(cv);
+  const adultNumber = Number(av);
+  const childNumber = Number(cv);
 
   const travellers =
     !isNaN(adultNumber) &&
@@ -613,49 +576,44 @@ function buildHtml({
       ? String(adultNumber + childNumber)
       : "—";
 
-  const destination =
-    textOr(
-      enquiry.destination,
-      "—"
-    );
+  const destination = textOr(
+    enquiry.destination,
+    "—"
+  );
 
-  const id =
-    textOr(
-      enquiry.id ||
-      enquiry.enquiryId ||
-      enquiry.enquiry_id,
-      "—"
-    );
+  const id = textOr(
+    enquiry.id ||
+    enquiry.enquiryId ||
+    enquiry.enquiry_id,
+    "—"
+  );
 
-  const message =
-    textOr(
-      enquiry.message,
-      "No message provided"
-    );
+  const message = textOr(
+    enquiry.message,
+    "No message provided"
+  );
 
-  const received =
-    enquiry.created_at
-      ? new Date(
-          enquiry.created_at
-        ).toLocaleString(
-          "en-IN",
-          {
-            dateStyle:"medium",
-            timeStyle:"short"
-          }
-        )
-      : new Date().toLocaleString(
-          "en-IN",
-          {
-            dateStyle:"medium",
-            timeStyle:"short"
-          }
-        );
+  const received = enquiry.created_at
+    ? new Date(
+        enquiry.created_at
+      ).toLocaleString(
+        "en-IN",
+        {
+          dateStyle:"medium",
+          timeStyle:"short"
+        }
+      )
+    : new Date().toLocaleString(
+        "en-IN",
+        {
+          dateStyle:"medium",
+          timeStyle:"short"
+        }
+      );
 
   const messageHtml =
     escapeHtml(message)
       .replace(/\n/g, "<br>");
-
 
   return `
 <!DOCTYPE html>
@@ -715,17 +673,20 @@ a{
   .card{
     width:100%!important;
     max-width:100%!important;
-    border-radius:0!important;
-    border-left:1px solid #111827!important;
-    border-right:1px solid #111827!important;
+    border-radius:10px!important;
   }
 
   .header{
-    padding:12px 10px!important;
+    padding:12px 9px!important;
   }
 
   .content{
-    padding:11px 8px!important;
+    padding:11px 7px!important;
+  }
+
+  .header-title{
+    font-size:18px!important;
+    line-height:21px!important;
   }
 
 }
@@ -733,7 +694,6 @@ a{
 </style>
 
 </head>
-
 
 <body>
 
@@ -770,7 +730,7 @@ cellpadding="0"
 border="0"
 style="
   width:100%;
-  max-width:620px;
+  max-width:600px;
   margin:0 auto;
   background:#ffffff;
   border:2px solid #111827;
@@ -786,7 +746,7 @@ style="
 <td
 class="header"
 style="
-  padding:13px 11px;
+  padding:13px 10px;
   background:#111827;
 ">
 
@@ -799,14 +759,13 @@ border="0">
 
 <tr>
 
-
 <!-- HEADER ICON -->
 
 <td
 width="38"
 style="
   width:38px;
-  padding:0 8px 0 0;
+  padding:0 7px 0 0;
   vertical-align:middle;
 ">
 
@@ -850,12 +809,14 @@ ${icon("mail")}
 <!-- HEADER TEXT -->
 
 <td
+valign="middle"
 style="
-  padding:0;
   vertical-align:middle;
+  padding:0;
 ">
 
 <div
+class="header-title"
 style="
   font-size:20px;
   line-height:23px;
@@ -901,7 +862,7 @@ ${escapeHtml(tag)}
 <td
 class="content"
 style="
-  padding:13px 9px;
+  padding:13px 7px;
   background:#ffffff;
 ">
 
@@ -915,12 +876,11 @@ border="0">
 
 <tr>
 
-<td
-style="
+<td style="
   font-size:9px;
   line-height:12px;
   font-weight:800;
-  letter-spacing:1.5px;
+  letter-spacing:1.4px;
   color:#737981;
 ">
 
@@ -932,8 +892,7 @@ WEBSITE ENQUIRY
 
 <tr>
 
-<td
-style="
+<td style="
   padding-top:3px;
   font-size:21px;
   line-height:25px;
@@ -949,8 +908,7 @@ New Enquiry Received
 
 <tr>
 
-<td
-style="
+<td style="
   padding-top:3px;
   font-size:11px;
   line-height:16px;
@@ -983,12 +941,10 @@ style="
   overflow:hidden;
 ">
 
-
 <tr>
 
-<td
-style="
-  padding:7px 9px;
+<td style="
+  padding:7px 8px;
   background:#f4f5f7;
   border-bottom:1px solid #e1e4e8;
 ">
@@ -1005,7 +961,7 @@ border="0">
 width="23"
 style="
   width:23px;
-  padding-right:6px;
+  padding-right:5px;
   vertical-align:middle;
 ">
 
@@ -1013,8 +969,7 @@ ${icon("user")}
 
 </td>
 
-<td
-style="
+<td style="
   font-size:10px;
   line-height:13px;
   font-weight:800;
@@ -1035,13 +990,9 @@ CUSTOMER DETAILS
 
 </tr>
 
-
 <tr>
 
-<td
-style="
-  padding:0;
-">
+<td style="padding:0;">
 
 <table
 role="presentation"
@@ -1071,16 +1022,12 @@ ${buildRow("Received",received,"clock")}
 </table>
 
 
-<!-- MESSAGE -->
-
 ${buildBox(
   "CUSTOMER MESSAGE",
   messageHtml,
   "message"
 )}
 
-
-<!-- FOLLOW UP -->
 
 ${buildBox(
   "FOLLOW-UP",
@@ -1105,8 +1052,7 @@ style="
   text-align:center;
 ">
 
-<div
-style="
+<div style="
   font-size:12px;
   line-height:15px;
   font-weight:800;
@@ -1117,8 +1063,7 @@ ${escapeHtml(company)}
 
 </div>
 
-<div
-style="
+<div style="
   margin-top:1px;
   font-size:9px;
   line-height:12px;
@@ -1220,9 +1165,7 @@ async function sendEnquiry(request, env) {
 
       from,
 
-      to:[
-        receiver
-      ],
+      to:[receiver],
 
       subject:
         `New Enquiry Received — ${textOr(
@@ -1341,6 +1284,7 @@ export default {
     const url =
       new URL(request.url);
 
+
     if (
       request.method ===
       "OPTIONS"
@@ -1354,9 +1298,9 @@ export default {
 
     if (
       url.pathname ===
-        "/api/email-status" &&
+      "/api/email-status" &&
       request.method ===
-        "GET"
+      "GET"
     ) {
 
       const hasApiKey =
