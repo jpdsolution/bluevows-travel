@@ -1,4 +1,5 @@
 // worker.js
+// COMPLETE REPLACEMENT
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -24,147 +25,345 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+
 /* =========================
-   EMAIL ICONS
+   EMAIL-SAFE ICONS
+   CSS ONLY - NO SVG / NO EMOJI
 ========================= */
 
 function icon(type) {
 
-  const icons = {
+  const base = `
+    display:inline-block;
+    position:relative;
+    width:18px;
+    height:18px;
+    vertical-align:middle;
+  `;
 
-    user: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="8" r="4"
-stroke="#111827" stroke-width="2"/>
-<path d="M4 21C4.8 16.8 7.4 15 12 15C16.6 15 19.2 16.8 20 21"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+  if (type === "user") {
+    return `
+      <span style="${base}">
+        <span style="
+          position:absolute;
+          width:6px;
+          height:6px;
+          border:1.5px solid #111827;
+          border-radius:50%;
+          left:5px;
+          top:1px;
+        "></span>
+        <span style="
+          position:absolute;
+          width:12px;
+          height:7px;
+          border:1.5px solid #111827;
+          border-bottom:0;
+          border-radius:8px 8px 0 0;
+          left:2px;
+          bottom:1px;
+        "></span>
+      </span>`;
+  }
 
-    email: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#111827" stroke-width="2"/>
-<path d="M4 7L12 13L20 7"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"
-stroke-linejoin="round"/>
-</svg>`,
+  if (type === "email") {
+    return `
+      <span style="
+        display:inline-block;
+        width:17px;
+        height:12px;
+        border:1.5px solid #111827;
+        border-radius:3px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          width:9px;
+          height:9px;
+          border-left:1.5px solid #111827;
+          border-bottom:1.5px solid #111827;
+          transform:rotate(-45deg);
+          left:3px;
+          top:-1px;
+        "></span>
+      </span>`;
+  }
 
-    phone: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M6.6 3H10L11.5 7L9.5 8.5C10.4 10.5 12 12.1 14 13L15.5 11L19.5 12.5V16C19.5 18 18 19.5 16 19.5C9.4 19.5 4.5 14.6 4.5 8C4.5 6 6 3 6.6 3Z"
-stroke="#111827"
-stroke-width="1.8"
-stroke-linecap="round"
-stroke-linejoin="round"/>
-</svg>`,
+  if (type === "phone") {
+    return `
+      <span style="
+        display:inline-block;
+        width:16px;
+        height:17px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          width:7px;
+          height:13px;
+          border:1.6px solid #111827;
+          border-radius:7px;
+          transform:rotate(-35deg);
+          left:4px;
+          top:1px;
+        "></span>
+      </span>`;
+  }
 
-    calendar: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="16" rx="2"
-stroke="#111827" stroke-width="2"/>
-<path d="M7 3V7M17 3V7M3 10H21"
-stroke="#111827"
-stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+  if (type === "calendar") {
+    return `
+      <span style="
+        display:inline-block;
+        width:16px;
+        height:14px;
+        border:1.5px solid #111827;
+        border-radius:3px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:0;
+          right:0;
+          top:4px;
+          border-top:1.5px solid #111827;
+        "></span>
+        <span style="
+          position:absolute;
+          left:3px;
+          top:-3px;
+          width:1.5px;
+          height:5px;
+          background:#111827;
+        "></span>
+        <span style="
+          position:absolute;
+          right:3px;
+          top:-3px;
+          width:1.5px;
+          height:5px;
+          background:#111827;
+        "></span>
+      </span>`;
+  }
 
-    users: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="9" cy="8" r="3"
-stroke="#111827" stroke-width="2"/>
-<circle cx="17" cy="9" r="2.5"
-stroke="#111827" stroke-width="2"/>
-<path d="M3.5 20C4.2 16.5 6 15 9 15C12 15 13.8 16.5 14.5 20"
-stroke="#111827"
-stroke-width="2"
-stroke-linecap="round"/>
-<path d="M15 15C17.7 15.1 19.4 16.4 20 19"
-stroke="#111827"
-stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+  if (type === "users") {
+    return `
+      <span style="
+        display:inline-block;
+        width:18px;
+        height:17px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:1px;
+          top:1px;
+          width:6px;
+          height:6px;
+          border:1.4px solid #111827;
+          border-radius:50%;
+        "></span>
+        <span style="
+          position:absolute;
+          left:0;
+          bottom:0;
+          width:10px;
+          height:7px;
+          border:1.4px solid #111827;
+          border-bottom:0;
+          border-radius:7px 7px 0 0;
+        "></span>
+        <span style="
+          position:absolute;
+          right:1px;
+          top:3px;
+          width:5px;
+          height:5px;
+          border:1.3px solid #111827;
+          border-radius:50%;
+        "></span>
+        <span style="
+          position:absolute;
+          right:0;
+          bottom:0;
+          width:7px;
+          height:5px;
+          border:1.3px solid #111827;
+          border-bottom:0;
+          border-radius:6px 6px 0 0;
+        "></span>
+      </span>`;
+  }
 
-    location: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M20 10C20 15.5 12 21 12 21C12 21 4 15.5 4 10C4 5.6 7.6 3 12 3C16.4 3 20 5.6 20 10Z"
-stroke="#111827"
-stroke-width="2"/>
-<circle cx="12" cy="10" r="2.5"
-stroke="#111827"
-stroke-width="2"/>
-</svg>`,
+  if (type === "location") {
+    return `
+      <span style="
+        display:inline-block;
+        width:14px;
+        height:14px;
+        border:1.5px solid #111827;
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          width:4px;
+          height:4px;
+          border:1px solid #111827;
+          border-radius:50%;
+          left:4px;
+          top:4px;
+        "></span>
+      </span>`;
+  }
 
-    package: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M4 8L12 4L20 8V17L12 21L4 17V8Z"
-stroke="#111827"
-stroke-width="2"
-stroke-linejoin="round"/>
-<path d="M4 8L12 12L20 8M12 12V21"
-stroke="#111827"
-stroke-width="2"/>
-</svg>`,
+  if (type === "package") {
+    return `
+      <span style="
+        display:inline-block;
+        width:15px;
+        height:13px;
+        border:1.5px solid #111827;
+        border-radius:2px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:0;
+          right:0;
+          top:4px;
+          border-top:1.5px solid #111827;
+        "></span>
+        <span style="
+          position:absolute;
+          left:4px;
+          top:-4px;
+          width:5px;
+          height:4px;
+          border:1.5px solid #111827;
+          border-bottom:0;
+        "></span>
+      </span>`;
+  }
 
-    id: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#111827"
-stroke-width="2"/>
-<circle cx="8" cy="11" r="2"
-stroke="#111827"
-stroke-width="1.7"/>
-<path d="M12 10H18M12 14H17"
-stroke="#111827"
-stroke-width="1.7"
-stroke-linecap="round"/>
-</svg>`,
+  if (type === "id") {
+    return `
+      <span style="
+        display:inline-block;
+        width:16px;
+        height:12px;
+        border:1.5px solid #111827;
+        border-radius:3px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:3px;
+          top:3px;
+          width:4px;
+          height:4px;
+          border:1px solid #111827;
+          border-radius:50%;
+        "></span>
+        <span style="
+          position:absolute;
+          right:2px;
+          top:3px;
+          width:4px;
+          height:1px;
+          background:#111827;
+          box-shadow:0 3px 0 #111827;
+        "></span>
+      </span>`;
+  }
 
-    clock: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="12" r="9"
-stroke="#111827"
-stroke-width="2"/>
-<path d="M12 7V12L15 14"
-stroke="#111827"
-stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+  if (type === "clock") {
+    return `
+      <span style="
+        display:inline-block;
+        width:15px;
+        height:15px;
+        border:1.5px solid #111827;
+        border-radius:50%;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:6px;
+          top:3px;
+          width:1.5px;
+          height:5px;
+          background:#111827;
+        "></span>
+        <span style="
+          position:absolute;
+          left:6px;
+          top:7px;
+          width:4px;
+          height:1.5px;
+          background:#111827;
+        "></span>
+      </span>`;
+  }
 
-    message: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M5 5H19C20.1 5 21 5.9 21 7V16C21 17.1 20.1 18 19 18H10L6 21V18H5C3.9 18 3 17.1 3 16V7C3 5.9 3.9 5 5 5Z"
-stroke="#111827"
-stroke-width="2"
-stroke-linejoin="round"/>
-</svg>`,
+  if (type === "message") {
+    return `
+      <span style="
+        display:inline-block;
+        width:16px;
+        height:12px;
+        border:1.5px solid #111827;
+        border-radius:3px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:2px;
+          bottom:-4px;
+          width:5px;
+          height:5px;
+          border-left:1.5px solid #111827;
+          border-bottom:1.5px solid #111827;
+          transform:skewY(-30deg);
+        "></span>
+      </span>`;
+  }
 
-    mail: `
-<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#ffffff"
-stroke-width="2"/>
-<path d="M4 7L12 13L20 7"
-stroke="#ffffff"
-stroke-width="2"
-stroke-linecap="round"
-stroke-linejoin="round"/>
-</svg>`
-  };
+  if (type === "mail") {
+    return `
+      <span style="
+        display:inline-block;
+        width:21px;
+        height:15px;
+        border:1.7px solid #ffffff;
+        border-radius:4px;
+        position:relative;
+        vertical-align:middle;
+      ">
+        <span style="
+          position:absolute;
+          left:2px;
+          top:1px;
+          width:12px;
+          height:12px;
+          border-left:1.5px solid #ffffff;
+          border-bottom:1.5px solid #ffffff;
+          transform:rotate(-45deg);
+        "></span>
+      </span>`;
+  }
 
-  return icons[type] || "";
+  return "";
 }
 
 
@@ -178,23 +377,27 @@ function buildRow(label, value, iconType, mono = false) {
 <tr>
 
 <td style="
-padding:8px 9px;
-border-bottom:1px solid #e8eaed;
-vertical-align:middle;
+  width:46%;
+  padding:8px 8px;
+  border-bottom:1px solid #e8eaed;
+  vertical-align:middle;
 ">
 
-<table role="presentation"
+<table
+role="presentation"
 cellspacing="0"
 cellpadding="0"
-border="0">
+border="0"
+style="width:auto;">
 
 <tr>
 
-<td width="22"
+<td
+width="24"
 style="
-width:22px;
-padding-right:6px;
-vertical-align:middle;
+  width:24px;
+  padding:0 5px 0 0;
+  vertical-align:middle;
 ">
 
 ${icon(iconType)}
@@ -202,11 +405,12 @@ ${icon(iconType)}
 </td>
 
 <td style="
-font-size:11px;
-line-height:15px;
-font-weight:700;
-color:#374151;
-vertical-align:middle;
+  font-size:11px;
+  line-height:15px;
+  font-weight:700;
+  color:#374151;
+  vertical-align:middle;
+  white-space:nowrap;
 ">
 
 ${escapeHtml(label)}
@@ -221,15 +425,16 @@ ${escapeHtml(label)}
 
 
 <td style="
-padding:8px 9px;
-border-bottom:1px solid #e8eaed;
-font-size:11px;
-line-height:15px;
-color:#111827;
-vertical-align:middle;
-word-break:break-word;
-overflow-wrap:anywhere;
-${mono ? "font-family:monospace;" : ""}
+  width:54%;
+  padding:8px 8px;
+  border-bottom:1px solid #e8eaed;
+  font-size:11px;
+  line-height:15px;
+  color:#111827;
+  vertical-align:middle;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  ${mono ? "font-family:monospace;" : ""}
 ">
 
 ${escapeHtml(value) || "—"}
@@ -241,7 +446,7 @@ ${escapeHtml(value) || "—"}
 
 
 /* =========================
-   CONTENT BOX
+   BOX
 ========================= */
 
 function buildBox(title, content, iconType) {
@@ -254,20 +459,20 @@ cellspacing="0"
 cellpadding="0"
 border="0"
 style="
-width:100%;
-margin-top:10px;
-border:1px solid #d9dde3;
-border-radius:10px;
-background:#ffffff;
-overflow:hidden;
+  width:100%;
+  margin-top:9px;
+  border:1px solid #d9dde3;
+  border-radius:9px;
+  background:#ffffff;
+  overflow:hidden;
 ">
 
 <tr>
 
 <td style="
-padding:8px 10px;
-background:#f5f6f8;
-border-bottom:1px solid #e5e7eb;
+  padding:7px 9px;
+  background:#f5f6f8;
+  border-bottom:1px solid #e5e7eb;
 ">
 
 <table
@@ -279,11 +484,11 @@ border="0">
 <tr>
 
 <td
-width="22"
+width="23"
 style="
-width:22px;
-padding-right:6px;
-vertical-align:middle;
+  width:23px;
+  padding-right:6px;
+  vertical-align:middle;
 ">
 
 ${icon(iconType)}
@@ -291,12 +496,12 @@ ${icon(iconType)}
 </td>
 
 <td style="
-font-size:10px;
-line-height:14px;
-font-weight:800;
-letter-spacing:.7px;
-color:#111827;
-vertical-align:middle;
+  font-size:10px;
+  line-height:13px;
+  font-weight:800;
+  letter-spacing:.7px;
+  color:#111827;
+  vertical-align:middle;
 ">
 
 ${escapeHtml(title)}
@@ -314,12 +519,12 @@ ${escapeHtml(title)}
 <tr>
 
 <td style="
-padding:9px 10px;
-font-size:11px;
-line-height:17px;
-color:#111827;
-word-break:break-word;
-overflow-wrap:anywhere;
+  padding:8px 9px;
+  font-size:11px;
+  line-height:16px;
+  color:#111827;
+  word-break:break-word;
+  overflow-wrap:anywhere;
 ">
 
 ${content}
@@ -333,7 +538,7 @@ ${content}
 
 
 /* =========================
-   EMAIL HTML
+   EMAIL TEMPLATE
 ========================= */
 
 function buildHtml({
@@ -359,7 +564,6 @@ function buildHtml({
   const phone =
     textOr(enquiry.phone, "—");
 
-
   const travelDate =
     textOr(
       enquiry.travelDate ||
@@ -371,7 +575,6 @@ function buildHtml({
       "—"
     );
 
-
   const packageName =
     textOr(
       enquiry.packageName ||
@@ -382,7 +585,6 @@ function buildHtml({
       "—"
     );
 
-
   const av =
     textOr(
       adults ??
@@ -390,7 +592,6 @@ function buildHtml({
       enquiry.adult,
       "—"
     );
-
 
   const cv =
     textOr(
@@ -400,30 +601,23 @@ function buildHtml({
       "—"
     );
 
-
   const adultNumber =
     Number(av);
 
   const childNumber =
     Number(cv);
 
-
   const travellers =
     !isNaN(adultNumber) &&
     !isNaN(childNumber)
-      ? String(
-          adultNumber +
-          childNumber
-        )
+      ? String(adultNumber + childNumber)
       : "—";
-
 
   const destination =
     textOr(
       enquiry.destination,
       "—"
     );
-
 
   const id =
     textOr(
@@ -433,17 +627,14 @@ function buildHtml({
       "—"
     );
 
-
   const message =
     textOr(
       enquiry.message,
       "No message provided"
     );
 
-
   const received =
     enquiry.created_at
-
       ? new Date(
           enquiry.created_at
         ).toLocaleString(
@@ -453,7 +644,6 @@ function buildHtml({
             timeStyle:"short"
           }
         )
-
       : new Date().toLocaleString(
           "en-IN",
           {
@@ -461,7 +651,6 @@ function buildHtml({
             timeStyle:"short"
           }
         );
-
 
   const messageHtml =
     escapeHtml(message)
@@ -490,62 +679,54 @@ New Enquiry - ${escapeHtml(company)}
 
 html,
 body{
-margin:0!important;
-padding:0!important;
-width:100%!important;
-background:#ffffff!important;
+  margin:0!important;
+  padding:0!important;
+  width:100%!important;
+  background:#ffffff!important;
 }
 
 body{
-font-family:
--apple-system,
-BlinkMacSystemFont,
-"Segoe UI",
-Arial,
-Helvetica,
-sans-serif;
-color:#111827;
+  font-family:
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Arial,
+  Helvetica,
+  sans-serif;
+  color:#111827;
 }
 
 table{
-border-collapse:separate;
-border-spacing:0;
+  border-collapse:separate;
+  border-spacing:0;
 }
 
 a{
-color:#111827!important;
-text-decoration:none!important;
+  color:#111827!important;
+  text-decoration:none!important;
 }
 
 @media only screen and (max-width:600px){
 
-.outer-cell{
-padding:0!important;
-}
+  .outer{
+    padding:0!important;
+  }
 
-.main-card{
-width:100%!important;
-max-width:100%!important;
-border-radius:10px!important;
-}
+  .card{
+    width:100%!important;
+    max-width:100%!important;
+    border-radius:0!important;
+    border-left:1px solid #111827!important;
+    border-right:1px solid #111827!important;
+  }
 
-.header-cell{
-padding:13px 11px!important;
-}
+  .header{
+    padding:12px 10px!important;
+  }
 
-.content-cell{
-padding:12px 9px!important;
-}
-
-.header-title{
-font-size:18px!important;
-line-height:22px!important;
-}
-
-.main-title{
-font-size:19px!important;
-line-height:23px!important;
-}
+  .content{
+    padding:11px 8px!important;
+  }
 
 }
 
@@ -563,18 +744,18 @@ cellspacing="0"
 cellpadding="0"
 border="0"
 style="
-width:100%;
-background:#ffffff;
+  width:100%;
+  background:#ffffff;
 ">
 
 <tr>
 
 <td
-class="outer-cell"
+class="outer"
 align="center"
 style="
-padding:2px;
-background:#ffffff;
+  padding:0;
+  background:#ffffff;
 ">
 
 
@@ -582,31 +763,31 @@ background:#ffffff;
 
 <table
 role="presentation"
-class="main-card"
+class="card"
 width="100%"
 cellspacing="0"
 cellpadding="0"
 border="0"
 style="
-width:100%;
-max-width:600px;
-margin:0 auto;
-background:#ffffff;
-border:2px solid #111827;
-border-radius:12px;
-overflow:hidden;
+  width:100%;
+  max-width:620px;
+  margin:0 auto;
+  background:#ffffff;
+  border:2px solid #111827;
+  border-radius:12px;
+  overflow:hidden;
 ">
 
 
-<!-- ================= HEADER ================= -->
+<!-- HEADER -->
 
 <tr>
 
 <td
-class="header-cell"
+class="header"
 style="
-padding:14px 12px;
-background:#111827;
+  padding:13px 11px;
+  background:#111827;
 ">
 
 <table
@@ -614,37 +795,33 @@ role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
-border="0"
-style="
-width:100%;
-">
+border="0">
 
 <tr>
 
 
-<!-- ICON -->
+<!-- HEADER ICON -->
 
 <td
-width="42"
-valign="middle"
+width="38"
 style="
-width:42px;
-padding:0 8px 0 0;
-vertical-align:middle;
+  width:38px;
+  padding:0 8px 0 0;
+  vertical-align:middle;
 ">
 
 <table
 role="presentation"
-width="34"
-height="34"
+width="32"
+height="32"
 cellspacing="0"
 cellpadding="0"
 border="0"
 style="
-width:34px;
-height:34px;
-border:1px solid #ffffff;
-border-radius:9px;
+  width:32px;
+  height:32px;
+  border:1px solid #ffffff;
+  border-radius:8px;
 ">
 
 <tr>
@@ -653,10 +830,10 @@ border-radius:9px;
 align="center"
 valign="middle"
 style="
-width:34px;
-height:34px;
-vertical-align:middle;
-text-align:center;
+  width:32px;
+  height:32px;
+  text-align:center;
+  vertical-align:middle;
 ">
 
 ${icon("mail")}
@@ -673,40 +850,20 @@ ${icon("mail")}
 <!-- HEADER TEXT -->
 
 <td
-valign="middle"
 style="
-vertical-align:middle;
-text-align:left;
-">
-
-<table
-role="presentation"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-height:34px;
-">
-
-<tr>
-
-<td
-valign="middle"
-style="
-height:34px;
-vertical-align:middle;
+  padding:0;
+  vertical-align:middle;
 ">
 
 <div
-class="header-title"
 style="
-font-size:20px;
-line-height:23px;
-font-weight:800;
-letter-spacing:.3px;
-color:#ffffff;
-margin:0;
-padding:0;
+  font-size:20px;
+  line-height:23px;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:#ffffff;
+  margin:0;
+  padding:0;
 ">
 
 ${escapeHtml(company)}
@@ -715,11 +872,11 @@ ${escapeHtml(company)}
 
 <div
 style="
-font-size:10px;
-line-height:13px;
-color:#d1d5db;
-margin-top:1px;
-padding:0;
+  margin:1px 0 0;
+  padding:0;
+  font-size:10px;
+  line-height:13px;
+  color:#d1d5db;
 ">
 
 ${escapeHtml(tag)}
@@ -736,22 +893,16 @@ ${escapeHtml(tag)}
 
 </tr>
 
-</table>
 
-</td>
-
-</tr>
-
-
-<!-- ================= CONTENT ================= -->
+<!-- CONTENT -->
 
 <tr>
 
 <td
-class="content-cell"
+class="content"
 style="
-padding:14px 10px;
-background:#ffffff;
+  padding:13px 9px;
+  background:#ffffff;
 ">
 
 
@@ -766,11 +917,11 @@ border="0">
 
 <td
 style="
-font-size:9px;
-line-height:12px;
-font-weight:800;
-letter-spacing:1.5px;
-color:#737981;
+  font-size:9px;
+  line-height:12px;
+  font-weight:800;
+  letter-spacing:1.5px;
+  color:#737981;
 ">
 
 WEBSITE ENQUIRY
@@ -779,17 +930,15 @@ WEBSITE ENQUIRY
 
 </tr>
 
-
 <tr>
 
 <td
-class="main-title"
 style="
-padding-top:3px;
-font-size:21px;
-line-height:25px;
-font-weight:800;
-color:#111827;
+  padding-top:3px;
+  font-size:21px;
+  line-height:25px;
+  font-weight:800;
+  color:#111827;
 ">
 
 New Enquiry Received
@@ -798,15 +947,14 @@ New Enquiry Received
 
 </tr>
 
-
 <tr>
 
 <td
 style="
-padding-top:3px;
-font-size:11px;
-line-height:16px;
-color:#737981;
+  padding-top:3px;
+  font-size:11px;
+  line-height:16px;
+  color:#737981;
 ">
 
 A new travel enquiry has been received from your website.
@@ -818,7 +966,7 @@ A new travel enquiry has been received from your website.
 </table>
 
 
-<!-- ================= CUSTOMER DETAILS ================= -->
+<!-- CUSTOMER DETAILS -->
 
 <table
 role="presentation"
@@ -827,12 +975,12 @@ cellspacing="0"
 cellpadding="0"
 border="0"
 style="
-width:100%;
-margin-top:11px;
-border:1px solid #d8dce1;
-border-radius:10px;
-background:#ffffff;
-overflow:hidden;
+  width:100%;
+  margin-top:10px;
+  border:1px solid #d8dce1;
+  border-radius:9px;
+  background:#ffffff;
+  overflow:hidden;
 ">
 
 
@@ -840,9 +988,9 @@ overflow:hidden;
 
 <td
 style="
-padding:8px 10px;
-background:#f4f5f7;
-border-bottom:1px solid #e1e4e8;
+  padding:7px 9px;
+  background:#f4f5f7;
+  border-bottom:1px solid #e1e4e8;
 ">
 
 <table
@@ -854,11 +1002,11 @@ border="0">
 <tr>
 
 <td
-width="22"
+width="23"
 style="
-width:22px;
-padding-right:6px;
-vertical-align:middle;
+  width:23px;
+  padding-right:6px;
+  vertical-align:middle;
 ">
 
 ${icon("user")}
@@ -867,12 +1015,12 @@ ${icon("user")}
 
 <td
 style="
-font-size:10px;
-line-height:14px;
-font-weight:800;
-letter-spacing:.8px;
-color:#111827;
-vertical-align:middle;
+  font-size:10px;
+  line-height:13px;
+  font-weight:800;
+  letter-spacing:.8px;
+  color:#111827;
+  vertical-align:middle;
 ">
 
 CUSTOMER DETAILS
@@ -892,7 +1040,7 @@ CUSTOMER DETAILS
 
 <td
 style="
-padding:0;
+  padding:0;
 ">
 
 <table
@@ -902,74 +1050,17 @@ cellspacing="0"
 cellpadding="0"
 border="0">
 
-
-${buildRow(
-  "Guest Name",
-  guest,
-  "user"
-)}
-
-${buildRow(
-  "Email Address",
-  email,
-  "email"
-)}
-
-${buildRow(
-  "Phone / WhatsApp",
-  phone,
-  "phone"
-)}
-
-${buildRow(
-  "Travel Date",
-  travelDate,
-  "calendar"
-)}
-
-${buildRow(
-  "Adults",
-  av,
-  "users"
-)}
-
-${buildRow(
-  "Children",
-  cv,
-  "users"
-)}
-
-${buildRow(
-  "Travellers",
-  travellers,
-  "users"
-)}
-
-${buildRow(
-  "Destination",
-  destination,
-  "location"
-)}
-
-${buildRow(
-  "Package",
-  packageName,
-  "package"
-)}
-
-${buildRow(
-  "Enquiry ID",
-  id,
-  "id",
-  true
-)}
-
-${buildRow(
-  "Received",
-  received,
-  "clock"
-)}
-
+${buildRow("Guest Name",guest,"user")}
+${buildRow("Email Address",email,"email")}
+${buildRow("Phone / WhatsApp",phone,"phone")}
+${buildRow("Travel Date",travelDate,"calendar")}
+${buildRow("Adults",av,"users")}
+${buildRow("Children",cv,"users")}
+${buildRow("Travellers",travellers,"users")}
+${buildRow("Destination",destination,"location")}
+${buildRow("Package",packageName,"package")}
+${buildRow("Enquiry ID",id,"id",true)}
+${buildRow("Received",received,"clock")}
 
 </table>
 
@@ -1003,23 +1094,23 @@ ${buildBox(
 </tr>
 
 
-<!-- ================= FOOTER ================= -->
+<!-- FOOTER -->
 
 <tr>
 
 <td
 style="
-padding:10px 12px 11px;
-background:#111827;
-text-align:center;
+  padding:9px 10px 10px;
+  background:#111827;
+  text-align:center;
 ">
 
 <div
 style="
-font-size:12px;
-line-height:16px;
-font-weight:800;
-color:#ffffff;
+  font-size:12px;
+  line-height:15px;
+  font-weight:800;
+  color:#ffffff;
 ">
 
 ${escapeHtml(company)}
@@ -1028,10 +1119,10 @@ ${escapeHtml(company)}
 
 <div
 style="
-margin-top:1px;
-font-size:9px;
-line-height:12px;
-color:#cfd3d8;
+  margin-top:1px;
+  font-size:9px;
+  line-height:12px;
+  color:#cfd3d8;
 ">
 
 ${escapeHtml(tag)}
@@ -1059,7 +1150,7 @@ ${escapeHtml(tag)}
 
 
 /* =========================
-   SEND EMAIL
+   SEND ENQUIRY
 ========================= */
 
 async function sendEnquiry(request, env) {
@@ -1071,26 +1162,20 @@ async function sendEnquiry(request, env) {
         env?.RESEND_API_KEY || ""
       ).trim();
 
-
     const receiver =
       String(
         env?.ENQUIRY_RECEIVER_EMAIL || ""
       ).trim();
-
 
     if (!apiKey || !receiver) {
 
       const missing = [];
 
       if (!apiKey)
-        missing.push(
-          "RESEND_API_KEY"
-        );
+        missing.push("RESEND_API_KEY");
 
       if (!receiver)
-        missing.push(
-          "ENQUIRY_RECEIVER_EMAIL"
-        );
+        missing.push("ENQUIRY_RECEIVER_EMAIL");
 
       return json(
         {
@@ -1102,20 +1187,16 @@ async function sendEnquiry(request, env) {
       );
     }
 
-
     const payload =
       await request.json();
 
-
     const enquiry =
       payload?.enquiry || {};
-
 
     const customerEmail =
       String(
         enquiry.email || ""
       ).trim();
-
 
     const siteName =
       textOr(
@@ -1123,13 +1204,11 @@ async function sendEnquiry(request, env) {
         "BlueVows Travel"
       );
 
-
     const tagline =
       textOr(
         payload.tagline,
         "Explore Andaman With Us"
       );
-
 
     const from =
       String(
@@ -1137,12 +1216,11 @@ async function sendEnquiry(request, env) {
         "BlueVows Website <onboarding@resend.dev>"
       ).trim();
 
-
     const body = {
 
       from,
 
-      to: [
+      to:[
         receiver
       ],
 
@@ -1158,24 +1236,18 @@ async function sendEnquiry(request, env) {
       html:
         buildHtml({
           enquiry,
-          adults:
-            payload.adults,
-          children:
-            payload.children,
+          adults:payload.adults,
+          children:payload.children,
           siteName,
           tagline
         })
 
     };
 
-
     if (customerEmail) {
-
       body.reply_to =
         customerEmail;
-
     }
-
 
     const response =
       await fetch(
@@ -1196,54 +1268,36 @@ async function sendEnquiry(request, env) {
         }
       );
 
-
     const raw =
       await response.text();
 
-
     let data = {};
 
-
     try {
-
       data =
-        raw
-          ? JSON.parse(raw)
-          : {};
-
+        raw ? JSON.parse(raw) : {};
     } catch {
-
-      data = {
-        raw
-      };
-
+      data = { raw };
     }
-
 
     if (!response.ok) {
 
       console.error(
         "Resend rejected BlueVows email",
         {
-          status:
-            response.status,
-
-          response:
-            data
+          status:response.status,
+          response:data
         }
       );
-
 
       return json(
         {
           ok:false,
-
           error:
             data?.message ||
             data?.error ||
             raw ||
             `Resend returned HTTP ${response.status}`,
-
           resendStatus:
             response.status
         },
@@ -1251,13 +1305,10 @@ async function sendEnquiry(request, env) {
       );
     }
 
-
     return json({
       ok:true,
-      id:
-        data?.id || null
+      id:data?.id || null
     });
-
 
   } catch (error) {
 
@@ -1266,11 +1317,9 @@ async function sendEnquiry(request, env) {
       error?.stack || error
     );
 
-
     return json(
       {
         ok:false,
-
         error:
           error?.message ||
           "Unable to send enquiry email."
@@ -1287,32 +1336,21 @@ async function sendEnquiry(request, env) {
 
 export default {
 
-  async fetch(
-    request,
-    env
-  ) {
+  async fetch(request, env) {
 
     const url =
       new URL(request.url);
-
-
-    /* OPTIONS */
 
     if (
       request.method ===
       "OPTIONS"
     ) {
-
       return json(
-        {
-          ok:true
-        },
+        { ok:true },
         204
       );
     }
 
-
-    /* EMAIL STATUS */
 
     if (
       url.pathname ===
@@ -1324,29 +1362,23 @@ export default {
       const hasApiKey =
         Boolean(
           String(
-            env?.RESEND_API_KEY ||
-            ""
+            env?.RESEND_API_KEY || ""
           ).trim()
         );
-
 
       const hasReceiver =
         Boolean(
           String(
-            env?.ENQUIRY_RECEIVER_EMAIL ||
-            ""
+            env?.ENQUIRY_RECEIVER_EMAIL || ""
           ).trim()
         );
-
 
       const hasFrom =
         Boolean(
           String(
-            env?.RESEND_FROM_EMAIL ||
-            ""
+            env?.RESEND_FROM_EMAIL || ""
           ).trim()
         );
-
 
       return json({
 
@@ -1354,7 +1386,7 @@ export default {
           hasApiKey &&
           hasReceiver,
 
-        bindings: {
+        bindings:{
 
           RESEND_API_KEY:
             hasApiKey,
@@ -1366,9 +1398,7 @@ export default {
             hasFrom,
 
           ASSETS:
-            Boolean(
-              env?.ASSETS
-            )
+            Boolean(env?.ASSETS)
 
         },
 
@@ -1376,11 +1406,10 @@ export default {
           hasFrom
             ? "BlueVows Website <configured>"
             : "BlueVows Website <onboarding@resend.dev>"
+
       });
     }
 
-
-    /* SEND ENQUIRY */
 
     if (
       url.pathname ===
@@ -1398,19 +1427,15 @@ export default {
         );
       }
 
-
       return json(
         {
           ok:false,
-          error:
-            "Method not allowed"
+          error:"Method not allowed"
         },
         405
       );
     }
 
-
-    /* WEBSITE */
 
     return env.ASSETS.fetch(
       request
