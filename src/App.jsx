@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, Route, Routes, useParams, useLocation, useNavigate } from "react-router-dom";
 import { createContext, useContext, useMemo } from "react";
-import { cmsConfigured, listDestinations, getDestinationBySlug, getDestinationBundle, listPackages } from "./lib/destinationCms";
+import { cmsConfigured, listDestinations, listDestinationPlaces, getDestinationBySlug, getDestinationBundle, listPackages } from "./lib/destinationCms";
 import { siteCmsConfigured, loadSiteCms, listPackageItinerary } from "./lib/siteCms";
 import {
   Menu, X, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronDown,
@@ -413,6 +413,29 @@ function OfferCard({offer}){
   </div>
  </article>
 }
+function PlacesListing(){
+  const [places,setPlaces]=useState([]);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{let alive=true;(async()=>{
+    try{
+      if(cmsConfigured){
+        const rows=await listDestinationPlaces();
+        if(alive)setPlaces(rows||[]);
+      }
+    }catch(err){console.warn("Places CMS load failed",err)}
+    finally{if(alive)setLoading(false)}
+  })();return()=>{alive=false}},[]);
+  return <main className="page places-page"><div className="container">
+    <span className="eyebrow">EXPLORE THE ISLANDS</span>
+    <h1 className="page-title">Places & attractions</h1>
+    <p className="page-lead">Discover beaches, viewpoints and island highlights worth adding to your Andaman itinerary.</p>
+    {loading?<div className="empty-state">Loading places…</div>:places.length?<div className="destination-place-grid places-list-grid">{places.map((p,i)=><article className="destination-place-card" key={p.id||i}>
+      <div className="place-image"><img src={p.image||p.destination?.featured_image||p.destination?.hero_image||"/bluevows-logo.png"} alt={p.name||"Place"} loading="lazy"/></div>
+      <div><span className="place-destination">{p.destination?.name||"Andaman Islands"}</span><h3>{p.name}</h3><p>{p.description||"Discover this island highlight with BlueVows."}</p>{p.location&&<span><MapPin size={14}/> {p.location}</span>}{p.entry_information&&<small>{p.entry_information}</small>}<Link className="mini-link" to={p.destination?.slug?`/destinations/${p.destination.slug}`:"/contact"}>View destination <ArrowRight size={14}/></Link></div>
+    </article>)}</div>:<div className="empty-state">No places are published yet.</div>}
+  </div></main>
+}
+
 function FAQListing(){
  const site=useSiteCMS();
  const faqs=site.faqs||[];
@@ -647,6 +670,7 @@ function AppShell(){
   <Route path="/activities" element={<ActivityListing/>}/>
   <Route path="/activities/:slug" element={<ActivityDetail/>}/>
   <Route path="/offers" element={<OffersListing/>}/>
+  <Route path="/places" element={<PlacesListing/>}/>
   <Route path="/faq" element={<FAQListing/>}/>
   <Route path="/blog" element={<BlogListing/>}/>
   <Route path="/blog/:slug" element={<BlogDetail/>}/>
