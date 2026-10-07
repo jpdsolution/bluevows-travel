@@ -413,6 +413,13 @@ function OfferCard({offer}){
   </div>
  </article>
 }
+function FAQListing(){
+ const site=useSiteCMS();
+ const faqs=site.faqs||[];
+ const grouped=faqs.reduce((acc,f)=>{const key=f.category||"General";(acc[key] ||= []).push(f);return acc},{});
+ return <main className="page faq-page"><div className="container narrow"><span className="eyebrow">BLUEVOWS FAQ</span><h1 className="page-title">Frequently asked questions</h1><p className="page-lead">Quick answers about planning, bookings, transfers and your Andaman journey.</p>{faqs.length?<div className="faq-groups">{Object.entries(grouped).map(([category,items])=><section className="faq-group" key={category}><h2>{category}</h2><div className="faq-list">{items.map((f,i)=><details className="site-faq" key={f.id||i}><summary>{f.question}<ChevronDown size={18}/></summary><div className="faq-answer">{String(f.answer||"").split(/\n\s*\n/).filter(Boolean).map((paragraph,j)=><p key={j}>{paragraph}</p>)}</div></details>)}</div></section>)}</div>:<div className="empty-state">No FAQs are published yet.</div>}</div></main>
+}
+
 function OffersListing(){const site=useSiteCMS();const offers=site.specialOffers||[];return <SimplePage title="Special Offers" eyebrow="BLUEVOWS OFFERS"><p className="page-lead">Limited-time island offers and travel deals curated by BlueVows.</p>{offers.length?<div className="offer-grid">{offers.map((offer,i)=><OfferCard offer={offer} key={offer.id||offer.slug||i}/>)}</div>:<div className="empty-state">No special offers are published right now.</div>}</SimplePage>}
 
 function BlogCard({post}){const image=post.featured_image_url||post.image_url||post.image||"";return <article className="blog-card">{image&&<Link to={`/blog/${post.slug||post.id}`}><img src={image} alt={post.title||"BlueVows travel guide"}/></Link>}<div className="blog-card-body"><span className="blog-date">{post.published_at?new Date(post.published_at).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"Travel Guide"}</span><h3><Link to={`/blog/${post.slug||post.id}`}>{post.title}</Link></h3><p>{post.excerpt||post.description||"Useful island travel information from BlueVows."}</p><Link className="mini-link" to={`/blog/${post.slug||post.id}`}>Read guide <ArrowRight size={14}/></Link></div></article>}
@@ -447,6 +454,7 @@ function Home(){
     <section className="section soft blog-home-section"><div className="container"><SectionHead eyebrow="TRAVEL GUIDES" title="Plan better before you go" text="Useful Andaman guides, island tips and ideas to help you plan with confidence."/><div className="blog-grid">{(site.blog||[]).slice(0,3).map((post,i)=><BlogCard post={post} key={post.id||post.slug||i}/>)}</div><div className="center"><Link className="btn outline" to="/blog">View all travel guides <ArrowRight size={17}/></Link></div></div></section>
     <section className="section offers-home-section"><div className="container"><SectionHead eyebrow="SPECIAL OFFERS" title="More island, better value" text="Explore current BlueVows offers and choose the one that fits your journey."/><div className="offer-grid">{(site.specialOffers||[]).slice(0,3).map((offer,i)=><OfferCard offer={offer} key={offer.id||offer.slug||i}/>)}</div><div className="center"><Link className="btn outline" to="/offers">View all offers <ArrowRight size={17}/></Link></div></div></section>
     <section className="section reviews-section"><div className="container"><SectionHead eyebrow="TRAVELLER STORIES" title="What our guests say" text="Real-feeling service starts with listening, planning and being there when it matters."/><div className="review-grid">{reviews.map(r=><article className="review modern-review" key={r.id||r.guest_name}><div className="review-top"><div className="review-profile"><img src={r.photo_url||"https://i.pravatar.cc/120?img=47"} alt={r.guest_name}/><div><b>{r.guest_name}</b><span>Verified traveller</span></div></div><div className="stars">{[1,2,3,4,5].map(x=><Star key={x} fill={x<=Math.round(Number(r.rating||5))?"currentColor":"none"} size={14}/>)}</div></div><h3>{r.title}</h3><p>“{r.review}”</p><div className="review-quote">“</div></article>)}</div></div></section>
+    {(site.faqs||[]).length>0&&<section className="section soft home-faq-section"><div className="container narrow"><SectionHead eyebrow="FAQ" title="Questions, answered" text="A few useful answers before you plan your island escape."/><div className="faq-list">{(site.faqs||[]).slice(0,5).map((f,i)=><details className="site-faq" key={f.id||i}><summary>{f.question}<ChevronDown size={18}/></summary><div className="faq-answer">{String(f.answer||"").split(/\n\s*\n/).filter(Boolean).map((paragraph,j)=><p key={j}>{paragraph}</p>)}</div></details>)}</div><div className="center"><Link className="btn outline" to="/faq">View all FAQs <ArrowRight size={17}/></Link></div></div></section>}
     <CTA/>
   </main>
  </>
@@ -639,6 +647,7 @@ function AppShell(){
   <Route path="/activities" element={<ActivityListing/>}/>
   <Route path="/activities/:slug" element={<ActivityDetail/>}/>
   <Route path="/offers" element={<OffersListing/>}/>
+  <Route path="/faq" element={<FAQListing/>}/>
   <Route path="/blog" element={<BlogListing/>}/>
   <Route path="/blog/:slug" element={<BlogDetail/>}/>
   <Route path="/about" element={<CmsPage contentKey="page.about" fallbackTitle="About BlueVows" fallbackEyebrow="OUR STORY"/>}/>
