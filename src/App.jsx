@@ -394,11 +394,8 @@ function CmsPage({contentKey,fallbackTitle,fallbackEyebrow}){const site=useSiteC
 
 function SimplePage({title,eyebrow,children}){return <main className="page"><div className="container narrow"><span className="eyebrow">{eyebrow}</span><h1 className="page-title">{title}</h1>{children}</div></main>}
 
-function DateField({label="Travel date"}){
-  const [value,setValue]=useState("");
-  const inputRef=useRef(null);
-  const display=value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select travel date";
-  return <label className="date-field date-field-modern">{label}<div className="date-control"><span className={value?"has-date":"placeholder"}>{display}</span><CalendarDays size={18}/><input ref={inputRef} type="date" value={value} onChange={e=>setValue(e.target.value)} aria-label={label}/></div></label>
+function DateField({label="Travel date",value="",onChange}){
+  return <label className="date-field date-field-modern">{label}<div className="date-control"><input type="date" value={value} onChange={e=>onChange?.(e.target.value)} aria-label={label}/><CalendarDays className="date-control-icon" size={18}/></div></label>
 }
 
 function Contact(){
@@ -459,7 +456,7 @@ function Contact(){
     <label>Full name<input value={form.name} onChange={e=>update("name",e.target.value)} placeholder="Your name" required/></label>
     <label>Phone number<input value={form.phone} onChange={e=>update("phone",e.target.value)} placeholder={settings.phone||"+91"} required/></label>
     <label>Email<input type="email" value={form.email} onChange={e=>update("email",e.target.value)} placeholder={settings.contact_email||"you@example.com"}/></label>
-    <label>Travel date<input type="date" value={form.travelDate} onChange={e=>update("travelDate",e.target.value)}/></label>
+    <DateField label="Travel date" value={form.travelDate} onChange={value=>update("travelDate",value)}/>
     <label>Adults<input type="number" min="1" value={form.adults} onChange={e=>update("adults",e.target.value)}/></label>
     <label>Children<input type="number" min="0" value={form.children} onChange={e=>update("children",e.target.value)}/></label>
     <label>Destination<select value={form.destination} onChange={e=>update("destination",e.target.value)}><option value="">Select destination</option>{destinations.map(d=><option key={d.id||d.slug||d.name} value={d.name}>{d.name}</option>)}</select></label>
