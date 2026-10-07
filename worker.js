@@ -1,276 +1,344 @@
-// worker.js
+// 1. PURANA icon() FUNCTION DELETE KARKE YE PASTE KARO
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
-    }
-  });
-}
+function icon(type, dark = false) {
+  const stroke = dark ? "#ffffff" : "#111827";
 
-function textOr(value, fallback = "") {
-  const text = String(value ?? "").trim();
-  return text || fallback;
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-/* SVG ICONS - EMAIL SAFE INLINE SVG */
-function icon(type) {
   const icons = {
+
     user: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="8" r="4" stroke="#111827" stroke-width="2"/>
-<path d="M4 21C4.8 16.8 7.4 15 12 15C16.6 15 19.2 16.8 20 21"
-stroke="#111827" stroke-width="2" stroke-linecap="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:17px;
+height:17px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:5px;
+top:1px;
+width:6px;
+height:6px;
+border:1.5px solid ${stroke};
+border-radius:50%;
+"></span>
+<span style="
+position:absolute;
+left:2px;
+bottom:0;
+width:12px;
+height:7px;
+border:1.5px solid ${stroke};
+border-bottom:0;
+border-radius:8px 8px 0 0;
+"></span>
+</span>`,
 
     email: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#111827" stroke-width="2"/>
-<path d="M4 7L12 13L20 7"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:17px;
+height:13px;
+border:1.5px solid ${stroke};
+border-radius:3px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:2px;
+top:2px;
+width:9px;
+height:9px;
+border-left:1.5px solid ${stroke};
+border-bottom:1.5px solid ${stroke};
+transform:rotate(-45deg);
+"></span>
+</span>`,
 
     phone: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M6.6 3H10L11.5 7L9.5 8.5C10.4 10.5 12 12.1 14 13L15.5 11L19.5 12.5V16C19.5 18 18 19.5 16 19.5C9.4 19.5 4.5 14.6 4.5 8C4.5 6 6 3 6.6 3Z"
-stroke="#111827" stroke-width="1.8"
-stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:16px;
+height:16px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:4px;
+top:1px;
+width:8px;
+height:14px;
+border:1.5px solid ${stroke};
+border-radius:7px;
+transform:rotate(-35deg);
+"></span>
+</span>`,
 
     calendar: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="16" rx="2"
-stroke="#111827" stroke-width="2"/>
-<path d="M7 3V7M17 3V7M3 10H21"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:16px;
+height:15px;
+border:1.5px solid ${stroke};
+border-radius:3px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:0;
+right:0;
+top:4px;
+border-top:1.5px solid ${stroke};
+"></span>
+<span style="
+position:absolute;
+left:3px;
+top:-3px;
+width:1.5px;
+height:5px;
+background:${stroke};
+"></span>
+<span style="
+position:absolute;
+right:3px;
+top:-3px;
+width:1.5px;
+height:5px;
+background:${stroke};
+"></span>
+</span>`,
 
     users: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="9" cy="8" r="3"
-stroke="#111827" stroke-width="2"/>
-<circle cx="17" cy="9" r="2.5"
-stroke="#111827" stroke-width="2"/>
-<path d="M3.5 20C4.2 16.5 6 15 9 15C12 15 13.8 16.5 14.5 20"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"/>
-<path d="M15 15C17.7 15.1 19.4 16.4 20 19"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:18px;
+height:17px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:2px;
+top:1px;
+width:6px;
+height:6px;
+border:1.4px solid ${stroke};
+border-radius:50%;
+"></span>
+<span style="
+position:absolute;
+left:0;
+bottom:0;
+width:10px;
+height:7px;
+border:1.4px solid ${stroke};
+border-bottom:0;
+border-radius:7px 7px 0 0;
+"></span>
+<span style="
+position:absolute;
+right:1px;
+top:3px;
+width:5px;
+height:5px;
+border:1.3px solid ${stroke};
+border-radius:50%;
+"></span>
+<span style="
+position:absolute;
+right:0;
+bottom:0;
+width:7px;
+height:5px;
+border:1.3px solid ${stroke};
+border-bottom:0;
+border-radius:6px 6px 0 0;
+"></span>
+</span>`,
 
     location: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M20 10C20 15.5 12 21 12 21C12 21 4 15.5 4 10C4 5.6 7.6 3 12 3C16.4 3 20 5.6 20 10Z"
-stroke="#111827" stroke-width="2"/>
-<circle cx="12" cy="10" r="2.5"
-stroke="#111827" stroke-width="2"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:15px;
+height:15px;
+border:1.5px solid ${stroke};
+border-radius:50% 50% 50% 0;
+transform:rotate(-45deg);
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:4px;
+top:4px;
+width:4px;
+height:4px;
+border:1px solid ${stroke};
+border-radius:50%;
+"></span>
+</span>`,
 
     package: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M4 8L12 4L20 8V17L12 21L4 17V8Z"
-stroke="#111827" stroke-width="2"
-stroke-linejoin="round"/>
-<path d="M4 8L12 12L20 8M12 12V21"
-stroke="#111827" stroke-width="2"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:15px;
+height:14px;
+border:1.5px solid ${stroke};
+border-radius:2px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:0;
+right:0;
+top:4px;
+border-top:1.5px solid ${stroke};
+"></span>
+<span style="
+position:absolute;
+left:5px;
+top:-4px;
+width:5px;
+height:4px;
+border:1.5px solid ${stroke};
+border-bottom:0;
+"></span>
+</span>`,
 
     id: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#111827" stroke-width="2"/>
-<circle cx="8" cy="11" r="2"
-stroke="#111827" stroke-width="1.7"/>
-<path d="M12 10H18M12 14H17"
-stroke="#111827" stroke-width="1.7"
-stroke-linecap="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:16px;
+height:12px;
+border:1.5px solid ${stroke};
+border-radius:3px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:3px;
+top:3px;
+width:4px;
+height:4px;
+border:1px solid ${stroke};
+border-radius:50%;
+"></span>
+<span style="
+position:absolute;
+right:2px;
+top:3px;
+width:4px;
+border-top:1px solid ${stroke};
+box-shadow:0 3px 0 ${stroke};
+"></span>
+</span>`,
 
     clock: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="12" r="9"
-stroke="#111827" stroke-width="2"/>
-<path d="M12 7V12L15 14"
-stroke="#111827" stroke-width="2"
-stroke-linecap="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:15px;
+height:15px;
+border:1.5px solid ${stroke};
+border-radius:50%;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:6px;
+top:3px;
+width:1.5px;
+height:5px;
+background:${stroke};
+"></span>
+<span style="
+position:absolute;
+left:6px;
+top:7px;
+width:4px;
+height:1.5px;
+background:${stroke};
+"></span>
+</span>`,
 
     message: `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M5 5H19C20.1 5 21 5.9 21 7V16C21 17.1 20.1 18 19 18H10L6 21V18H5C3.9 18 3 17.1 3 16V7C3 5.9 3.9 5 5 5Z"
-stroke="#111827" stroke-width="2"
-stroke-linejoin="round"/>
-</svg>`,
+<span style="
+display:inline-block;
+width:16px;
+height:12px;
+border:1.5px solid ${stroke};
+border-radius:3px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:3px;
+bottom:-4px;
+width:5px;
+height:5px;
+border-left:1.5px solid ${stroke};
+border-bottom:1.5px solid ${stroke};
+transform:skewY(-30deg);
+"></span>
+</span>`,
 
     mail: `
-<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<rect x="3" y="5" width="18" height="14" rx="2"
-stroke="#ffffff" stroke-width="2"/>
-<path d="M4 7L12 13L20 7"
-stroke="#ffffff" stroke-width="2"
-stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`
+<span style="
+display:inline-block;
+width:23px;
+height:17px;
+border:1.7px solid #ffffff;
+border-radius:4px;
+position:relative;
+vertical-align:middle;
+">
+<span style="
+position:absolute;
+left:2px;
+top:2px;
+width:13px;
+height:13px;
+border-left:1.5px solid #ffffff;
+border-bottom:1.5px solid #ffffff;
+transform:rotate(-45deg);
+"></span>
+</span>`
   };
 
   return icons[type] || "";
 }
 
-function buildRow(label, value, iconType, mono = false) {
-  return `
-<tr>
-<td style="
-  padding:8px 9px;
-  border-bottom:1px solid #e8eaed;
-  vertical-align:middle;
-">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="22" style="
-  width:22px;
-  padding-right:6px;
-  vertical-align:middle;
-">
-${icon(iconType)}
-</td>
-<td style="
-  font-size:11px;
-  line-height:15px;
-  font-weight:700;
-  color:#374151;
-  vertical-align:middle;
-">
-${escapeHtml(label)}
-</td>
-</tr>
-</table>
-</td>
 
-<td style="
-  padding:8px 9px;
-  border-bottom:1px solid #e8eaed;
-  font-size:11px;
-  line-height:15px;
-  color:#111827;
-  vertical-align:middle;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  ${mono ? "font-family:monospace;" : ""}
-">
-${escapeHtml(value) || "—"}
-</td>
-</tr>`;
-}
-
-function buildBox(title, content, iconType) {
-  return `
-<table role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:100%;
-  margin-top:10px;
-  border:1px solid #d9dde3;
-  border-radius:10px;
-  background:#ffffff;
-  overflow:hidden;
-">
-<tr>
-<td style="
-  padding:8px 10px;
-  background:#f8f9fa;
-  border-bottom:1px solid #e5e7eb;
-">
-
-<table role="presentation" cellspacing="0" cellpadding="0" border="0">
-<tr>
-<td width="22" style="
-  width:22px;
-  padding-right:6px;
-  vertical-align:middle;
-">
-${icon(iconType)}
-</td>
-
-<td style="
-  font-size:10px;
-  line-height:14px;
-  font-weight:800;
-  letter-spacing:.7px;
-  color:#111827;
-  vertical-align:middle;
-">
-${escapeHtml(title)}
-</td>
-</tr>
-</table>
-
-</td>
-</tr>
-
-<tr>
-<td style="
-  padding:9px 10px;
-  font-size:11px;
-  line-height:17px;
-  color:#111827;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-">
-${content}
-</td>
-</tr>
-</table>`;
-}
+// 2. buildHtml() FUNCTION PURA DELETE KARKE YE PASTE KARO
 
 function buildHtml({
   enquiry = {},
   adults,
   children,
-  siteName = "BlueVows",
+  siteName = "BlueVows Travel",
   tagline = "Explore Andaman With Us"
 }) {
 
-  const company = textOr(siteName, "BlueVows");
+  const company = textOr(siteName, "BlueVows Travel");
   const tag = textOr(tagline, "Explore Andaman With Us");
 
   const guest = textOr(enquiry.name, "Website Guest");
   const email = textOr(enquiry.email, "—");
   const phone = textOr(enquiry.phone, "—");
 
-  /* FIXED TRAVEL DATE + PACKAGE */
   const travelDate = textOr(
     enquiry.travelDate ||
     enquiry.travel_date ||
+    enquiry.travel_date_value ||
     enquiry.date ||
-    enquiry.travelDateValue,
+    enquiry.checkIn ||
+    enquiry.startDate,
     "—"
   );
 
@@ -279,7 +347,8 @@ function buildHtml({
     enquiry.package_name ||
     enquiry.package ||
     enquiry.packageTitle ||
-    enquiry.selectedPackage,
+    enquiry.selectedPackage ||
+    enquiry.package_name_value,
     "—"
   );
 
@@ -297,8 +366,7 @@ function buildHtml({
   const childNumber = Number(cv);
 
   const travellers =
-    !isNaN(adultNumber) &&
-    !isNaN(childNumber)
+    !isNaN(adultNumber) && !isNaN(childNumber)
       ? String(adultNumber + childNumber)
       : "—";
 
@@ -323,27 +391,29 @@ function buildHtml({
     ? new Date(enquiry.created_at).toLocaleString(
         "en-IN",
         {
-          dateStyle:"medium",
-          timeStyle:"short"
+          dateStyle: "medium",
+          timeStyle: "short"
         }
       )
     : new Date().toLocaleString(
         "en-IN",
         {
-          dateStyle:"medium",
-          timeStyle:"short"
+          dateStyle: "medium",
+          timeStyle: "short"
         }
       );
 
   const messageHtml =
-    escapeHtml(message).replace(/\n/g,"<br>");
+    escapeHtml(message).replace(/\n/g, "<br>");
 
   return `
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width,initial-scale=1.0">
 
@@ -362,7 +432,8 @@ body{
 }
 
 body{
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,
+  "Segoe UI",Arial,Helvetica,sans-serif;
   color:#111827;
 }
 
@@ -378,19 +449,25 @@ a{
 
 @media only screen and (max-width:600px){
 
-  .main-card{
-    width:100%!important;
+  .outer-pad{
+    padding:3px!important;
   }
 
-  .outer-pad{
-    padding:7px!important;
+  .main-card{
+    width:100%!important;
+    max-width:none!important;
   }
 
   .content-pad{
-    padding:11px!important;
+    padding:12px 11px!important;
   }
 
   .title{
+    font-size:19px!important;
+    line-height:23px!important;
+  }
+
+  .header-title{
     font-size:18px!important;
     line-height:22px!important;
   }
@@ -398,13 +475,10 @@ a{
 }
 
 </style>
+
 </head>
 
-<body style="
-margin:0;
-padding:0;
-background:#ffffff;
-">
+<body>
 
 <table role="presentation"
 width="100%"
@@ -418,27 +492,29 @@ background:#ffffff;
 
 <tr>
 
-<td align="center"
+<td
+align="center"
 class="outer-pad"
 style="
-padding:10px;
+padding:4px;
 background:#ffffff;
 ">
 
-<!-- OUTER CARD -->
+<!-- MAIN CARD -->
 
-<table role="presentation"
+<table
+role="presentation"
 class="main-card"
-width="570"
+width="100%"
 cellspacing="0"
 cellpadding="0"
 border="0"
 style="
 width:100%;
-max-width:570px;
+max-width:590px;
 background:#ffffff;
 border:2px solid #111827;
-border-radius:14px;
+border-radius:15px;
 overflow:hidden;
 ">
 
@@ -447,11 +523,12 @@ overflow:hidden;
 <tr>
 
 <td style="
-padding:14px 15px;
+padding:14px 14px;
 background:#111827;
 ">
 
-<table role="presentation"
+<table
+role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
@@ -459,14 +536,19 @@ border="0">
 
 <tr>
 
-<td width="38"
+<!-- ICON -->
+
+<td
+width="42"
+valign="middle"
 style="
-width:38px;
+width:42px;
 padding-right:9px;
 vertical-align:middle;
 ">
 
-<table role="presentation"
+<table
+role="presentation"
 width="34"
 height="34"
 cellspacing="0"
@@ -476,15 +558,20 @@ style="
 width:34px;
 height:34px;
 border:1px solid #ffffff;
-border-radius:8px;
+border-radius:9px;
 ">
 
 <tr>
 
-<td align="center"
-valign="middle">
+<td
+align="center"
+valign="middle"
+style="
+height:34px;
+vertical-align:middle;
+">
 
-${icon("mail")}
+${icon("mail", true)}
 
 </td>
 
@@ -494,18 +581,27 @@ ${icon("mail")}
 
 </td>
 
-<td style="
+<!-- HEADER TEXT -->
+
+<td
+valign="middle"
+style="
 vertical-align:middle;
 ">
 
-<div style="
+<div
+class="header-title"
+style="
 font-size:20px;
 line-height:23px;
 font-weight:800;
-letter-spacing:.5px;
+letter-spacing:.3px;
 color:#ffffff;
+vertical-align:middle;
 ">
+
 ${escapeHtml(company)}
+
 </div>
 
 <div style="
@@ -514,7 +610,9 @@ font-size:10px;
 line-height:14px;
 color:#d1d5db;
 ">
+
 ${escapeHtml(tag)}
+
 </div>
 
 </td>
@@ -527,17 +625,20 @@ ${escapeHtml(tag)}
 
 </tr>
 
+
 <!-- CONTENT -->
 
 <tr>
 
-<td class="content-pad"
+<td
+class="content-pad"
 style="
-padding:14px 15px;
+padding:14px 14px;
 background:#ffffff;
 ">
 
-<table role="presentation"
+<table
+role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
@@ -549,17 +650,20 @@ border="0">
 font-size:9px;
 line-height:12px;
 font-weight:800;
-letter-spacing:1.2px;
+letter-spacing:1.4px;
 color:#6b7280;
 ">
+
 WEBSITE ENQUIRY
+
 </td>
 
 </tr>
 
 <tr>
 
-<td class="title"
+<td
+class="title"
 style="
 padding-top:3px;
 font-size:21px;
@@ -567,7 +671,9 @@ line-height:25px;
 font-weight:800;
 color:#111827;
 ">
+
 New Enquiry Received
+
 </td>
 
 </tr>
@@ -580,16 +686,20 @@ font-size:11px;
 line-height:16px;
 color:#6b7280;
 ">
+
 A new travel enquiry has been received from your website.
+
 </td>
 
 </tr>
 
 </table>
 
+
 <!-- CUSTOMER DETAILS -->
 
-<table role="presentation"
+<table
+role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
@@ -607,34 +717,41 @@ overflow:hidden;
 
 <td style="
 padding:8px 10px;
-background:#f8f9fa;
-border-bottom:1px solid #e5e7eb;
+background:#f5f6f8;
+border-bottom:1px solid #e1e4e8;
 ">
 
-<table role="presentation"
+<table
+role="presentation"
 cellspacing="0"
 cellpadding="0"
 border="0">
 
 <tr>
 
-<td width="22"
+<td
+width="23"
 style="
-width:22px;
+width:23px;
 padding-right:6px;
 vertical-align:middle;
 ">
+
 ${icon("user")}
+
 </td>
 
 <td style="
 font-size:10px;
 line-height:14px;
 font-weight:800;
-letter-spacing:.7px;
+letter-spacing:.8px;
 color:#111827;
+vertical-align:middle;
 ">
+
 CUSTOMER DETAILS
+
 </td>
 
 </tr>
@@ -647,9 +764,12 @@ CUSTOMER DETAILS
 
 <tr>
 
-<td style="padding:0;">
+<td style="
+padding:0;
+">
 
-<table role="presentation"
+<table
+role="presentation"
 width="100%"
 cellspacing="0"
 cellpadding="0"
@@ -675,11 +795,17 @@ ${buildRow("Received",received,"clock")}
 
 </table>
 
+
+<!-- MESSAGE -->
+
 ${buildBox(
   "CUSTOMER MESSAGE",
   messageHtml,
   "message"
 )}
+
+
+<!-- FOLLOW UP -->
 
 ${buildBox(
   "FOLLOW-UP",
@@ -691,14 +817,14 @@ ${buildBox(
 
 </tr>
 
+
 <!-- BLACK FOOTER -->
 
 <tr>
 
 <td style="
-padding:11px 15px 12px;
+padding:11px 14px 12px;
 background:#111827;
-border-top:1px solid #111827;
 text-align:center;
 ">
 
@@ -708,7 +834,9 @@ line-height:17px;
 font-weight:800;
 color:#ffffff;
 ">
+
 ${escapeHtml(company)}
+
 </div>
 
 <div style="
@@ -717,7 +845,9 @@ font-size:9px;
 line-height:13px;
 color:#d1d5db;
 ">
+
 ${escapeHtml(tag)}
+
 </div>
 
 </td>
@@ -733,264 +863,7 @@ ${escapeHtml(tag)}
 </table>
 
 </body>
+
 </html>
 `;
 }
-
-async function sendEnquiry(request, env) {
-
-  try {
-
-    const apiKey =
-      String(env?.RESEND_API_KEY || "").trim();
-
-    const receiver =
-      String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
-
-    if(!apiKey || !receiver){
-
-      const missing = [];
-
-      if(!apiKey)
-        missing.push("RESEND_API_KEY");
-
-      if(!receiver)
-        missing.push("ENQUIRY_RECEIVER_EMAIL");
-
-      return json({
-        ok:false,
-        error:
-          `Email service is not configured. Missing: ${missing.join(", ")}`
-      },500);
-    }
-
-    const payload = await request.json();
-
-    const enquiry =
-      payload?.enquiry || {};
-
-    const customerEmail =
-      String(enquiry.email || "").trim();
-
-    const siteName =
-      textOr(
-        payload.siteName,
-        "BlueVows"
-      );
-
-    const tagline =
-      textOr(
-        payload.tagline,
-        "Explore Andaman With Us"
-      );
-
-    const from =
-      String(
-        env.RESEND_FROM_EMAIL ||
-        "BlueVows Website <onboarding@resend.dev>"
-      ).trim();
-
-    const body = {
-
-      from,
-
-      to:[receiver],
-
-      subject:
-        `New Enquiry Received — ${textOr(
-          enquiry.destination,
-          "Andaman"
-        )} — ${textOr(
-          enquiry.name,
-          "Website Guest"
-        )}`,
-
-      html:buildHtml({
-        enquiry,
-        adults:payload.adults,
-        children:payload.children,
-        siteName,
-        tagline
-      })
-
-    };
-
-    if(customerEmail){
-
-      body.reply_to =
-        customerEmail;
-
-    }
-
-    const response =
-      await fetch(
-        "https://api.resend.com/emails",
-        {
-          method:"POST",
-
-          headers:{
-            Authorization:
-              `Bearer ${apiKey}`,
-
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(body)
-        }
-      );
-
-    const raw =
-      await response.text();
-
-    let data = {};
-
-    try{
-      data =
-        raw ? JSON.parse(raw) : {};
-    }
-    catch{
-      data = {raw};
-    }
-
-    if(!response.ok){
-
-      console.error(
-        "Resend rejected BlueVows email",
-        {
-          status:response.status,
-          response:data
-        }
-      );
-
-      return json({
-        ok:false,
-        error:
-          data?.message ||
-          data?.error ||
-          raw ||
-          `Resend returned HTTP ${response.status}`,
-
-        resendStatus:
-          response.status
-      },502);
-    }
-
-    return json({
-      ok:true,
-      id:data?.id || null
-    });
-
-  }
-  catch(error){
-
-    console.error(
-      "BlueVows enquiry email function failed",
-      error?.stack || error
-    );
-
-    return json({
-      ok:false,
-      error:
-        error?.message ||
-        "Unable to send enquiry email."
-    },500);
-  }
-}
-
-export default {
-
-  async fetch(request,env){
-
-    const url =
-      new URL(request.url);
-
-    if(request.method === "OPTIONS"){
-
-      return json(
-        {ok:true},
-        204
-      );
-    }
-
-    if(
-      url.pathname === "/api/email-status" &&
-      request.method === "GET"
-    ){
-
-      const hasApiKey =
-        Boolean(
-          String(
-            env?.RESEND_API_KEY || ""
-          ).trim()
-        );
-
-      const hasReceiver =
-        Boolean(
-          String(
-            env?.ENQUIRY_RECEIVER_EMAIL || ""
-          ).trim()
-        );
-
-      const hasFrom =
-        Boolean(
-          String(
-            env?.RESEND_FROM_EMAIL || ""
-          ).trim()
-        );
-
-      return json({
-
-        ok:
-          hasApiKey &&
-          hasReceiver,
-
-        bindings:{
-
-          RESEND_API_KEY:
-            hasApiKey,
-
-          ENQUIRY_RECEIVER_EMAIL:
-            hasReceiver,
-
-          RESEND_FROM_EMAIL:
-            hasFrom,
-
-          ASSETS:
-            Boolean(env?.ASSETS)
-
-        },
-
-        from:
-          hasFrom
-            ? "BlueVows Website <configured>"
-            : "BlueVows Website <onboarding@resend.dev>"
-
-      });
-    }
-
-    if(
-      url.pathname ===
-      "/api/send-enquiry"
-    ){
-
-      if(
-        request.method === "POST"
-      ){
-
-        return sendEnquiry(
-          request,
-          env
-        );
-      }
-
-      return json({
-        ok:false,
-        error:"Method not allowed"
-      },405);
-    }
-
-    return env.ASSETS.fetch(request);
-  }
-};
