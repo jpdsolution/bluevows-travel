@@ -116,6 +116,8 @@ const defaultServices = [
   {id:"default-s2",name:"Ferry & Island Transfers",slug:"ferry-island-transfers",icon:"Ship",description:"Ferry planning and local transfers coordinated around your complete island itinerary.",features:["Ferry guidance","Local transfers","Timing coordination"]},
   {id:"default-s3",name:"Activities & Experiences",slug:"activities-experiences",icon:"Waves",description:"Book trusted island experiences such as scuba diving, sea walks and kayaking.",features:["Verified experiences","Local support","Flexible options"]},
   {id:"default-s4",name:"Custom Trip Planning",slug:"custom-trip-planning",icon:"Compass",description:"A personalised Andaman plan built around your dates, interests and preferred pace.",features:["Custom itinerary","Clear quotation","Human support"]}
+];
+
 const defaultGallery = [
   {id:"default-g1", title:"Havelock Island", image_url:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=90", alt_text:"Havelock Island beach", category:"Destinations"},
   {id:"default-g2", title:"Island Escape", image_url:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=2400&q=90", alt_text:"Island beach", category:"Destinations"},
