@@ -27,6 +27,18 @@ async function request(path, options = {}) {
 export async function listDestinations() {
   return request("destinations?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc");
 }
+export async function listDestinationPlaces() {
+  const [places, destinations] = await Promise.all([
+    request("destination_places?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc"),
+    listDestinations()
+  ]);
+  const byId = Object.fromEntries((destinations || []).map(d => [d.id, d]));
+  return (places || []).map(place => ({
+    ...place,
+    destination: byId[place.destination_id] || null
+  }));
+}
+
 export async function getDestinationBySlug(slug) {
   const rows = await request(`destinations?select=*&slug=eq.${encodeURIComponent(slug)}&status=eq.published&archived_at=is.null&limit=1`);
   return rows?.[0] || null;
