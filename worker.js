@@ -1,299 +1,449 @@
-// Deployment refresh - email secret binding
-
-const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store"
     }
   });
+}
 
-const escapeHtml = (v) =>
-  String(v ?? "")
+function textOr(value, fallback = "") {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
+    .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
 
-const textOr = (v, f = "Not provided") => {
-  const t = String(v ?? "").trim();
-  return t || f;
-};
-
-const formatDate = (v) => {
-  if (!v) return "Not provided";
-
-  const d = new Date(v);
-
-  return Number.isNaN(d.getTime())
-    ? textOr(v)
-    : new Intl.DateTimeFormat("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      }).format(d);
-};
-
-const formatDateTime = (v) => {
-  const d = v ? new Date(v) : new Date();
-
-  return Number.isNaN(d.getTime())
-    ? textOr(v)
-    : new Intl.DateTimeFormat("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: "Asia/Kolkata",
-        timeZoneName: "short"
-      }).format(d);
-};
-
-const shortId = (id) => {
-  const c = String(id ?? "")
-    .replace(/[^a-z0-9]/gi, "")
-    .toUpperCase();
-
-  return c ? c.slice(0, 6) : "NEW";
-};
-
-const row = (label, value, strong = false, kind = "") => {
+function buildRow(label, value, mono = false) {
+  const safeLabel = escapeHtml(label);
   const safeValue = escapeHtml(value);
-  let valueHtml = safeValue;
 
-  if (kind === "email" && String(value || "").trim()) {
-    const mail = escapeHtml(String(value).trim());
-    valueHtml = `<a href="mailto:${mail}" style="color:#111827 !important;text-decoration:none !important;word-break:break-all;">${mail}</a>`;
-  } else if (kind === "phone" && String(value || "").trim()) {
-    const phoneText = String(value).trim();
-    const phoneHref = escapeHtml(phoneText.replace(/[^0-9+]/g, ""));
-    valueHtml = `<a href="tel:${phoneHref}" style="color:#111827 !important;text-decoration:none !important;white-space:nowrap;">${escapeHtml(phoneText)}</a>`;
-  }
-
-  return `<tr>
-    <td style="width:38%;padding:12px 14px;border-top:1px solid #d9d9d9;font-size:14px;line-height:1.4;font-weight:700;color:#111827;vertical-align:top;">
-      ${escapeHtml(label)}
-    </td>
-    <td style="width:62%;padding:12px 14px;border-top:1px solid #d9d9d9;font-size:14px;line-height:1.4;color:#111827;vertical-align:top;overflow-wrap:anywhere;word-break:break-word;${strong ? "font-weight:800;" : ""}">
-      ${valueHtml}
-    </td>
-  </tr>`;
-};
-
-const box = (title, body) =>
-  `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:18px;border:1px solid #111827;border-radius:10px;background:#fff;">
+  return `
     <tr>
-      <td style="padding:13px 15px;font-size:14px;line-height:1.35;font-weight:800;letter-spacing:.02em;color:#111827;border-bottom:1px solid #111827;">
+      <td style="
+        width:38%;
+        padding:9px 10px;
+        border-bottom:1px solid #e5e7eb;
+        font-size:12px;
+        line-height:16px;
+        font-weight:700;
+        color:#374151;
+        vertical-align:middle;
+        text-align:left;
+      ">
+        ${safeLabel}
+      </td>
+
+      <td style="
+        width:62%;
+        padding:9px 10px;
+        border-bottom:1px solid #e5e7eb;
+        font-size:12px;
+        line-height:16px;
+        color:#111827;
+        vertical-align:middle;
+        text-align:left;
+        word-break:break-word;
+        overflow-wrap:anywhere;
+        ${mono ? "font-family:monospace;" : ""}
+      ">
+        ${safeValue || "—"}
+      </td>
+    </tr>
+  `;
+}
+
+function buildBox(title, content) {
+  return `
+    <div style="
+      margin:10px 0 0;
+      border:1px solid #e5e7eb;
+      border-radius:10px;
+      background:#ffffff;
+      overflow:hidden;
+    ">
+      <div style="
+        padding:8px 10px;
+        background:#ffffff;
+        border-bottom:1px solid #e5e7eb;
+        font-size:11px;
+        line-height:14px;
+        font-weight:800;
+        letter-spacing:.5px;
+        color:#111827;
+      ">
         ${escapeHtml(title)}
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:15px;font-size:14px;line-height:1.55;color:#1f2937;overflow-wrap:anywhere;word-break:break-word;">
-        ${body}
-      </td>
-    </tr>
-  </table>`;
+      </div>
+
+      <div style="
+        padding:9px 10px;
+        background:#ffffff;
+        font-size:12px;
+        line-height:17px;
+        color:#111827;
+        word-break:break-word;
+        overflow-wrap:anywhere;
+      ">
+        ${content}
+      </div>
+    </div>
+  `;
+}
 
 function buildHtml({
-  enquiry,
+  enquiry = {},
   adults,
   children,
-  siteName,
-  tagline
+  siteName = "BlueVows",
+  tagline = "Explore Andaman With Us"
 }) {
-  const company = textOr(siteName, "BlueVows").toUpperCase();
+  const company = textOr(siteName, "BlueVows");
   const tag = textOr(tagline, "Explore Andaman With Us");
 
-  const guest = textOr(enquiry.name);
-  const email = textOr(enquiry.email);
-  const phone = textOr(enquiry.phone);
-  const dest = textOr(enquiry.destination);
-  const pkg = textOr(enquiry.package);
+  const guest = textOr(enquiry.name, "Website Guest");
+  const email = textOr(enquiry.email, "—");
+  const phone = textOr(enquiry.phone, "—");
+  const travel = textOr(enquiry.travelDate, "—");
 
-  const id = shortId(enquiry.id);
-  const received = formatDateTime(enquiry.created_at);
-  const travel = formatDate(enquiry.travel_date);
+  const av = textOr(adults, enquiry.adults || "—");
+  const cv = textOr(children, enquiry.children || "—");
 
-  const av = adults == null ? "Not provided" : String(adults);
-  const cv = children == null ? "Not provided" : String(children);
-  const travellers = enquiry.travellers ?? ((Number(adults) || 0) + (Number(children) || 0));
-  const msg = textOr(enquiry.message);
+  const travellers =
+    Number(av || 0) + Number(cv || 0) > 0
+      ? `${Number(av || 0) + Number(cv || 0)}`
+      : "—";
 
-  return `<!doctype html>
-<html>
+  const dest = textOr(enquiry.destination, "—");
+  const pkg = textOr(enquiry.packageName, "—");
+  const id = textOr(enquiry.id, "—");
+  const msg = textOr(enquiry.message, "No message provided");
+
+  const received = enquiry.created_at
+    ? new Date(enquiry.created_at).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      })
+    : new Date().toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+
+  const messageHtml = escapeHtml(msg).replace(/\n/g, "<br>");
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting">
-<meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
-<title>New Enquiry Received</title>
+
+<title>New Enquiry — ${escapeHtml(company)}</title>
+
 <style>
-  body{margin:0!important;padding:0!important;width:100%!important;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111827;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
-  table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;}
-  img{border:0;outline:none;text-decoration:none;display:block;}
-  a{color:#111827;text-decoration:none;}
-  .email-wrap{width:100%;max-width:760px;}
-  .email-content{padding:32px 34px 26px;}
-  .brand{font-size:34px;line-height:1.15;letter-spacing:3px;font-weight:800;}
-  .tagline{font-size:17px;line-height:1.4;letter-spacing:1.5px;}
-  .title{font-size:30px;line-height:1.18;}
-  .lead{font-size:17px;line-height:1.55;}
-  .details-title{font-size:15px;}
-  .detail-table td{font-size:14px;}
-  @media only screen and (max-width:600px){
-    .outer-pad{padding:8px 5px!important;}
-    .email-wrap{width:100%!important;max-width:100%!important;}
-    .email-content{padding:24px 16px 22px!important;}
-    .brand{font-size:28px!important;letter-spacing:2px!important;}
-    .tagline{font-size:14px!important;letter-spacing:1px!important;}
-    .title{font-size:26px!important;}
-    .lead{font-size:15px!important;}
-    .detail-table td{font-size:13px!important;padding:11px 10px!important;}
-    .details-title{font-size:14px!important;padding:13px 14px!important;}
-    .footer-brand{font-size:18px!important;}
-    .footer-tag{font-size:13px!important;}
+  html,body {
+    margin:0 !important;
+    padding:0 !important;
+    width:100% !important;
+    background:#ffffff !important;
+  }
+
+  body {
+    font-family:Arial,Helvetica,sans-serif;
+    color:#111827;
+  }
+
+  table {
+    border-collapse:collapse;
+  }
+
+  a {
+    color:#111827 !important;
+    text-decoration:none !important;
+  }
+
+  @media only screen and (max-width:600px) {
+    .email-wrap {
+      width:100% !important;
+    }
+
+    .email-pad {
+      padding:10px !important;
+    }
+
+    .email-title {
+      font-size:18px !important;
+      line-height:22px !important;
+    }
+
+    .email-subtitle {
+      font-size:11px !important;
+      line-height:15px !important;
+    }
+
+    .details-table td {
+      font-size:11px !important;
+      line-height:15px !important;
+      padding:8px !important;
+    }
   }
 </style>
 </head>
-<body>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f2f2;">
-<tr>
-<td align="center" class="outer-pad" style="padding:14px 8px;">
 
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-wrap" style="width:100%;max-width:760px;background:#fff;border:1px solid #111;border-radius:12px;overflow:hidden;">
+<body style="
+  margin:0;
+  padding:0;
+  background:#ffffff;
+">
 
+<table role="presentation"
+       width="100%"
+       cellspacing="0"
+       cellpadding="0"
+       border="0"
+       style="
+         width:100%;
+         background:#ffffff;
+         margin:0;
+         padding:0;
+       ">
 <tr>
-<td align="center" style="background:#000;padding:22px 16px 25px;color:#fff;">
-<div style="font-size:32px;line-height:36px;margin-bottom:7px;">✉</div>
-<div class="brand" style="font-size:34px;line-height:1.15;letter-spacing:3px;font-weight:800;">${escapeHtml(company)}</div>
-<div class="tagline" style="margin-top:7px;font-size:17px;line-height:1.4;letter-spacing:1.5px;font-weight:500;">${escapeHtml(tag)}</div>
+<td align="center" style="padding:10px;background:#ffffff;">
+
+<table role="presentation"
+       class="email-wrap"
+       width="560"
+       cellspacing="0"
+       cellpadding="0"
+       border="0"
+       style="
+         width:100%;
+         max-width:560px;
+         background:#ffffff;
+         border:1px solid #e5e7eb;
+         border-radius:12px;
+         overflow:hidden;
+       ">
+
+<!-- HEADER -->
+<tr>
+<td style="
+  padding:14px 16px;
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
+  text-align:center;
+">
+
+<div style="
+  font-size:20px;
+  line-height:24px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:#111827;
+">
+${escapeHtml(company)}
+</div>
+
+<div class="email-subtitle" style="
+  margin-top:3px;
+  font-size:11px;
+  line-height:15px;
+  color:#6b7280;
+">
+${escapeHtml(tag)}
+</div>
+
 </td>
 </tr>
 
+<!-- CONTENT -->
 <tr>
-<td class="email-content" style="padding:32px 34px 26px;">
+<td class="email-pad" style="
+  padding:14px 16px;
+  background:#ffffff;
+">
 
-<div style="font-size:14px;line-height:1.3;font-weight:800;letter-spacing:1.6px;color:#111827;">WEBSITE NOTIFICATION</div>
+<div style="
+  font-size:10px;
+  line-height:14px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:#6b7280;
+">
+WEBSITE ENQUIRY
+</div>
 
-<h1 class="title" style="margin:16px 0 10px;font-size:30px;line-height:1.18;color:#0b0b0b;">New Enquiry Received</h1>
+<div class="email-title" style="
+  margin-top:4px;
+  font-size:21px;
+  line-height:25px;
+  font-weight:800;
+  color:#111827;
+">
+New Enquiry Received
+</div>
 
-<p class="lead" style="margin:0;font-size:17px;line-height:1.55;color:#111827;">A customer has submitted an enquiry through your ${escapeHtml(company)} website.</p>
+<div style="
+  margin-top:4px;
+  font-size:12px;
+  line-height:17px;
+  color:#6b7280;
+">
+A customer has submitted an enquiry through your website.
+</div>
 
-<div style="display:inline-block;margin-top:18px;padding:9px 15px;border:2px solid #111;border-radius:9px;font-size:14px;font-weight:800;line-height:1.2;color:#111827;">NEW ENQUIRY</div>
+<!-- DETAILS BOX -->
+<div style="
+  margin-top:12px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+  background:#ffffff;
+">
 
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:22px;border:1px solid #111827;border-radius:10px;background:#fff;">
-<tr>
-<td class="details-title" style="padding:14px 15px;font-size:15px;line-height:1.3;font-weight:800;color:#111827;border-bottom:1px solid #111827;">CUSTOMER DETAILS</td>
-</tr>
-<tr>
-<td style="padding:0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="detail-table" style="width:100%;table-layout:fixed;">
-${row("Guest Name", guest)}
-${row("Email Address", email, false, "email")}
-${row("Phone / WhatsApp", phone, false, "phone")}
-${row("Travel Date", travel)}
-${row("Adults", av)}
-${row("Children", cv)}
-${row("Travellers", travellers)}
-${row("Destination", dest)}
-${row("Package", pkg)}
-${row("Enquiry ID", id, true)}
-${row("Received Date & Time", received)}
+<div style="
+  padding:8px 10px;
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
+  font-size:11px;
+  line-height:14px;
+  font-weight:800;
+  letter-spacing:.5px;
+  color:#111827;
+">
+CUSTOMER DETAILS
+</div>
+
+<table role="presentation"
+       class="details-table"
+       width="100%"
+       cellspacing="0"
+       cellpadding="0"
+       border="0"
+       style="
+         width:100%;
+         background:#ffffff;
+       ">
+
+${buildRow("Guest Name", guest)}
+${buildRow("Email Address", email)}
+${buildRow("Phone / WhatsApp", phone)}
+${buildRow("Travel Date", travel)}
+${buildRow("Adults", av)}
+${buildRow("Children", cv)}
+${buildRow("Travellers", travellers)}
+${buildRow("Destination", dest)}
+${buildRow("Package", pkg)}
+${buildRow("Enquiry ID", id, true)}
+${buildRow("Received", received)}
+
 </table>
+</div>
+
+${buildBox("CUSTOMER MESSAGE", messageHtml)}
+
+${buildBox(
+  "FOLLOW-UP",
+  "Contact the guest to discuss travel plans, availability and package options."
+)}
+
 </td>
 </tr>
-</table>
 
-${box("CUSTOMER MESSAGE", escapeHtml(msg).replace(/\n/g, "<br>"))}
-${box("FOLLOW-UP RECOMMENDED", "Contact the guest to discuss travel plans, availability and package options.")}
-
-</td>
-</tr>
-
+<!-- FOOTER -->
 <tr>
-<td style="border-top:1px solid #111827;padding:22px 16px 24px;text-align:center;">
-<div class="footer-brand" style="font-size:20px;line-height:1.3;font-weight:800;letter-spacing:1.5px;color:#111827;">${escapeHtml(company)}</div>
-<div class="footer-tag" style="margin-top:5px;font-size:14px;line-height:1.4;color:#111827;">${escapeHtml(tag)}</div>
+<td style="
+  padding:12px 16px 14px;
+  background:#ffffff;
+  border-top:1px solid #e5e7eb;
+  text-align:center;
+">
+
+<div style="
+  font-size:14px;
+  line-height:18px;
+  font-weight:800;
+  color:#111827;
+">
+${escapeHtml(company)}
+</div>
+
+<div style="
+  margin-top:2px;
+  font-size:10px;
+  line-height:14px;
+  color:#6b7280;
+">
+${escapeHtml(tag)}
+</div>
+
 </td>
 </tr>
 
 </table>
+
 </td>
 </tr>
 </table>
+
 </body>
-</html>`;
+</html>
+`;
 }
 
 async function sendEnquiry(request, env) {
   try {
-    const apiKey =
-      String(env?.RESEND_API_KEY || "").trim();
-
-    const receiver =
-      String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
-
-    const from =
-      String(
-        env?.RESEND_FROM_EMAIL ||
-        "BlueVows Website <onboarding@resend.dev>"
-      ).trim();
+    const apiKey = String(env?.RESEND_API_KEY || "").trim();
+    const receiver = String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
 
     if (!apiKey || !receiver) {
-      console.error(
-        "BlueVows email configuration missing",
-        {
-          hasResendApiKey: Boolean(apiKey),
-          hasReceiver: Boolean(receiver),
-          hasFrom: Boolean(from)
-        }
-      );
+      const missing = [];
 
-      return json(
-        {
-          ok: false,
-          error: "Email service is not configured.",
-          missing: [
-            !apiKey ? "RESEND_API_KEY" : null,
-            !receiver ? "ENQUIRY_RECEIVER_EMAIL" : null
-          ].filter(Boolean)
-        },
-        500
-      );
+      if (!apiKey) missing.push("RESEND_API_KEY");
+      if (!receiver) missing.push("ENQUIRY_RECEIVER_EMAIL");
+
+      return json({
+        ok: false,
+        error: `Email service is not configured. Missing: ${missing.join(", ")}`
+      }, 500);
     }
 
     const payload = await request.json();
-
     const enquiry = payload?.enquiry || {};
 
-    const guest =
-      textOr(enquiry.name, "Website Guest");
+    const customerEmail = String(enquiry.email || "").trim();
 
-    const customerEmail =
-      String(enquiry.email || "").trim();
+    const siteName = textOr(payload.siteName, "BlueVows");
+    const tagline = textOr(
+      payload.tagline,
+      "Explore Andaman With Us"
+    );
 
-    const siteName =
-      textOr(payload.siteName, "BlueVows");
-
-    const tagline =
-      textOr(
-        payload.tagline,
-        "Explore Andaman With Us"
-      );
+    const from = String(
+      env.RESEND_FROM_EMAIL ||
+      "BlueVows Website <onboarding@resend.dev>"
+    ).trim();
 
     const body = {
       from,
-
       to: [receiver],
 
       subject:
         `New Enquiry Received — ${textOr(
           enquiry.destination,
           "Andaman"
-        )} — ${guest}`,
+        )} — ${textOr(
+          enquiry.name,
+          "Website Guest"
+        )}`,
 
       html: buildHtml({
         enquiry,
@@ -308,7 +458,7 @@ async function sendEnquiry(request, env) {
       body.reply_to = customerEmail;
     }
 
-    const r = await fetch(
+    const response = await fetch(
       "https://api.resend.com/emails",
       {
         method: "POST",
@@ -322,146 +472,97 @@ async function sendEnquiry(request, env) {
       }
     );
 
-    const raw = await r.text();
+    const raw = await response.text();
 
     let data = {};
 
     try {
-      data = raw
-        ? JSON.parse(raw)
-        : {};
+      data = raw ? JSON.parse(raw) : {};
     } catch {
       data = { raw };
     }
 
-    if (!r.ok) {
-      console.error(
-        "Resend rejected BlueVows enquiry email",
-        {
-          status: r.status,
-          statusText: r.statusText,
-          response: data
-        }
-      );
+    if (!response.ok) {
+      console.error("Resend rejected BlueVows email", {
+        status: response.status,
+        response: data
+      });
 
-      return json(
-        {
-          ok: false,
-          error:
-            data?.message ||
-            data?.name ||
-            raw ||
-            `Resend request failed (${r.status})`,
-
-          resendStatus: r.status,
-
-          resendName:
-            data?.name || null
-        },
-        502
-      );
+      return json({
+        ok: false,
+        error:
+          data?.message ||
+          data?.error ||
+          raw ||
+          `Resend returned HTTP ${response.status}`,
+        resendStatus: response.status
+      }, 502);
     }
-
-    console.log(
-      "BlueVows enquiry email sent",
-      {
-        id: data?.id || null
-      }
-    );
 
     return json({
       ok: true,
       id: data?.id || null
     });
 
-  } catch (e) {
-
+  } catch (error) {
     console.error(
       "BlueVows enquiry email function failed",
-      e?.stack || e
+      error?.stack || error
     );
 
-    return json(
-      {
-        ok: false,
-        error:
-          e?.message ||
-          "Unable to send enquiry email."
-      },
-      500
-    );
+    return json({
+      ok: false,
+      error:
+        error?.message ||
+        "Unable to send enquiry email."
+    }, 500);
   }
 }
 
 export default {
-
   async fetch(request, env) {
-
     const url = new URL(request.url);
 
-    if (url.pathname === "/api/email-status") {
+    if (request.method === "OPTIONS") {
+      return json({ ok: true }, 204);
+    }
+
+    if (
+      url.pathname === "/api/email-status" &&
+      request.method === "GET"
+    ) {
+      const hasApiKey =
+        Boolean(String(env?.RESEND_API_KEY || "").trim());
+
+      const hasReceiver =
+        Boolean(String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim());
+
+      const hasFrom =
+        Boolean(String(env?.RESEND_FROM_EMAIL || "").trim());
 
       return json({
-        ok: Boolean(
-          env?.RESEND_API_KEY &&
-          env?.ENQUIRY_RECEIVER_EMAIL
-        ),
-
+        ok: hasApiKey && hasReceiver,
         bindings: {
-          RESEND_API_KEY:
-            Boolean(env?.RESEND_API_KEY),
-
-          ENQUIRY_RECEIVER_EMAIL:
-            Boolean(
-              env?.ENQUIRY_RECEIVER_EMAIL
-            ),
-
-          RESEND_FROM_EMAIL:
-            Boolean(
-              env?.RESEND_FROM_EMAIL
-            ),
-
-          ASSETS:
-            Boolean(env?.ASSETS)
+          RESEND_API_KEY: hasApiKey,
+          ENQUIRY_RECEIVER_EMAIL: hasReceiver,
+          RESEND_FROM_EMAIL: hasFrom,
+          ASSETS: Boolean(env?.ASSETS)
         },
-
-        from:
-          String(
-            env?.RESEND_FROM_EMAIL ||
-            "BlueVows Website <onboarding@resend.dev>"
-          ).replace(
-            /<[^>]+>/,
-            "<configured>"
-          )
+        from: hasFrom
+          ? "BlueVows Website <configured>"
+          : "BlueVows Website <onboarding@resend.dev>"
       });
     }
 
     if (url.pathname === "/api/send-enquiry") {
-
-      if (request.method === "OPTIONS") {
-        return new Response(null, {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods":
-              "POST,OPTIONS",
-            "Access-Control-Allow-Headers":
-              "Content-Type"
-          }
-        });
-      }
-
       if (request.method === "POST") {
         return sendEnquiry(request, env);
       }
 
-      return json(
-        {
-          ok: false,
-          error: "Method not allowed"
-        },
-        405
-      );
+      return json({
+        ok: false,
+        error: "Method not allowed"
+      }, 405);
     }
 
     return env.ASSETS.fetch(request);
