@@ -105,16 +105,16 @@ const packageItineraries = {
 
 
 const defaultActivities = [
-  {name:"Scuba Diving", icon:Waves, text:"Discover vibrant coral reefs and marine life.", price:"From ₹3,500", details:"Guided beginner-friendly dive with equipment, instructor support and reef exploration."},
-  {name:"Sea Walk", icon:Compass, text:"Walk beneath the sea and experience the reef.", price:"From ₹3,000", details:"Helmeted underwater walk with trained guides and a close-up view of colourful marine life."},
-  {name:"Island Transfers", icon:MapPin, text:"Comfortable transfers planned around your itinerary.", price:"From ₹1,500", details:"Comfortable point-to-point transfers arranged around ferry, hotel and sightseeing timings."},
-  {name:"Kayaking", icon:Waves, text:"Explore calm tropical waters at your own pace.", price:"From ₹1,800", details:"A relaxed guided paddle through calm tropical waters, subject to weather and sea conditions."}
+  {name:"Scuba Diving", icon:Waves, text:"Discover vibrant coral reefs and marine life.", price:"From ₹3,500", duration:"2–3 hours", image:"https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?auto=format&fit=crop&w=2400&q=100", details:"Guided beginner-friendly dive with equipment, instructor support and reef exploration.", inclusions:["Professional instructor", "Dive equipment", "Reef exploration"], exclusions:["Personal expenses", "Transfers unless selected"], location:"Havelock Island"},
+  {name:"Sea Walk", icon:Compass, text:"Walk beneath the sea and experience the reef.", price:"From ₹3,000", duration:"1–2 hours", image:"https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=2400&q=100", details:"Helmeted underwater walk with trained guides and a close-up view of colourful marine life.", inclusions:["Safety briefing", "Helmet and equipment", "Professional guide"], exclusions:["Personal expenses", "Transfers unless selected"], location:"North Bay / Havelock"},
+  {name:"Island Transfers", icon:MapPin, text:"Comfortable transfers planned around your itinerary.", price:"From ₹1,500", duration:"As per itinerary", image:"https://images.unsplash.com/photo-1544550285-f813152fb2fd?auto=format&fit=crop&w=2400&q=100", details:"Comfortable point-to-point transfers arranged around ferry, hotel and sightseeing timings.", inclusions:["Point-to-point transfer", "Trip coordination"], exclusions:["Ferry tickets unless selected", "Personal expenses"], location:"Port Blair · Havelock · Neil Island"},
+  {name:"Kayaking", icon:Waves, text:"Explore calm tropical waters at your own pace.", price:"From ₹1,800", duration:"1–2 hours", image:"https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=2400&q=100", details:"A relaxed guided paddle through calm tropical waters, subject to weather and sea conditions.", inclusions:["Kayak and safety gear", "Guide", "Basic safety briefing"], exclusions:["Transfers", "Personal expenses"], location:"Havelock Island"}
 ];
 
 const defaultSiteContent = {
   settings:{website_name:"BlueVows",logo_url:"/bluevows-logo.png",contact_email:"hello@example.com",phone:"+91 XXXXX XXXXX",whatsapp:"",address:"Port Blair, Andaman & Nicobar Islands, India",social_links:{instagram:"https://www.instagram.com/",facebook:"https://www.facebook.com/",x:"https://x.com/",youtube:"https://www.youtube.com/",whatsapp:"https://wa.me/"}},
   hero:defaultHeroSlides.map((x,i)=>({id:`default-${i}`,badge:"YOUR ISLAND JOURNEY STARTS HERE",heading:x.title,accent:x.accent,description:"Beautiful islands, handpicked stays and experiences planned around the way you want to travel.",image_url:x.image,primary_cta_label:"Explore Packages",primary_cta_link:"/packages",secondary_cta_label:"Make Your Trip Memorable",secondary_cta_link:"/experiences",display_order:i})),
-  activities:defaultActivities.map((x,i)=>({id:`default-${i}`,slug:slugify(x.name),name:x.name,icon:x.icon,description:x.text,details:x.details,price:x.price,duration:"",cta_label:"View details",display_order:i})),
+  activities:defaultActivities.map((x,i)=>({id:`default-${i}`,slug:slugify(x.name),name:x.name,icon:x.icon,description:x.text,details:x.details,price:x.price,duration:x.duration,image:x.image,inclusions:x.inclusions,exclusions:x.exclusions,location:x.location,cta_label:"View details",display_order:i})),
   services:[],
   testimonials:[{id:"default-r1",guest_name:"Priya S.",title:"A wonderful trip",review:"Everything was well planned and the communication was easy from start to finish.",rating:5,photo_url:"https://i.pravatar.cc/120?img=47",display_order:0},{id:"default-r2",guest_name:"Rahul M.",title:"Smooth and comfortable",review:"The itinerary was flexible and the hotel choices were exactly what we wanted.",rating:5,photo_url:"https://i.pravatar.cc/120?img=12",display_order:1},{id:"default-r3",guest_name:"Neha K.",title:"Highly recommended",review:"Great support, clear quotation and a memorable island experience.",rating:5,photo_url:"https://i.pravatar.cc/120?img=32",display_order:2}],
   partners:defaultPartnerMarks.map((name,i)=>({id:`default-p${i}`,name,display_order:i})),
@@ -369,7 +369,26 @@ function ActivityDetail(){
  const a=items.find(x=>(x.slug||slugify(x.name))===slug)||items[0];
  if(!a)return <SimplePage title="Experience not found" eyebrow="BLUEVOWS"><p className="page-lead">This experience is not currently published.</p></SimplePage>;
  const Icon=iconFor(a.icon);
- return <main className="page activity-detail-page"><div className="container narrow"><span className="eyebrow">ISLAND EXPERIENCE</span><h1 className="page-title">{a.name}</h1><p className="page-lead">{a.details||a.description}</p><div className="activity-detail-card"><div className="activity-detail-icon"><Icon/></div><div><span className="eyebrow">EXPERIENCE PRICE</span><h2>{a.price||"On request"}</h2><p>{a.description}</p>{a.duration&&<p><strong>Duration:</strong> {a.duration}</p>}<Link className="btn primary" to={a.cta_link||"/contact"}>{a.cta_label||"Enquire for this experience"} <ArrowRight size={17}/></Link></div></div></div></main>
+ const image=a.image_url||a.image||a.featured_image||"";
+ const inclusions=Array.isArray(a.inclusions)?a.inclusions:[];
+ const exclusions=Array.isArray(a.exclusions)?a.exclusions:[];
+ return <main className="page activity-detail-page"><div className="container narrow">
+  <span className="eyebrow">ISLAND EXPERIENCE</span><h1 className="page-title">{a.name}</h1>
+  {image&&<img className="activity-detail-image" src={image} alt={a.name} style={{width:"100%",maxHeight:480,objectFit:"cover",display:"block",borderRadius:14,margin:"24px 0 8px"}}/>}
+  <p className="page-lead">{a.details||a.description}</p>
+  <div className="activity-detail-card">
+   <div className="activity-detail-icon"><Icon/></div>
+   <div><span className="eyebrow">EXPERIENCE PRICE</span><h2>{a.price||"On request"}</h2><p>{a.description}</p>
+    {a.duration&&<p><strong>Duration:</strong> {a.duration}</p>}
+    {a.location&&<p><strong>Location:</strong> {a.location}</p>}
+    {(inclusions.length>0||exclusions.length>0)&&<div className="activity-detail-lists">
+      {inclusions.length>0&&<div><strong>Includes</strong><ul>{inclusions.map((x,i)=><li key={i}>{x}</li>)}</ul></div>}
+      {exclusions.length>0&&<div><strong>Excludes</strong><ul>{exclusions.map((x,i)=><li key={i}>{x}</li>)}</ul></div>}
+    </div>}
+    <Link className="btn primary" to={a.cta_link||"/contact"}>{a.cta_label||"Enquire for this experience"} <ArrowRight size={17}/></Link>
+   </div>
+  </div>
+ </div></main>
 }
 function CmsPage({contentKey,fallbackTitle,fallbackEyebrow}){const site=useSiteCMS();const block=site.blocks?.[contentKey]||{};return <SimplePage title={block.title||fallbackTitle} eyebrow={block.eyebrow||fallbackEyebrow}><p className="page-lead">{block.description||""}</p></SimplePage>}
 
