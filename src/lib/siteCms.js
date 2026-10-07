@@ -38,8 +38,25 @@ export async function loadSiteCms() {
   const result = Object.fromEntries(entries);
   const blocks = {};
   (result.blocks || []).forEach(row => { blocks[row.content_key] = row.content || {}; });
+  const rawSettings = result.settings?.[0] || null;
+  const settings = rawSettings ? {
+    ...rawSettings,
+    website_name: rawSettings.website_name || rawSettings.site_name || "BlueVows Travel",
+    contact_email: rawSettings.contact_email || rawSettings.email || "",
+    phone: rawSettings.phone || "",
+    whatsapp: rawSettings.whatsapp || "",
+    website: rawSettings.website || "",
+    address: rawSettings.address || "",
+    tagline: rawSettings.tagline || "",
+    logo_url: rawSettings.logo_url || "/bluevows-logo.png",
+    favicon_url: rawSettings.favicon_url || "",
+    seo_title: rawSettings.seo_title || rawSettings.site_name || "BlueVows Travel | Andaman Islands",
+    seo_description: rawSettings.seo_description || rawSettings.tagline || "Plan your Andaman Islands journey with BlueVows Travel.",
+    seo_keywords: rawSettings.seo_keywords || "Andaman travel, Andaman tours, Havelock, Neil Island, BlueVows Travel",
+    social_links: rawSettings.social_links || {}
+  } : null;
   return {
-    settings: result.settings?.[0] || null,
+    settings,
     hero: ordered(result.hero),
     activities: ordered(result.activities),
     services: ordered(result.services),
