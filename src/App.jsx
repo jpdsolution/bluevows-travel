@@ -270,7 +270,7 @@ function PartnerMarquee(){
  return <section className="partner-marquee" aria-label="Travel partners">
    <div className="container"><div className="partner-heading"><span className="eyebrow">OUR NETWORK</span><h3>Travel made easier with trusted local partners</h3></div></div>
    <div className="marquee-window"><div className="marquee-track">
-     {[...marks,...marks].map((partner,i)=><div className="partner-logo-pill" key={`${partner.id||partner.name}-${i}`}><span className="partner-dot"></span>{partner.name}</div>)}
+     {[...marks,...marks].map((partner,i)=>{const item=<div className="partner-logo-pill" key={`${partner.id||partner.name}-${i}`}>{partner.logo_url?<img src={partner.logo_url} alt={partner.name||"BlueVows partner"}/>:<><span className="partner-dot"></span>{partner.name}</>}{partner.logo_url&&partner.name&&<span className="partner-name">{partner.name}</span>}</div>; return partner.website_url?<a className="partner-logo-link" href={partner.website_url} target="_blank" rel="noreferrer">{item}</a>:item;})}
    </div></div>
  </section>
 }
