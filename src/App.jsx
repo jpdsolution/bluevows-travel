@@ -116,6 +116,11 @@ const defaultServices = [
   {id:"default-s2",name:"Ferry & Island Transfers",slug:"ferry-island-transfers",icon:"Ship",description:"Ferry planning and local transfers coordinated around your complete island itinerary.",features:["Ferry guidance","Local transfers","Timing coordination"]},
   {id:"default-s3",name:"Activities & Experiences",slug:"activities-experiences",icon:"Waves",description:"Book trusted island experiences such as scuba diving, sea walks and kayaking.",features:["Verified experiences","Local support","Flexible options"]},
   {id:"default-s4",name:"Custom Trip Planning",slug:"custom-trip-planning",icon:"Compass",description:"A personalised Andaman plan built around your dates, interests and preferred pace.",features:["Custom itinerary","Clear quotation","Human support"]}
+const defaultGallery = [
+  {id:"default-g1", title:"Havelock Island", image_url:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=90", alt_text:"Havelock Island beach", category:"Destinations"},
+  {id:"default-g2", title:"Island Escape", image_url:"https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=2400&q=90", alt_text:"Island beach", category:"Destinations"},
+  {id:"default-g3", title:"Andaman Journey", image_url:"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2400&q=90", alt_text:"Coastal travel", category:"Travel"},
+  {id:"default-g4", title:"Tropical Escape", image_url:"https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=2400&q=90", alt_text:"Tropical destination", category:"Travel"}
 ];
 
 const defaultSiteContent = {
@@ -376,6 +381,9 @@ function Home(){
  const homeDestinations=cms.items.filter(d=>d.status!=="hidden").sort((a,b)=>(a.displayOrder??0)-(b.displayOrder??0));
  const activities=site.activities||[]; const trust=site.blocks?.["home.trust"]||defaultSiteContent.blocks["home.trust"]; const why=site.blocks?.["home.why"]||defaultSiteContent.blocks["home.why"]; const video=site.blocks?.["home.video"]||defaultSiteContent.blocks["home.video"];
  const reviews=site.testimonials||[];
+ const gallery=(site.gallery||[]).length
+   ? site.gallery.map((g,i)=>({id:g.id||i,title:g.title||"BlueVows Gallery",image:g.image_url||g.image||"",caption:g.alt_text||g.description||g.title||"BlueVows Gallery"})).filter(g=>g.image)
+   : defaultGallery.map(g=>({id:g.id,title:g.title,image:g.image_url,caption:g.alt_text}));
  return <>
   <Hero/>
   <main>
@@ -392,6 +400,7 @@ function Home(){
     <IslandMap/>
     <section className="section video-home-section"><div className="container"><div className="video-section"><div><span className="eyebrow">{video.eyebrow||"SEE THE ISLANDS"}</span><h2>{video.title||"Watch Andaman before you go"}</h2><p>{video.description}</p><div className="video-actions"><Link className="btn primary" to="/experiences">Explore Experiences <ArrowRight size={17}/></Link><a className="btn youtube-subscribe" href={video.subscribe_url||"https://www.youtube.com/@NomadicSoulmates?sub_confirmation=1"} target="_blank" rel="noreferrer"><Youtube size={17}/> Subscribe</a></div></div><div className="video-frame"><iframe src={video.video_url||"https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0"} title="Andaman and Nicobar Tourism video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div></div></div></section>
     <section className="why-section"><div className="container why-grid"><div><span className="eyebrow">{why.eyebrow}</span><h2>{why.title}</h2><p>{why.description}</p></div><div className="why-list">{(why.items||[]).map((item,i)=>{const Icon=iconFor(item.icon);return <div key={item.id||item.title||i}><Icon/><div><b>{item.title}</b><span>{item.text}</span></div></div>})}</div></div></section>
+    <section className="section gallery-home-section"><div className="container"><SectionHead eyebrow="BLUEVOWS GALLERY" title="Moments from the islands" text="Explore the places, stays and experiences that make an Andaman journey special."/><DestinationGallery images={gallery}/></div></section>
     <section className="section reviews-section"><div className="container"><SectionHead eyebrow="TRAVELLER STORIES" title="What our guests say" text="Real-feeling service starts with listening, planning and being there when it matters."/><div className="review-grid">{reviews.map(r=><article className="review modern-review" key={r.id||r.guest_name}><div className="review-top"><div className="review-profile"><img src={r.photo_url||"https://i.pravatar.cc/120?img=47"} alt={r.guest_name}/><div><b>{r.guest_name}</b><span>Verified traveller</span></div></div><div className="stars">{[1,2,3,4,5].map(x=><Star key={x} fill={x<=Math.round(Number(r.rating||5))?"currentColor":"none"} size={14}/>)}</div></div><h3>{r.title}</h3><p>“{r.review}”</p><div className="review-quote">“</div></article>)}</div></div></section>
     <CTA/>
   </main>
