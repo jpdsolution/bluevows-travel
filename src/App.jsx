@@ -213,13 +213,35 @@ function PackageCard({p}){
 }
 function ServiceCard({service}){
  const Icon=iconFor(service.icon);
- return <article className="service-card">
+ const slug=service.slug||slugify(service.name);
+ return <Link className="service-card" to={`/services/${slug}`}>
    <div className="service-icon"><Icon/></div>
    <h3>{service.name}</h3>
    <p>{service.description||service.text}</p>
    {Array.isArray(service.features)&&service.features.length>0&&<ul>{service.features.slice(0,3).map((item,i)=><li key={i}><CheckCircle2 size={14}/>{item}</li>)}</ul>}
-   <Link className="mini-link" to="/services">Learn more <ArrowRight size={14}/></Link>
- </article>
+   <span className="mini-link">Learn more <ArrowRight size={14}/></span>
+ </Link>
+}
+
+function ServiceDetail(){
+ const {slug}=useParams();
+ const site=useSiteCMS();
+ const fallback=defaultServices.find(x=>(x.slug||slugify(x.name))===slug);
+ const remote=(site.services||[]).find(x=>(x.slug||slugify(x.name))===slug);
+ const service={...(fallback||{}),...(remote||{})};
+ if(!service.name) return <SimplePage title="Service not found" eyebrow="TRAVEL SERVICES"><p className="page-lead">The requested service could not be found.</p><Link className="btn primary" to="/services">View all services <ArrowRight size={17}/></Link></SimplePage>;
+ const Icon=iconFor(service.icon);
+ return <main className="page"><div className="container">
+   <Link className="mini-link" to="/services">← All services</Link>
+   <div className="detail-hero" style={{marginTop:24}}>
+     <div><span className="eyebrow">TRAVEL SERVICE</span><h1 className="page-title">{service.name}</h1><p className="page-lead">{service.description||service.text}</p></div>
+     <div className="service-icon" style={{width:64,height:64,margin:0}}><Icon size={30}/></div>
+   </div>
+   <div className="detail-grid" style={{marginTop:30}}>
+     <div className="detail-card"><h2>What we provide</h2>{Array.isArray(service.features)&&service.features.length>0?<ul className="detail-list">{service.features.map((item,i)=><li key={i}><CheckCircle2 size={16}/>{item}</li>)}</ul>:<p>Tell us what you need and we will help arrange the right option for your island journey.</p>}</div>
+     <div className="detail-card"><h2>Plan this service</h2><p>Share your travel details and our team will help you with availability, options and pricing.</p><Link className="btn primary" to="/contact">Enquire now <ArrowRight size={17}/></Link></div>
+   </div>
+ </div></main>
 }
 
 function PartnerMarquee(){
@@ -552,6 +574,7 @@ function AppShell(){
   <Route path="/packages/:slug" element={<PackageDetail/>}/>
   <Route path="/experiences" element={<Experiences/>}/>
   <Route path="/services" element={<ServiceListing/>}/>
+  <Route path="/services/:slug" element={<ServiceDetail/>}/>
   <Route path="/hotels" element={<CmsPage contentKey="page.hotels" fallbackTitle="Hotels & Resorts" fallbackEyebrow="STAY COMFORTABLY"/>}/>
   <Route path="/activities" element={<ActivityListing/>}/>
   <Route path="/activities/:slug" element={<ActivityDetail/>}/>
