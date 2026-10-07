@@ -401,7 +401,76 @@ function DateField({label="Travel date"}){
   return <label className="date-field date-field-modern">{label}<div className="date-control"><span className={value?"has-date":"placeholder"}>{display}</span><CalendarDays size={18}/><input ref={inputRef} type="date" value={value} onChange={e=>setValue(e.target.value)} aria-label={label}/></div></label>
 }
 
-function Contact(){const site=useSiteCMS();const settings=site.settings||defaultSiteContent.settings;const block=site.blocks?.["page.contact"]||{};return <SimplePage title={block.title||"Plan your trip"} eyebrow={block.eyebrow||"GET IN TOUCH"}><p className="page-lead">{block.description||"Share your travel plans and our team will prepare a quotation for you."}</p><div className="contact-address"><MapPin size={18}/><div><b>Our address</b><span>{settings.address||"Port Blair, Andaman & Nicobar Islands, India"}</span></div></div><form className="contact-form" onSubmit={e=>e.preventDefault()}><div className="form-grid"><label>Full name<input placeholder="Your name"/></label><label>Phone number<input placeholder={settings.phone||"+91"}/></label><label>Email<input type="email" placeholder={settings.contact_email||"you@example.com"}/></label><DateField/><label>Adults<input type="number" min="1" defaultValue="2"/></label><label>Children<input type="number" min="0" defaultValue="0"/></label></div><label>Message<textarea rows="5" placeholder="Tell us about your trip"></textarea></label><button className="btn primary submit"><Send size={17}/> Send Enquiry</button></form></SimplePage>}
+function Contact(){
+ const site=useSiteCMS();
+ const destinations=useDestinationCMS()?.items||defaultDestinations;
+ const packages=usePackageCMS()?.items||defaultPackages;
+ const settings=site.settings||defaultSiteContent.settings;
+ const block=site.blocks?.["page.contact"]||{};
+ const [form,setForm]=useState({name:"",phone:"",email:"",travelDate:"",adults:"2",children:"0",destination:"",packageName:"",message:""});
+ const [status,setStatus]=useState({type:"",message:""});
+ const [submitting,setSubmitting]=useState(false);
+ const update=(key,value)=>setForm(prev=>({...prev,[key]:value}));
+ const submit=async(e)=>{
+   e.preventDefault();
+   if(submitting)return;
+   setStatus({type:"",message:""});
+   if(!form.name.trim()||!form.phone.trim()){
+     setStatus({type:"error",message:"Please enter your name and phone number."});
+     return;
+   }
+   const url=import.meta.env.VITE_SUPABASE_URL;
+   const anon=import.meta.env.VITE_SUPABASE_ANON_KEY;
+   if(!url||!anon){
+     setStatus({type:"error",message:"Enquiry service is not configured yet."});
+     return;
+   }
+   setSubmitting(true);
+   try{
+     const adults=Math.max(0,Number(form.adults)||0);
+     const children=Math.max(0,Number(form.children)||0);
+     const response=await fetch(`${url}/rest/v1/enquiries`,{
+       method:"POST",
+       headers:{apikey:anon,Authorization:`Bearer ${anon}`,"Content-Type":"application/json",Prefer:"return=minimal"},
+       body:JSON.stringify({
+         name:form.name.trim(),
+         phone:form.phone.trim(),
+         email:form.email.trim()||null,
+         travel_date:form.travelDate||null,
+         travellers:adults+children,
+         destination:form.destination||null,
+         package:form.packageName||null,
+         message:form.message.trim()||null
+       })
+     });
+     if(!response.ok)throw new Error(await response.text());
+     setForm({name:"",phone:"",email:"",travelDate:"",adults:"2",children:"0",destination:"",packageName:"",message:""});
+     setStatus({type:"success",message:"Thank you! Your enquiry has been received. Our team will contact you soon."});
+   }catch(err){
+     console.error("BlueVows enquiry submission failed",err);
+     setStatus({type:"error",message:"We could not send your enquiry right now. Please try again."});
+   }finally{setSubmitting(false)}
+ };
+ return <SimplePage title={block.title||"Plan your trip"} eyebrow={block.eyebrow||"GET IN TOUCH"}>
+  <p className="page-lead">{block.description||"Share your travel plans and our team will prepare a quotation for you."}</p>
+  <div className="contact-address"><MapPin size={18}/><div><b>Our address</b><span>{settings.address||"Port Blair, Andaman & Nicobar Islands, India"}</span></div></div>
+  <form className="contact-form" onSubmit={submit}>
+   <div className="form-grid">
+    <label>Full name<input value={form.name} onChange={e=>update("name",e.target.value)} placeholder="Your name" required/></label>
+    <label>Phone number<input value={form.phone} onChange={e=>update("phone",e.target.value)} placeholder={settings.phone||"+91"} required/></label>
+    <label>Email<input type="email" value={form.email} onChange={e=>update("email",e.target.value)} placeholder={settings.contact_email||"you@example.com"}/></label>
+    <label>Travel date<input type="date" value={form.travelDate} onChange={e=>update("travelDate",e.target.value)}/></label>
+    <label>Adults<input type="number" min="1" value={form.adults} onChange={e=>update("adults",e.target.value)}/></label>
+    <label>Children<input type="number" min="0" value={form.children} onChange={e=>update("children",e.target.value)}/></label>
+    <label>Destination<select value={form.destination} onChange={e=>update("destination",e.target.value)}><option value="">Select destination</option>{destinations.map(d=><option key={d.id||d.slug||d.name} value={d.name}>{d.name}</option>)}</select></label>
+    <label>Package<select value={form.packageName} onChange={e=>update("packageName",e.target.value)}><option value="">Select package</option>{packages.map(p=><option key={p.id||p.slug||p.name} value={p.name}>{p.name}</option>)}</select></label>
+   </div>
+   <label>Message<textarea rows="5" value={form.message} onChange={e=>update("message",e.target.value)} placeholder="Tell us about your trip"></textarea></label>
+   {status.message&&<div className={`enquiry-message ${status.type}`} role="status">{status.message}</div>}
+   <button className="btn primary submit" type="submit" disabled={submitting}><Send size={17}/> {submitting?"Sending...":"Send Enquiry"}</button>
+  </form>
+ </SimplePage>
+}
 
 function ScrollRevealObserver(){
   const {pathname}=useLocation();
