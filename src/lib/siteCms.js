@@ -17,6 +17,17 @@ async function request(path) {
   return response.json();
 }
 
+// A single optional CMS collection should never make the whole public site fall back.
+// This keeps the site resilient while an Admin Panel is being configured.
+async function safeRequest(path, fallback = []) {
+  try {
+    return await request(path);
+  } catch (error) {
+    console.warn(`BlueVows CMS collection unavailable: ${path}`, error);
+    return fallback;
+  }
+}
+
 const ordered = (rows = []) => [...rows].sort((a,b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
 export async function loadSiteCms() {
@@ -37,7 +48,7 @@ export async function loadSiteCms() {
     faqs: "faqs?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc",
     blocks: "site_content_blocks?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc"
   };
-  const entries = await Promise.all(Object.entries(tables).map(async ([key,path]) => [key, await request(path)]));
+  const entries = await Promise.all(Object.entries(tables).map(async ([key,path]) => [key, await safeRequest(path)]));
   const result = Object.fromEntries(entries);
   const blocks = {};
   (result.blocks || []).forEach(row => { blocks[row.content_key] = row.content || {}; });

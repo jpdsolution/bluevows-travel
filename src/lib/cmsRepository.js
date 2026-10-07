@@ -29,7 +29,7 @@ export const CMS_COLLECTIONS = Object.freeze({
   footerSections: "footer_sections",
   footerLinks: "footer_links",
   contentBlocks: "site_content_blocks",
-  faqs: "destination_faqs",
+  faqs: "faqs",
   tips: "destination_tips"
 });
 

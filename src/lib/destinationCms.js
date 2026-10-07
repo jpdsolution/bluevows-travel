@@ -43,16 +43,24 @@ export async function getDestinationBySlug(slug) {
   const rows = await request(`destinations?select=*&slug=eq.${encodeURIComponent(slug)}&status=eq.published&archived_at=is.null&limit=1`);
   return rows?.[0] || null;
 }
+async function safeBundleRequest(path) {
+  try { return await request(path); }
+  catch (error) {
+    console.warn(`BlueVows destination CMS collection unavailable: ${path}`, error);
+    return [];
+  }
+}
+
 export async function getDestinationBundle(destinationId) {
   const q = encodeURIComponent(destinationId);
   const [places, experiences, faqs, gallery, tips, packages, contentBlocks] = await Promise.all([
-    request(`destination_places?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_experiences?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_faqs?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_gallery?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_tips?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_packages?select=*,packages(*)&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
-    request(`destination_content_blocks?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`)
+    safeBundleRequest(`destination_places?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_experiences?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_faqs?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_gallery?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_tips?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_packages?select=*,packages(*)&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`),
+    safeBundleRequest(`destination_content_blocks?select=*&destination_id=eq.${q}&status=eq.published&archived_at=is.null&order=display_order.asc`)
   ]);
   return { places, experiences, faqs, gallery, tips, contentBlocks, packages: packages.map(x => x.packages || x).filter(Boolean) };
 }
