@@ -867,3 +867,157 @@ ${escapeHtml(tag)}
 </html>
 `;
 }
+
+async function sendEnquiry(request, env) {
+  try {
+    const apiKey = String(env?.RESEND_API_KEY || "").trim();
+    const receiver = String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
+
+    if (!apiKey || !receiver) {
+      return json({
+        ok: false,
+        error: "Email service is not configured."
+      }, 500);
+    }
+
+    const payload = await request.json();
+    const enquiry = payload?.enquiry || {};
+
+    const customerEmail = String(enquiry.email || "").trim();
+
+    const from = String(
+      env.RESEND_FROM_EMAIL ||
+      "BlueVows Website <onboarding@resend.dev>"
+    ).trim();
+
+    const body = {
+      from,
+      to: [receiver],
+
+      subject:
+        `New Enquiry Received — ${textOr(
+          enquiry.destination,
+          "Andaman"
+        )} — ${textOr(
+          enquiry.name,
+          "Website Guest"
+        )}`,
+
+      html: buildHtml({
+        enquiry,
+        adults: payload.adults,
+        children: payload.children,
+        siteName: payload.siteName || "BlueVows Travel",
+        tagline: payload.tagline || "Explore Andaman With Us"
+      })
+    };
+
+    if (customerEmail) {
+      body.reply_to = customerEmail;
+    }
+
+    const response = await fetch(
+      "https://api.resend.com/emails",
+      {
+        method: "POST",
+
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(body)
+      }
+    );
+
+    const raw = await response.text();
+
+    let data = {};
+
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { raw };
+    }
+
+    if (!response.ok) {
+      return json({
+        ok: false,
+        error:
+          data?.message ||
+          data?.error ||
+          raw ||
+          `Resend returned HTTP ${response.status}`
+      }, 502);
+    }
+
+    return json({
+      ok: true,
+      id: data?.id || null
+    });
+
+  } catch (error) {
+    return json({
+      ok: false,
+      error:
+        error?.message ||
+        "Unable to send enquiry email."
+    }, 500);
+  }
+}
+
+
+export default {
+
+  async fetch(request, env) {
+
+    const url = new URL(request.url);
+
+    if (request.method === "OPTIONS") {
+      return json({ ok: true }, 204);
+    }
+
+    if (
+      url.pathname === "/api/email-status" &&
+      request.method === "GET"
+    ) {
+      return json({
+        ok: Boolean(
+          String(env?.RESEND_API_KEY || "").trim()
+        ) && Boolean(
+          String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim()
+        ),
+
+        bindings: {
+          RESEND_API_KEY: Boolean(
+            String(env?.RESEND_API_KEY || "").trim()
+          ),
+
+          ENQUIRY_RECEIVER_EMAIL: Boolean(
+            String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim()
+          ),
+
+          RESEND_FROM_EMAIL: Boolean(
+            String(env?.RESEND_FROM_EMAIL || "").trim()
+          ),
+
+          ASSETS: Boolean(env?.ASSETS)
+        }
+      });
+    }
+
+    if (url.pathname === "/api/send-enquiry") {
+
+      if (request.method === "POST") {
+        return sendEnquiry(request, env);
+      }
+
+      return json({
+        ok: false,
+        error: "Method not allowed"
+      }, 405);
+    }
+
+    return env.ASSETS.fetch(request);
+  }
+};
