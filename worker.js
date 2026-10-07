@@ -1,17 +1,20 @@
-const json = (data, status = 200) => new Response(JSON.stringify(data), {
-  status,
-  headers: {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  },
-});
+// Deployment refresh - email secret binding
 
-const escapeHtml = (v) => String(v ?? "")
-  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-  .replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    }
+  });
+
+const escapeHtml = (v) =>
+  String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 const textOr = (v, f = "Not provided") => {
   const t = String(v ?? "").trim();
@@ -20,7 +23,9 @@ const textOr = (v, f = "Not provided") => {
 
 const formatDate = (v) => {
   if (!v) return "Not provided";
+
   const d = new Date(v);
+
   return Number.isNaN(d.getTime())
     ? textOr(v)
     : new Intl.DateTimeFormat("en-IN", {
@@ -75,7 +80,13 @@ const box = (title, body) =>
     </div>
   </div>`;
 
-function buildHtml({ enquiry, adults, children, siteName, tagline }) {
+function buildHtml({
+  enquiry,
+  adults,
+  children,
+  siteName,
+  tagline
+}) {
   const company = textOr(siteName, "BlueVows").toUpperCase();
   const tag = textOr(tagline, "Explore Andaman With Us");
 
@@ -89,8 +100,15 @@ function buildHtml({ enquiry, adults, children, siteName, tagline }) {
   const received = formatDateTime(enquiry.created_at);
   const travel = formatDate(enquiry.travel_date);
 
-  const av = adults == null ? "Not provided" : String(adults);
-  const cv = children == null ? "Not provided" : String(children);
+  const av =
+    adults == null
+      ? "Not provided"
+      : String(adults);
+
+  const cv =
+    children == null
+      ? "Not provided"
+      : String(children);
 
   const travellers =
     enquiry.travellers ??
@@ -113,12 +131,15 @@ function buildHtml({ enquiry, adults, children, siteName, tagline }) {
 <tr>
 <td align="center" style="padding:18px 10px;">
 
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:820px;background:#fff;border:1px solid #111;border-radius:12px;overflow:hidden;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+style="width:100%;max-width:820px;background:#fff;border:1px solid #111;border-radius:12px;overflow:hidden;">
 
 <tr>
 <td align="center" style="background:#000;padding:22px 20px 30px;color:#fff;">
 
-<div style="font-size:38px;line-height:42px;margin-bottom:8px;">✉</div>
+<div style="font-size:38px;line-height:42px;margin-bottom:8px;">
+✉
+</div>
 
 <div style="font-size:38px;line-height:1.15;font-weight:800;letter-spacing:4px;">
 ${escapeHtml(company)}
@@ -212,36 +233,47 @@ ${escapeHtml(tag)}
 
 async function sendEnquiry(request, env) {
   try {
+    const apiKey =
+      String(env?.RESEND_API_KEY || "").trim();
 
-    const apiKey = String(env?.RESEND_API_KEY || "").trim();
-    const receiver = String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
+    const receiver =
+      String(env?.ENQUIRY_RECEIVER_EMAIL || "").trim();
+
+    const from =
+      String(
+        env?.RESEND_FROM_EMAIL ||
+        "BlueVows Website <onboarding@resend.dev>"
+      ).trim();
 
     if (!apiKey || !receiver) {
-
-      const missing = [];
-
-      if (!apiKey) missing.push("RESEND_API_KEY");
-      if (!receiver) missing.push("ENQUIRY_RECEIVER_EMAIL");
-
       console.error(
-        "BlueVows email configuration missing:",
-        missing.join(", ")
+        "BlueVows email configuration missing",
+        {
+          hasResendApiKey: Boolean(apiKey),
+          hasReceiver: Boolean(receiver),
+          hasFrom: Boolean(from)
+        }
       );
 
-      return json({
-        ok: false,
-        error: `Email service is not configured. Missing: ${missing.join(", ")}`
-      }, 500);
+      return json(
+        {
+          ok: false,
+          error: "Email service is not configured.",
+          missing: [
+            !apiKey ? "RESEND_API_KEY" : null,
+            !receiver ? "ENQUIRY_RECEIVER_EMAIL" : null
+          ].filter(Boolean)
+        },
+        500
+      );
     }
 
     const payload = await request.json();
 
     const enquiry = payload?.enquiry || {};
 
-    const guest = textOr(
-      enquiry.name,
-      "Website Guest"
-    );
+    const guest =
+      textOr(enquiry.name, "Website Guest");
 
     const customerEmail =
       String(enquiry.email || "").trim();
@@ -250,16 +282,12 @@ async function sendEnquiry(request, env) {
       textOr(payload.siteName, "BlueVows");
 
     const tagline =
-      textOr(payload.tagline, "Explore Andaman With Us");
-
-    const from =
-      String(
-        env.RESEND_FROM_EMAIL ||
-        "BlueVows Website <onboarding@resend.dev>"
-      ).trim();
+      textOr(
+        payload.tagline,
+        "Explore Andaman With Us"
+      );
 
     const body = {
-
       from,
 
       to: [receiver],
@@ -277,21 +305,11 @@ async function sendEnquiry(request, env) {
         siteName,
         tagline
       })
-
     };
 
     if (customerEmail) {
       body.reply_to = customerEmail;
     }
-
-    console.log(
-      "Sending BlueVows enquiry email",
-      {
-        hasApiKey: true,
-        hasReceiver: true,
-        from
-      }
-    );
 
     const r = await fetch(
       "https://api.resend.com/emails",
@@ -320,9 +338,8 @@ async function sendEnquiry(request, env) {
     }
 
     if (!r.ok) {
-
       console.error(
-        "Resend rejected BlueVows email",
+        "Resend rejected BlueVows enquiry email",
         {
           status: r.status,
           statusText: r.statusText,
@@ -330,17 +347,22 @@ async function sendEnquiry(request, env) {
         }
       );
 
-      return json({
-        ok: false,
-        error:
-          data?.message ||
-          data?.error ||
-          raw ||
-          `Resend returned HTTP ${r.status}`,
+      return json(
+        {
+          ok: false,
+          error:
+            data?.message ||
+            data?.name ||
+            raw ||
+            `Resend request failed (${r.status})`,
 
-        resendStatus: r.status
+          resendStatus: r.status,
 
-      }, 502);
+          resendName:
+            data?.name || null
+        },
+        502
+      );
     }
 
     console.log(
@@ -362,12 +384,15 @@ async function sendEnquiry(request, env) {
       e?.stack || e
     );
 
-    return json({
-      ok: false,
-      error:
-        e?.message ||
-        "Unable to send enquiry email."
-    }, 500);
+    return json(
+      {
+        ok: false,
+        error:
+          e?.message ||
+          "Unable to send enquiry email."
+      },
+      500
+    );
   }
 }
 
@@ -377,56 +402,71 @@ export default {
 
     const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return json({ ok: true }, 204);
-    }
-
-    if (
-      url.pathname === "/api/email-status" &&
-      request.method === "GET"
-    ) {
-
-      const hasApiKey =
-        Boolean(
-          String(
-            env?.RESEND_API_KEY || ""
-          ).trim()
-        );
-
-      const hasReceiver =
-        Boolean(
-          String(
-            env?.ENQUIRY_RECEIVER_EMAIL || ""
-          ).trim()
-        );
-
-      const hasFrom =
-        Boolean(
-          String(
-            env?.RESEND_FROM_EMAIL || ""
-          ).trim()
-        );
+    if (url.pathname === "/api/email-status") {
 
       return json({
-        ok: hasApiKey && hasReceiver,
-        hasApiKey,
-        hasReceiver,
-        hasFrom
+        ok: Boolean(
+          env?.RESEND_API_KEY &&
+          env?.ENQUIRY_RECEIVER_EMAIL
+        ),
+
+        bindings: {
+          RESEND_API_KEY:
+            Boolean(env?.RESEND_API_KEY),
+
+          ENQUIRY_RECEIVER_EMAIL:
+            Boolean(
+              env?.ENQUIRY_RECEIVER_EMAIL
+            ),
+
+          RESEND_FROM_EMAIL:
+            Boolean(
+              env?.RESEND_FROM_EMAIL
+            ),
+
+          ASSETS:
+            Boolean(env?.ASSETS)
+        },
+
+        from:
+          String(
+            env?.RESEND_FROM_EMAIL ||
+            "BlueVows Website <onboarding@resend.dev>"
+          ).replace(
+            /<[^>]+>/,
+            "<configured>"
+          )
       });
     }
 
     if (url.pathname === "/api/send-enquiry") {
 
+      if (request.method === "OPTIONS") {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods":
+              "POST,OPTIONS",
+            "Access-Control-Allow-Headers":
+              "Content-Type"
+          }
+        });
+      }
+
       if (request.method === "POST") {
         return sendEnquiry(request, env);
       }
 
-      return json({
-        ok: false,
-        error: "Method not allowed"
-      }, 405);
+      return json(
+        {
+          ok: false,
+          error: "Method not allowed"
+        },
+        405
+      );
     }
 
     return env.ASSETS.fetch(request);
-  },
+  }
 };
