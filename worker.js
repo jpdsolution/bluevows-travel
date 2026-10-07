@@ -60,25 +60,42 @@ const shortId = (id) => {
   return c ? c.slice(0, 6) : "NEW";
 };
 
-const row = (label, value, strong = false) =>
-  `<tr>
-    <td style="width:42%;padding:14px 18px;border-top:1px solid #d9d9d9;font-size:15px;line-height:1.45;font-weight:700;color:#111827;vertical-align:top;">
+const row = (label, value, strong = false, kind = "") => {
+  const safeValue = escapeHtml(value);
+  let valueHtml = safeValue;
+
+  if (kind === "email" && String(value || "").trim()) {
+    const mail = escapeHtml(String(value).trim());
+    valueHtml = `<a href="mailto:${mail}" style="color:#111827 !important;text-decoration:none !important;word-break:break-all;">${mail}</a>`;
+  } else if (kind === "phone" && String(value || "").trim()) {
+    const phoneText = String(value).trim();
+    const phoneHref = escapeHtml(phoneText.replace(/[^0-9+]/g, ""));
+    valueHtml = `<a href="tel:${phoneHref}" style="color:#111827 !important;text-decoration:none !important;white-space:nowrap;">${escapeHtml(phoneText)}</a>`;
+  }
+
+  return `<tr>
+    <td style="width:38%;padding:12px 14px;border-top:1px solid #d9d9d9;font-size:14px;line-height:1.4;font-weight:700;color:#111827;vertical-align:top;">
       ${escapeHtml(label)}
     </td>
-    <td style="padding:14px 18px;border-top:1px solid #d9d9d9;font-size:15px;line-height:1.45;color:#111827;vertical-align:top;word-break:break-word;${strong ? "font-weight:800;" : ""}">
-      ${escapeHtml(value)}
+    <td style="width:62%;padding:12px 14px;border-top:1px solid #d9d9d9;font-size:14px;line-height:1.4;color:#111827;vertical-align:top;overflow-wrap:anywhere;word-break:break-word;${strong ? "font-weight:800;" : ""}">
+      ${valueHtml}
     </td>
   </tr>`;
+};
 
 const box = (title, body) =>
-  `<div style="margin-top:26px;border:1px solid #111827;border-radius:11px;overflow:hidden;background:#fff;">
-    <div style="padding:15px 20px;font-size:15px;line-height:1.35;font-weight:800;letter-spacing:.02em;color:#111827;border-bottom:1px solid #111827;">
-      ${escapeHtml(title)}
-    </div>
-    <div style="padding:18px 20px;font-size:15px;line-height:1.6;color:#1f2937;word-break:break-word;">
-      ${body}
-    </div>
-  </div>`;
+  `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:18px;border:1px solid #111827;border-radius:10px;background:#fff;">
+    <tr>
+      <td style="padding:13px 15px;font-size:14px;line-height:1.35;font-weight:800;letter-spacing:.02em;color:#111827;border-bottom:1px solid #111827;">
+        ${escapeHtml(title)}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:15px;font-size:14px;line-height:1.55;color:#1f2937;overflow-wrap:anywhere;word-break:break-word;">
+        ${body}
+      </td>
+    </tr>
+  </table>`;
 
 function buildHtml({
   enquiry,
@@ -100,88 +117,83 @@ function buildHtml({
   const received = formatDateTime(enquiry.created_at);
   const travel = formatDate(enquiry.travel_date);
 
-  const av =
-    adults == null
-      ? "Not provided"
-      : String(adults);
-
-  const cv =
-    children == null
-      ? "Not provided"
-      : String(children);
-
-  const travellers =
-    enquiry.travellers ??
-    ((Number(adults) || 0) + (Number(children) || 0));
-
+  const av = adults == null ? "Not provided" : String(adults);
+  const cv = children == null ? "Not provided" : String(children);
+  const travellers = enquiry.travellers ?? ((Number(adults) || 0) + (Number(children) || 0));
   const msg = textOr(enquiry.message);
 
   return `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
 <title>New Enquiry Received</title>
+<style>
+  body{margin:0!important;padding:0!important;width:100%!important;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111827;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+  table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;}
+  img{border:0;outline:none;text-decoration:none;display:block;}
+  a{color:#111827;text-decoration:none;}
+  .email-wrap{width:100%;max-width:760px;}
+  .email-content{padding:32px 34px 26px;}
+  .brand{font-size:34px;line-height:1.15;letter-spacing:3px;font-weight:800;}
+  .tagline{font-size:17px;line-height:1.4;letter-spacing:1.5px;}
+  .title{font-size:30px;line-height:1.18;}
+  .lead{font-size:17px;line-height:1.55;}
+  .details-title{font-size:15px;}
+  .detail-table td{font-size:14px;}
+  @media only screen and (max-width:600px){
+    .outer-pad{padding:8px 5px!important;}
+    .email-wrap{width:100%!important;max-width:100%!important;}
+    .email-content{padding:24px 16px 22px!important;}
+    .brand{font-size:28px!important;letter-spacing:2px!important;}
+    .tagline{font-size:14px!important;letter-spacing:1px!important;}
+    .title{font-size:26px!important;}
+    .lead{font-size:15px!important;}
+    .detail-table td{font-size:13px!important;padding:11px 10px!important;}
+    .details-title{font-size:14px!important;padding:13px 14px!important;}
+    .footer-brand{font-size:18px!important;}
+    .footer-tag{font-size:13px!important;}
+  }
+</style>
 </head>
-
-<body style="margin:0;padding:0;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#111827;">
-
+<body>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f2f2;">
 <tr>
-<td align="center" style="padding:18px 10px;">
+<td align="center" class="outer-pad" style="padding:14px 8px;">
 
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-style="width:100%;max-width:820px;background:#fff;border:1px solid #111;border-radius:12px;overflow:hidden;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-wrap" style="width:100%;max-width:760px;background:#fff;border:1px solid #111;border-radius:12px;overflow:hidden;">
 
 <tr>
-<td align="center" style="background:#000;padding:22px 20px 30px;color:#fff;">
-
-<div style="font-size:38px;line-height:42px;margin-bottom:8px;">
-✉
-</div>
-
-<div style="font-size:38px;line-height:1.15;font-weight:800;letter-spacing:4px;">
-${escapeHtml(company)}
-</div>
-
-<div style="margin-top:8px;font-size:18px;line-height:1.4;letter-spacing:2px;font-weight:500;">
-${escapeHtml(tag)}
-</div>
-
+<td align="center" style="background:#000;padding:22px 16px 25px;color:#fff;">
+<div style="font-size:32px;line-height:36px;margin-bottom:7px;">✉</div>
+<div class="brand" style="font-size:34px;line-height:1.15;letter-spacing:3px;font-weight:800;">${escapeHtml(company)}</div>
+<div class="tagline" style="margin-top:7px;font-size:17px;line-height:1.4;letter-spacing:1.5px;font-weight:500;">${escapeHtml(tag)}</div>
 </td>
 </tr>
 
 <tr>
-<td style="padding:38px 40px 30px;">
+<td class="email-content" style="padding:32px 34px 26px;">
 
-<div style="font-size:16px;line-height:1.3;font-weight:800;letter-spacing:2px;color:#111827;">
-WEBSITE NOTIFICATION
-</div>
+<div style="font-size:14px;line-height:1.3;font-weight:800;letter-spacing:1.6px;color:#111827;">WEBSITE NOTIFICATION</div>
 
-<h1 style="margin:18px 0 12px;font-size:32px;line-height:1.15;color:#0b0b0b;">
-New Enquiry Received
-</h1>
+<h1 class="title" style="margin:16px 0 10px;font-size:30px;line-height:1.18;color:#0b0b0b;">New Enquiry Received</h1>
 
-<p style="margin:0;font-size:18px;line-height:1.55;color:#111827;">
-A customer has submitted an enquiry through your ${escapeHtml(company)} website.
-</p>
+<p class="lead" style="margin:0;font-size:17px;line-height:1.55;color:#111827;">A customer has submitted an enquiry through your ${escapeHtml(company)} website.</p>
 
-<div style="display:inline-block;margin-top:22px;padding:10px 18px;border:2px solid #111;border-radius:10px;font-size:15px;font-weight:800;line-height:1.2;">
-NEW ENQUIRY
-</div>
+<div style="display:inline-block;margin-top:18px;padding:9px 15px;border:2px solid #111;border-radius:9px;font-size:14px;font-weight:800;line-height:1.2;color:#111827;">NEW ENQUIRY</div>
 
-<div style="margin-top:28px;border:1px solid #111827;border-radius:11px;overflow:hidden;background:#fff;">
-
-<div style="padding:16px 20px;font-size:16px;line-height:1.3;font-weight:800;color:#111827;border-bottom:1px solid #111827;">
-CUSTOMER DETAILS
-</div>
-
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;">
-
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:22px;border:1px solid #111827;border-radius:10px;background:#fff;">
+<tr>
+<td class="details-title" style="padding:14px 15px;font-size:15px;line-height:1.3;font-weight:800;color:#111827;border-bottom:1px solid #111827;">CUSTOMER DETAILS</td>
+</tr>
+<tr>
+<td style="padding:0;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="detail-table" style="width:100%;table-layout:fixed;">
 ${row("Guest Name", guest)}
-${row("Email Address", email)}
-${row("Phone / WhatsApp", phone)}
+${row("Email Address", email, false, "email")}
+${row("Phone / WhatsApp", phone, false, "phone")}
 ${row("Travel Date", travel)}
 ${row("Adults", av)}
 ${row("Children", cv)}
@@ -190,43 +202,28 @@ ${row("Destination", dest)}
 ${row("Package", pkg)}
 ${row("Enquiry ID", id, true)}
 ${row("Received Date & Time", received)}
-
 </table>
-</div>
+</td>
+</tr>
+</table>
 
-${box(
-  "CUSTOMER MESSAGE",
-  escapeHtml(msg).replace(/\n/g, "<br>")
-)}
-
-${box(
-  "FOLLOW-UP RECOMMENDED",
-  "Contact the guest to discuss travel plans, availability and package options."
-)}
+${box("CUSTOMER MESSAGE", escapeHtml(msg).replace(/\n/g, "<br>"))}
+${box("FOLLOW-UP RECOMMENDED", "Contact the guest to discuss travel plans, availability and package options.")}
 
 </td>
 </tr>
 
 <tr>
-<td style="border-top:1px solid #111827;padding:28px 20px 30px;text-align:center;">
-
-<div style="font-size:22px;line-height:1.3;font-weight:800;letter-spacing:2px;color:#111827;">
-${escapeHtml(company)}
-</div>
-
-<div style="margin-top:6px;font-size:16px;line-height:1.4;color:#111827;">
-${escapeHtml(tag)}
-</div>
-
+<td style="border-top:1px solid #111827;padding:22px 16px 24px;text-align:center;">
+<div class="footer-brand" style="font-size:20px;line-height:1.3;font-weight:800;letter-spacing:1.5px;color:#111827;">${escapeHtml(company)}</div>
+<div class="footer-tag" style="margin-top:5px;font-size:14px;line-height:1.4;color:#111827;">${escapeHtml(tag)}</div>
 </td>
 </tr>
 
 </table>
-
 </td>
 </tr>
 </table>
-
 </body>
 </html>`;
 }
