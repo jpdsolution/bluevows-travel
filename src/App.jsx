@@ -178,12 +178,23 @@ function ScrollToTop(){
   return null;
 }
 function Header(){
-  const [open,setOpen]=useState(false); const location=useLocation(); const site=useSiteCMS();
+  const [open,setOpen]=useState(false); const [mobileSubmenu,setMobileSubmenu]=useState(null); const location=useLocation(); const site=useSiteCMS();
   const navItems=site.navigation||defaultSiteContent.navigation;
   const topItems=navItems.filter(x=>!x.parent_id); const childrenFor=id=>navItems.filter(x=>x.parent_id===id);
-  return <header className="header"><div className="container nav"><Link className="brand" to="/" onClick={()=>setOpen(false)}><img className="brand-logo" src={site.settings?.logo_url||"/bluevows-logo.png"} alt={site.settings?.website_name||"BlueVows"}/></Link><button className="menu-btn" onClick={()=>setOpen(!open)} aria-label="Menu">{open?<X/>:<Menu/>}</button><nav className={open?"nav-links open":"nav-links"}>
-    {topItems.map(item=>{const children=childrenFor(item.id);return children.length?<div className="nav-dropdown" key={item.id||item.title}><Link className={location.pathname===item.link?"active":""} to={item.link||"#"} onClick={()=>setOpen(false)}>{item.title}<ChevronDown size={13}/></Link><div className="nav-dropdown-menu">{children.map(child=><Link key={child.id||child.title} to={child.link||"#"} onClick={()=>setOpen(false)}>{child.title}</Link>)}</div></div>:<Link className={location.pathname===item.link?"active":""} to={item.link||"/"} onClick={()=>setOpen(false)} key={item.id||item.title}>{item.title}</Link>})}
-    <Link className="nav-cta" to="/contact" onClick={()=>setOpen(false)}>Plan My Trip <ArrowRight size={15}/></Link>
+  const isExternal=(url="")=>/^https?:\/\//i.test(url);
+  const closeMenu=()=>{setOpen(false);setMobileSubmenu(null)};
+  const itemActive=(item)=>location.pathname===item.link || childrenFor(item.id).some(child=>location.pathname===child.link);
+  const renderNavLink=(item,extraClass="")=>{
+    const external=isExternal(item.link); const cls=`${extraClass} ${itemActive(item)?"active":""}`.trim();
+    if(external)return <a className={cls} href={item.link} target={item.open_new_tab!==false?"_blank":undefined} rel={item.open_new_tab!==false?"noreferrer":undefined} onClick={closeMenu}>{item.title}</a>;
+    return <Link className={cls} to={item.link||"/"} onClick={closeMenu}>{item.title}</Link>;
+  };
+  return <header className="header"><div className="container nav"><Link className="brand" to="/" onClick={closeMenu}><img className="brand-logo" src={site.settings?.logo_url||"/bluevows-logo.png"} alt={site.settings?.website_name||"BlueVows"}/></Link><button className="menu-btn" onClick={()=>setOpen(!open)} aria-label="Menu" aria-expanded={open}>{open?<X/>:<Menu/>}</button><nav className={open?"nav-links open":"nav-links"}>
+    {topItems.map(item=>{const children=childrenFor(item.id);return children.length?<div className={`nav-dropdown ${mobileSubmenu===item.id?"mobile-open":""}`} key={item.id||item.title}>
+      <div className="nav-parent-row">{renderNavLink(item)}<button className="nav-submenu-btn" type="button" aria-label={`Open ${item.title} submenu`} aria-expanded={mobileSubmenu===item.id} onClick={()=>setMobileSubmenu(mobileSubmenu===item.id?null:item.id)}><ChevronDown size={14}/></button></div>
+      <div className="nav-dropdown-menu">{children.map(child=>renderNavLink(child,"nav-child"))}</div>
+    </div>:renderNavLink(item)} )}
+    <Link className="nav-cta" to="/contact" onClick={closeMenu}>Plan My Trip <ArrowRight size={15}/></Link>
   </nav></div></header>
 }
 function Hero(){
