@@ -27,7 +27,7 @@ async function request(path, options = {}) {
 export async function listDestinations() {
   return request("destinations?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc");
 }
-export async function listDestinationPlaces() {
+async function listDestinationPlaces() {
   const [places, destinations] = await Promise.all([
     request("destination_places?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc"),
     listDestinations()
@@ -125,3 +125,5 @@ export async function uploadDestinationImage(file, token) {
   if (!response.ok) throw new Error(await response.text());
   return `${url}/storage/v1/object/public/destination-media/${path}`;
 }
+
+export { listDestinationPlaces };
