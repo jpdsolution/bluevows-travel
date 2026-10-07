@@ -1,3 +1,4 @@
+// Deployment refresh - email secret binding
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
 const escapeHtml = (v) => String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
 const textOr=(v,f="Not provided")=>{const t=String(v??"").trim();return t||f};
