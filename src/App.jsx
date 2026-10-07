@@ -111,11 +111,18 @@ const defaultActivities = [
   {name:"Kayaking", icon:Waves, text:"Explore calm tropical waters at your own pace.", price:"From ₹1,800", duration:"1–2 hours", image:"https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=2400&q=100", details:"A relaxed guided paddle through calm tropical waters, subject to weather and sea conditions.", inclusions:["Kayak and safety gear", "Guide", "Basic safety briefing"], exclusions:["Transfers", "Personal expenses"], location:"Havelock Island"}
 ];
 
+const defaultServices = [
+  {id:"default-s1",name:"Hotel & Resort Booking",slug:"hotel-resort-booking",icon:"Hotel",description:"Handpicked stays in the islands, matched to your route, budget and travel style.",features:["Curated stays","Location guidance","Easy booking support"]},
+  {id:"default-s2",name:"Ferry & Island Transfers",slug:"ferry-island-transfers",icon:"Ship",description:"Ferry planning and local transfers coordinated around your complete island itinerary.",features:["Ferry guidance","Local transfers","Timing coordination"]},
+  {id:"default-s3",name:"Activities & Experiences",slug:"activities-experiences",icon:"Waves",description:"Book trusted island experiences such as scuba diving, sea walks and kayaking.",features:["Verified experiences","Local support","Flexible options"]},
+  {id:"default-s4",name:"Custom Trip Planning",slug:"custom-trip-planning",icon:"Compass",description:"A personalised Andaman plan built around your dates, interests and preferred pace.",features:["Custom itinerary","Clear quotation","Human support"]}
+];
+
 const defaultSiteContent = {
   settings:{website_name:"BlueVows",logo_url:"/bluevows-logo.png",contact_email:"hello@example.com",phone:"+91 XXXXX XXXXX",whatsapp:"",address:"Port Blair, Andaman & Nicobar Islands, India",social_links:{instagram:"https://www.instagram.com/",facebook:"https://www.facebook.com/",x:"https://x.com/",youtube:"https://www.youtube.com/",whatsapp:"https://wa.me/"}},
   hero:defaultHeroSlides.map((x,i)=>({id:`default-${i}`,badge:"YOUR ISLAND JOURNEY STARTS HERE",heading:x.title,accent:x.accent,description:"Beautiful islands, handpicked stays and experiences planned around the way you want to travel.",image_url:x.image,primary_cta_label:"Explore Packages",primary_cta_link:"/packages",secondary_cta_label:"Make Your Trip Memorable",secondary_cta_link:"/experiences",display_order:i})),
   activities:defaultActivities.map((x,i)=>({id:`default-${i}`,slug:slugify(x.name),name:x.name,icon:x.icon,description:x.text,details:x.details,price:x.price,duration:x.duration,image:x.image,inclusions:x.inclusions,exclusions:x.exclusions,location:x.location,cta_label:"View details",display_order:i})),
-  services:[],
+  services:defaultServices,
   testimonials:[{id:"default-r1",guest_name:"Priya S.",title:"A wonderful trip",review:"Everything was well planned and the communication was easy from start to finish.",rating:5,photo_url:"https://i.pravatar.cc/120?img=47",display_order:0},{id:"default-r2",guest_name:"Rahul M.",title:"Smooth and comfortable",review:"The itinerary was flexible and the hotel choices were exactly what we wanted.",rating:5,photo_url:"https://i.pravatar.cc/120?img=12",display_order:1},{id:"default-r3",guest_name:"Neha K.",title:"Highly recommended",review:"Great support, clear quotation and a memorable island experience.",rating:5,photo_url:"https://i.pravatar.cc/120?img=32",display_order:2}],
   partners:defaultPartnerMarks.map((name,i)=>({id:`default-p${i}`,name,display_order:i})),
   navigation:[["/","Home"],["/destinations","Destinations"],["/packages","Packages"],["/hotels","Hotels"],["/activities","Activities"],["/about","About"]].map(([link,title],i)=>({id:`default-n${i}`,title,link,display_order:i})),
@@ -138,7 +145,7 @@ function SiteProvider({children}){
   const [loading,setLoading]=useState(siteCmsConfigured);
   useEffect(()=>{let alive=true;(async()=>{
     if(!siteCmsConfigured){setLoading(false);return;}
-    try{const remote=await loadSiteCms();if(!alive||!remote)return;setContent({...defaultSiteContent,...remote,settings:remote.settings||defaultSiteContent.settings,hero:remote.hero?.length?remote.hero:defaultSiteContent.hero,activities:remote.activities?.length?remote.activities:defaultSiteContent.activities,testimonials:remote.testimonials?.length?remote.testimonials:defaultSiteContent.testimonials,partners:remote.partners?.length?remote.partners:defaultSiteContent.partners,navigation:remote.navigation?.length?remote.navigation:defaultSiteContent.navigation,blocks:{...defaultSiteContent.blocks,...(remote.blocks||{})}})}catch(err){console.warn("BlueVows CMS content load failed; using fallback content.",err)}finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
+    try{const remote=await loadSiteCms();if(!alive||!remote)return;setContent({...defaultSiteContent,...remote,settings:remote.settings||defaultSiteContent.settings,hero:remote.hero?.length?remote.hero:defaultSiteContent.hero,activities:remote.activities?.length?remote.activities:defaultSiteContent.activities,testimonials:remote.testimonials?.length?remote.testimonials:defaultSiteContent.testimonials,partners:remote.partners?.length?remote.partners:defaultSiteContent.partners,navigation:remote.navigation?.length?remote.navigation:defaultSiteContent.navigation,services:remote.services?.length?remote.services:defaultSiteContent.services,blocks:{...defaultSiteContent.blocks,...(remote.blocks||{})}})}catch(err){console.warn("BlueVows CMS content load failed; using fallback content.",err)}finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
   return <SiteCMSContext.Provider value={{...content,loading}}>{children}</SiteCMSContext.Provider>;
 }
 function useSiteCMS(){return useContext(SiteCMSContext)}
@@ -204,6 +211,17 @@ function PackageCard({p}){
   <div className="package-body"><div className="package-days">{p.days}</div><h3>{p.name}</h3><div className="package-reveal"><span>✓ Flexible itinerary</span><span>✓ Easy customisation</span></div><div className="package-bottom"><div><small>Special offer</small><div className="package-prices"><strong>{p.price}</strong><span className="offer-label">Offer rate</span><del>{p.actualPrice}</del><span className="actual-label">Actual rate</span></div></div><span className="icon-btn" aria-hidden="true"><ArrowRight/></span></div></div>
  </Link>
 }
+function ServiceCard({service}){
+ const Icon=iconFor(service.icon);
+ return <article className="service-card">
+   <div className="service-icon"><Icon/></div>
+   <h3>{service.name}</h3>
+   <p>{service.description||service.text}</p>
+   {Array.isArray(service.features)&&service.features.length>0&&<ul>{service.features.slice(0,3).map((item,i)=><li key={i}><CheckCircle2 size={14}/>{item}</li>)}</ul>}
+   <Link className="mini-link" to="/services">Learn more <ArrowRight size={14}/></Link>
+ </article>
+}
+
 function PartnerMarquee(){
  const site=useSiteCMS();
  const marks=(site.partners?.length?site.partners:defaultSiteContent.partners);
@@ -341,6 +359,7 @@ function Home(){
     <section className="section soft"><div className="container"><SectionHead eyebrow="CURATED JOURNEYS" title="Popular packages" text="Flexible itineraries that make planning your Andaman holiday simple."/><div className="package-grid">{packageCms.items.map((p,i)=><PackageCard p={p} key={p.id||i}/>)}</div><div className="center"><Link className="btn outline" to="/packages">View all packages <ArrowRight size={17}/></Link></div></div></section>
     <FlightPath/>
     <section className="section"><div className="container"><div className="section-head"><div><span className="eyebrow">ISLAND EXPERIENCES</span><h2><Link className="heading-link" to="/experiences">Make your trip memorable <ArrowRight size={24}/></Link></h2></div></div><div className="activity-grid">{activities.map(a=>{const Icon=iconFor(a.icon);const slug=a.slug||slugify(a.name);return <Link className="activity-card" to={`/activities/${slug}`} key={a.id||slug}><div className="activity-icon"><Icon/></div><h3>{a.name}</h3><p>{a.description||a.text}</p>{a.price&&<b className="activity-price">{a.price}</b>}<span className="mini-link">{a.cta_label||"View details"} <ArrowRight size={14}/></span></Link>})}</div><div className="center"><Link className="btn outline" to="/contact">Build My Custom Trip <ArrowRight size={17}/></Link></div></div></section>
+    <section className="section soft services-section"><div className="container"><SectionHead eyebrow="TRAVEL SERVICES" title="Everything you need for an easier island trip" text="From stays and transfers to experiences and custom planning, we can help organise the important parts of your journey."/><div className="service-grid">{(site.services?.length?site.services:defaultServices).slice(0,4).map((service,i)=><ServiceCard service={service} key={service.id||service.slug||service.name||i}/>)}</div><div className="center"><Link className="btn outline" to="/services">View all services <ArrowRight size={17}/></Link></div></div></section>
     <PartnerMarquee/>
     <IslandMap/>
     <section className="section video-home-section"><div className="container"><div className="video-section"><div><span className="eyebrow">{video.eyebrow||"SEE THE ISLANDS"}</span><h2>{video.title||"Watch Andaman before you go"}</h2><p>{video.description}</p><div className="video-actions"><Link className="btn primary" to="/experiences">Explore Experiences <ArrowRight size={17}/></Link><a className="btn youtube-subscribe" href={video.subscribe_url||"https://www.youtube.com/@NomadicSoulmates?sub_confirmation=1"} target="_blank" rel="noreferrer"><Youtube size={17}/> Subscribe</a></div></div><div className="video-frame"><iframe src={video.video_url||"https://www.youtube.com/embed/oXPJxnVqJ6w?rel=0"} title="Andaman and Nicobar Tourism video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe></div></div></div></section>
@@ -352,6 +371,12 @@ function Home(){
 }
 function SectionHead({eyebrow,title,text}){return <div className="section-head"><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div>{text&&<p>{text}</p>}</div>}
 function CTA(){const site=useSiteCMS();const cta=site.blocks?.["home.cta"]||defaultSiteContent.blocks["home.cta"];return <section className="cta"><div className="container cta-inner"><div><span className="eyebrow light">{cta.eyebrow}</span><h2>{cta.title}</h2><p>{cta.description}</p></div><Link className="btn white" to={cta.link||"/contact"}>{cta.button||"Get a Free Quotation"} <ArrowRight size={18}/></Link></div></section>}
+
+function ServiceListing(){
+ const site=useSiteCMS();
+ const items=site.services?.length?site.services:defaultServices;
+ return <SimplePage title="Services" eyebrow="TRAVEL SERVICES"><p className="page-lead">Practical support for stays, transfers, experiences and personalised Andaman trips.</p><div className="service-grid service-listing-grid">{items.map((service,i)=><ServiceCard service={service} key={service.id||service.slug||service.name||i}/>)}</div></SimplePage>
+}
 
 function Listing({type}){
  const cms=useDestinationCMS(); const packageCms=usePackageCMS();
@@ -526,6 +551,7 @@ function AppShell(){
   <Route path="/packages" element={<Listing type="Packages"/>}/>
   <Route path="/packages/:slug" element={<PackageDetail/>}/>
   <Route path="/experiences" element={<Experiences/>}/>
+  <Route path="/services" element={<ServiceListing/>}/>
   <Route path="/hotels" element={<CmsPage contentKey="page.hotels" fallbackTitle="Hotels & Resorts" fallbackEyebrow="STAY COMFORTABLY"/>}/>
   <Route path="/activities" element={<ActivityListing/>}/>
   <Route path="/activities/:slug" element={<ActivityDetail/>}/>
