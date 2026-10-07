@@ -1,3 +1,5 @@
+import { resolveMediaUrl } from "./media";
+
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const siteCmsConfigured = Boolean(url && anon);
@@ -38,6 +40,24 @@ export async function loadSiteCms() {
   const result = Object.fromEntries(entries);
   const blocks = {};
   (result.blocks || []).forEach(row => { blocks[row.content_key] = row.content || {}; });
+  const mediaFields = {
+    hero: ["image_url"],
+    activities: ["image_url"],
+    services: ["image_url"],
+    testimonials: ["customer_image_url"],
+    gallery: ["image_url"],
+    blog: ["featured_image_url"],
+    specialOffers: ["image_url"],
+    partners: ["logo_url"]
+  };
+  Object.entries(mediaFields).forEach(([collection, fields]) => {
+    result[collection] = (result[collection] || []).map(row => {
+      const next = { ...row };
+      fields.forEach(field => { if (next[field]) next[field] = resolveMediaUrl(next[field]); });
+      return next;
+    });
+  });
+
   const rawSettings = result.settings?.[0] || null;
   const settings = rawSettings ? {
     ...rawSettings,
