@@ -564,21 +564,49 @@ function Contact(){
    try{
      const adults=Math.max(0,Number(form.adults)||0);
      const children=Math.max(0,Number(form.children)||0);
+     const enquiryPayload={
+       name:form.name.trim(),
+       phone:form.phone.trim(),
+       email:form.email.trim()||null,
+       travel_date:form.travelDate||null,
+       travellers:adults+children,
+       destination:form.destination||null,
+       package:form.packageName||null,
+       message:form.message.trim()||null
+     };
      const response=await fetch(`${url}/rest/v1/enquiries`,{
        method:"POST",
        headers:{apikey:anon,Authorization:`Bearer ${anon}`,"Content-Type":"application/json",Prefer:"return=minimal"},
-       body:JSON.stringify({
-         name:form.name.trim(),
-         phone:form.phone.trim(),
-         email:form.email.trim()||null,
-         travel_date:form.travelDate||null,
-         travellers:adults+children,
-         destination:form.destination||null,
-         package:form.packageName||null,
-         message:form.message.trim()||null
-       })
+       body:JSON.stringify(enquiryPayload)
      });
      if(!response.ok)throw new Error(await response.text());
+
+     const emailEnquiry={
+       ...enquiryPayload,
+       id:String(Date.now()).slice(-6),
+       created_at:new Date().toISOString()
+     };
+
+     try{
+       const emailResponse=await fetch("/api/send-enquiry",{
+         method:"POST",
+         headers:{"Content-Type":"application/json"},
+         body:JSON.stringify({
+           enquiry:emailEnquiry,
+           adults,
+           children,
+           siteName:settings.website_name||settings.site_name||"BlueVows",
+           tagline:settings.tagline||"Explore Andaman With Us"
+         })
+       });
+       if(!emailResponse.ok){
+         const emailError=await emailResponse.text();
+         console.warn("BlueVows enquiry email notification failed",emailError);
+       }
+     }catch(emailErr){
+       console.warn("BlueVows enquiry email notification failed",emailErr);
+     }
+
      setForm({name:"",phone:"",email:"",travelDate:"",adults:"2",children:"0",destination:"",packageName:"",message:""});
      setStatus({type:"success",message:"Thank you! Your enquiry has been received. Our team will contact you soon."});
    }catch(err){
