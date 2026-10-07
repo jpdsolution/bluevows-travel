@@ -140,12 +140,18 @@ const defaultSiteContent = {
   }
 };
 const SiteCMSContext=createContext(null);
+function normalizeTestimonial(r={},i=0){return {...r,id:r.id||`testimonial-${i}`,guest_name:r.guest_name||r.customer_name||r.name||"Happy Traveller",title:r.title||r.customer_role||"Verified traveller",review:r.review||r.comment||"A wonderful island experience with BlueVows.",rating:Number(r.rating||5),photo_url:r.photo_url||r.customer_image_url||r.image_url||"https://i.pravatar.cc/120?img=47",display_order:r.display_order??i};}
 function SiteProvider({children}){
   const [content,setContent]=useState(defaultSiteContent);
   const [loading,setLoading]=useState(siteCmsConfigured);
   useEffect(()=>{let alive=true;(async()=>{
     if(!siteCmsConfigured){setLoading(false);return;}
-    try{const remote=await loadSiteCms();if(!alive||!remote)return;setContent({...defaultSiteContent,...remote,settings:remote.settings||defaultSiteContent.settings,hero:remote.hero?.length?remote.hero:defaultSiteContent.hero,activities:remote.activities?.length?remote.activities:defaultSiteContent.activities,testimonials:remote.testimonials?.length?remote.testimonials:defaultSiteContent.testimonials,partners:remote.partners?.length?remote.partners:defaultSiteContent.partners,navigation:remote.navigation?.length?remote.navigation:defaultSiteContent.navigation,services:remote.services?.length?remote.services:defaultSiteContent.services,blocks:{...defaultSiteContent.blocks,...(remote.blocks||{})}})}catch(err){console.warn("BlueVows CMS content load failed; using fallback content.",err)}finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
+    try{
+      const remote=await loadSiteCms();
+      if(!alive||!remote)return;
+      const remoteTestimonials=(remote.testimonials||[]).map(normalizeTestimonial).sort((a,b)=>(a.display_order??0)-(b.display_order??0));
+      setContent({...defaultSiteContent,...remote,settings:remote.settings||defaultSiteContent.settings,hero:remote.hero?.length?remote.hero:defaultSiteContent.hero,activities:remote.activities?.length?remote.activities:defaultSiteContent.activities,testimonials:remoteTestimonials.length?remoteTestimonials:defaultSiteContent.testimonials,partners:remote.partners?.length?remote.partners:defaultSiteContent.partners,navigation:remote.navigation?.length?remote.navigation:defaultSiteContent.navigation,services:remote.services?.length?remote.services:defaultSiteContent.services,blocks:{...defaultSiteContent.blocks,...(remote.blocks||{})}});
+    }catch(err){console.warn("BlueVows CMS content load failed; using fallback content.",err)}finally{if(alive)setLoading(false)}})();return()=>{alive=false}},[]);
   return <SiteCMSContext.Provider value={{...content,loading}}>{children}</SiteCMSContext.Provider>;
 }
 function useSiteCMS(){return useContext(SiteCMSContext)}
