@@ -34,6 +34,7 @@ export async function loadSiteCms() {
     navigation: "navigation_items?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc",
     footerSections: "footer_sections?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc",
     footerLinks: "footer_links?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc",
+    faqs: "faqs?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc",
     blocks: "site_content_blocks?select=*&status=eq.published&archived_at=is.null&order=display_order.asc,created_at.asc"
   };
   const entries = await Promise.all(Object.entries(tables).map(async ([key,path]) => [key, await request(path)]));
@@ -88,6 +89,7 @@ export async function loadSiteCms() {
     navigation: ordered(result.navigation),
     footerSections: ordered(result.footerSections),
     footerLinks: ordered(result.footerLinks),
+    faqs: ordered(result.faqs),
     blocks
   };
 }
