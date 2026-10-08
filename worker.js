@@ -728,8 +728,7 @@ async function sendEnquiry(
 
 
     const from =
-      env.RESEND_FROM_EMAIL ||
-      "BlueVows Website <onboarding@resend.dev>";
+  "BlueVows <onboarding@resend.dev>";
 
 
     const body = {
