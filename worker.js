@@ -167,7 +167,7 @@ CUSTOMER DETAILS
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout:fixed;">
 
 ${row("Guest Name",guest)}
-${row("Email Address",email)}
+${row("Email Address",email.replace("@","&#8204;&#64;&#8204;"))}
 ${row("Phone / WhatsApp",phone)}
 ${row("Travel Date",travel)}
 ${row("Adults",av)}
