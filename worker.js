@@ -67,33 +67,45 @@ const shortId = (id) => {
 };
 
 
-/*
- * Normal table row
- */
+/* NORMAL TABLE ROW */
+
 const row = (label, value, strong = false) =>
   `<tr>
     <td style="width:42%;padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;font-weight:700;color:#172033;vertical-align:top;text-align:left;">
       ${escapeHtml(label)}
     </td>
+
     <td style="padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;color:#172033;vertical-align:top;text-align:left;word-break:break-word;overflow-wrap:anywhere;${strong ? "font-weight:800;" : ""}">
       ${escapeHtml(value)}
     </td>
   </tr>`;
 
 
-/*
- * Special email row
- *
- * Zero-width characters around @ prevent most email clients
- * from automatically converting the address into a link.
- * They are invisible when displayed.
- */
+/* EMAIL ROW
+   Email is deliberately broken internally so email clients
+   do not automatically convert gmail.com into a blue link.
+*/
+
 const emailRow = (email) => {
   const safeEmail = textOr(email);
 
-  const protectedEmail = safeEmail
-    .split("@")
-    .join("\u200C@\u200C");
+  const parts = safeEmail.split("@");
+
+  let protectedEmail;
+
+  if (parts.length === 2) {
+    const localPart = escapeHtml(parts[0]);
+    const domainPart = escapeHtml(parts.slice(1).join("@"));
+
+    protectedEmail =
+      `${localPart}` +
+      `<span style="display:inline;font-size:0;line-height:0;">&#8203;</span>` +
+      `<span style="color:#000000!important;text-decoration:none!important;">@</span>` +
+      `<span style="display:inline;font-size:0;line-height:0;">&#8203;</span>` +
+      `${domainPart}`;
+  } else {
+    protectedEmail = escapeHtml(safeEmail);
+  }
 
   return `<tr>
     <td style="width:42%;padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;font-weight:700;color:#172033;vertical-align:top;text-align:left;">
@@ -102,15 +114,18 @@ const emailRow = (email) => {
 
     <td style="padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;color:#000000!important;vertical-align:top;text-align:left;word-break:break-word;overflow-wrap:anywhere;text-decoration:none!important;">
       <span style="color:#000000!important;text-decoration:none!important;font-weight:400;">
-        ${escapeHtml(protectedEmail)}
+        ${protectedEmail}
       </span>
     </td>
   </tr>`;
 };
 
 
+/* MESSAGE / FOLLOW-UP BOX */
+
 const box = (title, body) =>
   `<div style="margin-top:14px;border:1px solid #d9dee6;border-radius:10px;overflow:hidden;background:#fff;">
+
     <div style="padding:10px 13px;font-size:12px;line-height:1.3;font-weight:800;letter-spacing:.08em;color:#172033;background:#f5f6f8;border-bottom:1px solid #d9dee6;text-align:left;">
       ${escapeHtml(title)}
     </div>
@@ -118,8 +133,11 @@ const box = (title, body) =>
     <div style="padding:12px 13px;font-size:13px;line-height:1.5;color:#293241;word-break:break-word;overflow-wrap:anywhere;text-align:left;">
       ${body}
     </div>
+
   </div>`;
 
+
+/* EMAIL TEMPLATE */
 
 function buildHtml({
   enquiry,
@@ -128,31 +146,36 @@ function buildHtml({
   siteName,
   tagline
 }) {
-  const company = textOr(
-    siteName,
-    "BlueVows"
-  ).toUpperCase();
 
-  const tag = textOr(
-    tagline,
-    "Explore Andaman With Us"
-  );
+  const company =
+    textOr(siteName, "BlueVows").toUpperCase();
 
-  const guest = textOr(enquiry.name);
-  const email = textOr(enquiry.email);
-  const phone = textOr(enquiry.phone);
-  const dest = textOr(enquiry.destination);
-  const pkg = textOr(enquiry.package);
+  const tag =
+    textOr(tagline, "Explore Andaman With Us");
 
-  const id = shortId(enquiry.id);
+  const guest =
+    textOr(enquiry.name);
 
-  const received = formatDateTime(
-    enquiry.created_at
-  );
+  const email =
+    textOr(enquiry.email);
 
-  const travel = formatDate(
-    enquiry.travel_date
-  );
+  const phone =
+    textOr(enquiry.phone);
+
+  const dest =
+    textOr(enquiry.destination);
+
+  const pkg =
+    textOr(enquiry.package);
+
+  const id =
+    shortId(enquiry.id);
+
+  const received =
+    formatDateTime(enquiry.created_at);
+
+  const travel =
+    formatDate(enquiry.travel_date);
 
   const av =
     adults == null
@@ -171,9 +194,8 @@ function buildHtml({
       (Number(children) || 0)
     );
 
-  const msg = textOr(
-    enquiry.message
-  );
+  const msg =
+    textOr(enquiry.message);
 
 
   return `<!doctype html>
@@ -202,14 +224,12 @@ New Enquiry Received
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-
 html,
 body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
 }
-
 
 body {
   font-family:
@@ -222,11 +242,14 @@ body {
   color: #172033;
 }
 
-
 table {
   border-collapse: collapse;
 }
 
+a {
+  color: #000000 !important;
+  text-decoration: none !important;
+}
 
 @media only screen and (max-width:600px) {
 
@@ -347,7 +370,7 @@ font-family:Arial,Helvetica,sans-serif;
 </div>
 
 
-<!-- COMPANY -->
+<!-- COMPANY NAME -->
 
 <div
 class="brand-name"
@@ -399,8 +422,6 @@ text-align:left;
 >
 
 
-<!-- WEBSITE ENQUIRY -->
-
 <div
 style="
 font-size:11px;
@@ -414,8 +435,6 @@ text-align:left;
 WEBSITE ENQUIRY
 </div>
 
-
-<!-- TITLE -->
 
 <h1
 class="hero-title"
@@ -431,8 +450,6 @@ text-align:left;
 New Enquiry Received
 </h1>
 
-
-<!-- INTRO -->
 
 <p
 class="intro"
@@ -528,7 +545,7 @@ ${box(
 )}
 
 
-<!-- FOLLOW UP -->
+<!-- FOLLOW-UP -->
 
 ${box(
   "FOLLOW-UP RECOMMENDED",
@@ -601,6 +618,8 @@ ${escapeHtml(tag)}
 </html>`;
 }
 
+
+/* SEND ENQUIRY */
 
 async function sendEnquiry(
   request,
@@ -854,6 +873,7 @@ async function sendEnquiry(
     return json(
       {
         ok: true,
+
         id:
           data?.id || null
       },
@@ -886,6 +906,8 @@ async function sendEnquiry(
 
 }
 
+
+/* CLOUDFLARE WORKER */
 
 export default {
 
