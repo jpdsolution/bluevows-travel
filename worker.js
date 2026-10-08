@@ -1,1388 +1,476 @@
-// worker.js
+const json=(data,status=200,extraHeaders={})=>new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",...extraHeaders}});
+const corsHeaders={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"};
+const escapeHtml=v=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
+const textOr=(v,f="Not provided")=>{const t=String(v??"").trim();return t||f};
+const formatDate=v=>{if(!v)return"Not provided";const d=new Date(v);return Number.isNaN(d.getTime())?textOr(v):new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"short",year:"numeric"}).format(d)};
+const formatDateTime=v=>{const d=v?new Date(v):new Date();return Number.isNaN(d.getTime())?textOr(v):new Intl.DateTimeFormat("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata",timeZoneName:"short"}).format(d)};
+const shortId=id=>{const c=String(id??"").replace(/[^a-z0-9]/gi,"").toUpperCase();return c?c.slice(0,6):"NEW"};
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
-    }
-  });
-}
-
-function textOr(value, fallback = "") {
-  const text = String(value ?? "").trim();
-  return text || fallback;
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-
-/* =========================
-   EMAIL-SAFE ICONS
-========================= */
-
-function icon(type) {
-
-  const common = `
-    display:inline-block;
-    position:relative;
-    vertical-align:middle;
-  `;
-
-  if (type === "mail") {
-    return `
-      <span style="
-        ${common}
-        width:20px;
-        height:14px;
-        border:1.6px solid #ffffff;
-        border-radius:3px;
-      ">
-        <span style="
-          position:absolute;
-          left:2px;
-          top:1px;
-          width:10px;
-          height:10px;
-          border-left:1.5px solid #ffffff;
-          border-bottom:1.5px solid #ffffff;
-          transform:rotate(-45deg);
-        "></span>
-      </span>`;
-  }
-
-  if (type === "user") {
-    return `
-      <span style="
-        ${common}
-        width:16px;
-        height:17px;
-      ">
-        <span style="
-          position:absolute;
-          left:5px;
-          top:0;
-          width:6px;
-          height:6px;
-          border:1.5px solid #111827;
-          border-radius:50%;
-        "></span>
-        <span style="
-          position:absolute;
-          left:2px;
-          bottom:0;
-          width:12px;
-          height:7px;
-          border:1.5px solid #111827;
-          border-bottom:0;
-          border-radius:8px 8px 0 0;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "email") {
-    return `
-      <span style="
-        ${common}
-        width:16px;
-        height:12px;
-        border:1.5px solid #111827;
-        border-radius:3px;
-      ">
-        <span style="
-          position:absolute;
-          left:2px;
-          top:1px;
-          width:9px;
-          height:9px;
-          border-left:1.5px solid #111827;
-          border-bottom:1.5px solid #111827;
-          transform:rotate(-45deg);
-        "></span>
-      </span>`;
-  }
-
-  if (type === "phone") {
-    return `
-      <span style="
-        ${common}
-        width:16px;
-        height:17px;
-      ">
-        <span style="
-          position:absolute;
-          left:4px;
-          top:1px;
-          width:7px;
-          height:13px;
-          border:1.5px solid #111827;
-          border-radius:7px;
-          transform:rotate(-35deg);
-        "></span>
-      </span>`;
-  }
-
-  if (type === "calendar") {
-    return `
-      <span style="
-        ${common}
-        width:15px;
-        height:14px;
-        border:1.5px solid #111827;
-        border-radius:3px;
-      ">
-        <span style="
-          position:absolute;
-          left:0;
-          right:0;
-          top:4px;
-          border-top:1.5px solid #111827;
-        "></span>
-        <span style="
-          position:absolute;
-          left:3px;
-          top:-3px;
-          width:1.5px;
-          height:5px;
-          background:#111827;
-        "></span>
-        <span style="
-          position:absolute;
-          right:3px;
-          top:-3px;
-          width:1.5px;
-          height:5px;
-          background:#111827;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "users") {
-    return `
-      <span style="
-        ${common}
-        width:17px;
-        height:17px;
-      ">
-        <span style="
-          position:absolute;
-          left:1px;
-          top:1px;
-          width:6px;
-          height:6px;
-          border:1.4px solid #111827;
-          border-radius:50%;
-        "></span>
-        <span style="
-          position:absolute;
-          left:0;
-          bottom:0;
-          width:10px;
-          height:7px;
-          border:1.4px solid #111827;
-          border-bottom:0;
-          border-radius:7px 7px 0 0;
-        "></span>
-        <span style="
-          position:absolute;
-          right:0;
-          top:3px;
-          width:5px;
-          height:5px;
-          border:1.3px solid #111827;
-          border-radius:50%;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "location") {
-    return `
-      <span style="
-        ${common}
-        width:13px;
-        height:13px;
-        border:1.5px solid #111827;
-        border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);
-      ">
-        <span style="
-          position:absolute;
-          left:3px;
-          top:3px;
-          width:4px;
-          height:4px;
-          border:1px solid #111827;
-          border-radius:50%;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "package") {
-    return `
-      <span style="
-        ${common}
-        width:15px;
-        height:13px;
-        border:1.5px solid #111827;
-        border-radius:2px;
-      ">
-        <span style="
-          position:absolute;
-          left:0;
-          right:0;
-          top:4px;
-          border-top:1.5px solid #111827;
-        "></span>
-        <span style="
-          position:absolute;
-          left:4px;
-          top:-4px;
-          width:5px;
-          height:4px;
-          border:1.5px solid #111827;
-          border-bottom:0;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "id") {
-    return `
-      <span style="
-        ${common}
-        width:16px;
-        height:12px;
-        border:1.5px solid #111827;
-        border-radius:3px;
-      ">
-        <span style="
-          position:absolute;
-          left:3px;
-          top:3px;
-          width:4px;
-          height:4px;
-          border:1px solid #111827;
-          border-radius:50%;
-        "></span>
-        <span style="
-          position:absolute;
-          right:2px;
-          top:3px;
-          width:4px;
-          height:1px;
-          background:#111827;
-          box-shadow:0 3px 0 #111827;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "clock") {
-    return `
-      <span style="
-        ${common}
-        width:15px;
-        height:15px;
-        border:1.5px solid #111827;
-        border-radius:50%;
-      ">
-        <span style="
-          position:absolute;
-          left:6px;
-          top:3px;
-          width:1.5px;
-          height:5px;
-          background:#111827;
-        "></span>
-        <span style="
-          position:absolute;
-          left:6px;
-          top:7px;
-          width:4px;
-          height:1.5px;
-          background:#111827;
-        "></span>
-      </span>`;
-  }
-
-  if (type === "message") {
-    return `
-      <span style="
-        ${common}
-        width:16px;
-        height:12px;
-        border:1.5px solid #111827;
-        border-radius:3px;
-      ">
-        <span style="
-          position:absolute;
-          left:2px;
-          bottom:-4px;
-          width:5px;
-          height:5px;
-          border-left:1.5px solid #111827;
-          border-bottom:1.5px solid #111827;
-        "></span>
-      </span>`;
-  }
-
-  return "";
-}
-
-
-/* =========================
-   DETAIL ROW
-========================= */
-
-function buildRow(label, value, iconType, mono = false) {
-  return `
-<tr>
-
-<td style="
-  width:44%;
-  padding:7px 6px;
-  border-bottom:1px solid #e7e9ec;
-  vertical-align:middle;
-">
-
-<table role="presentation"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-<tr>
-
-<td width="22"
-style="
-  width:22px;
-  padding:0 5px 0 0;
-  vertical-align:middle;
-">
-
-${icon(iconType)}
-
-</td>
-
-<td style="
-  font-size:11px;
-  line-height:15px;
-  font-weight:700;
-  color:#374151;
-  vertical-align:middle;
-  white-space:nowrap;
-">
-
+const row=(label,value,strong=false)=>
+`<tr>
+<td style="width:42%;padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;font-weight:700;color:#172033;vertical-align:top;text-align:left;">
 ${escapeHtml(label)}
-
 </td>
-
-</tr>
-
-</table>
-
+<td style="padding:9px 12px;border-top:1px solid #e1e5ea;font-size:13px;line-height:1.35;color:#172033;vertical-align:top;text-align:left;word-break:break-word;overflow-wrap:anywhere;${strong?"font-weight:800;":""}">
+${escapeHtml(value)}
 </td>
-
-<td style="
-  width:56%;
-  padding:7px 6px;
-  border-bottom:1px solid #e7e9ec;
-  font-size:11px;
-  line-height:15px;
-  color:#111827;
-  vertical-align:middle;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  ${mono ? "font-family:monospace;" : ""}
-">
-
-${escapeHtml(value) || "—"}
-
-</td>
-
 </tr>`;
-}
 
-
-/* =========================
-   BOX
-========================= */
-
-function buildBox(title, content, iconType) {
-  return `
-<table role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:100%;
-  margin-top:8px;
-  border:1px solid #d9dde3;
-  border-radius:9px;
-  background:#ffffff;
-  overflow:hidden;
-">
-
-<tr>
-
-<td style="
-  padding:7px 8px;
-  background:#f5f6f8;
-  border-bottom:1px solid #e5e7eb;
-">
-
-<table role="presentation"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-<tr>
-
-<td width="22"
-style="
-  width:22px;
-  padding-right:5px;
-  vertical-align:middle;
-">
-
-${icon(iconType)}
-
-</td>
-
-<td style="
-  font-size:10px;
-  line-height:13px;
-  font-weight:800;
-  letter-spacing:.7px;
-  color:#111827;
-  vertical-align:middle;
-">
-
+const box=(title,body)=>
+`<div style="margin-top:14px;border:1px solid #d9dee6;border-radius:10px;overflow:hidden;background:#fff;">
+<div style="padding:10px 13px;font-size:12px;line-height:1.3;font-weight:800;letter-spacing:.08em;color:#172033;background:#f5f6f8;border-bottom:1px solid #d9dee6;text-align:left;">
 ${escapeHtml(title)}
+</div>
+<div style="padding:12px 13px;font-size:13px;line-height:1.5;color:#293241;word-break:break-word;overflow-wrap:anywhere;text-align:left;">
+${body}
+</div>
+</div>`;
 
-</td>
+function buildHtml({enquiry,adults,children,siteName,tagline}){
+const company=textOr(siteName,"BlueVows").toUpperCase();
+const tag=textOr(tagline,"Explore Andaman With Us");
+const guest=textOr(enquiry.name);
+const email=textOr(enquiry.email);
+const phone=textOr(enquiry.phone);
+const dest=textOr(enquiry.destination);
+const pkg=textOr(enquiry.package);
+const id=shortId(enquiry.id);
+const received=formatDateTime(enquiry.created_at);
+const travel=formatDate(enquiry.travel_date);
+const av=adults==null?"Not provided":String(adults);
+const cv=children==null?"Not provided":String(children);
+const travellers=enquiry.travellers??((Number(adults)||0)+(Number(children)||0));
+const msg=textOr(enquiry.message);
 
-</tr>
-
-</table>
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="
-  padding:8px;
-  font-size:11px;
-  line-height:16px;
-  color:#111827;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-">
-
-${content}
-
-</td>
-
-</tr>
-
-</table>`;
-}
-
-
-/* =========================
-   EMAIL HTML
-========================= */
-
-function buildHtml({
-  enquiry = {},
-  adults,
-  children,
-  siteName = "BlueVows Travel",
-  tagline = "Explore Andaman With Us"
-}) {
-
-  const company = textOr(
-    siteName,
-    "BlueVows Travel"
-  );
-
-  const tag = textOr(
-    tagline,
-    "Explore Andaman With Us"
-  );
-
-  const guest = textOr(
-    enquiry.name,
-    "Website Guest"
-  );
-
-  const email = textOr(
-    enquiry.email,
-    "—"
-  );
-
-  const phone = textOr(
-    enquiry.phone,
-    "—"
-  );
-
-  const travelDate = textOr(
-    enquiry.travelDate ||
-    enquiry.travel_date ||
-    enquiry.date ||
-    enquiry.travelDateValue ||
-    enquiry.checkIn ||
-    enquiry.startDate,
-    "—"
-  );
-
-  const packageName = textOr(
-    enquiry.packageName ||
-    enquiry.package_name ||
-    enquiry.package ||
-    enquiry.packageTitle ||
-    enquiry.selectedPackage,
-    "—"
-  );
-
-  const av = textOr(
-    adults ??
-    enquiry.adults ??
-    enquiry.adult,
-    "—"
-  );
-
-  const cv = textOr(
-    children ??
-    enquiry.children ??
-    enquiry.child,
-    "—"
-  );
-
-  const adultNumber = Number(av);
-  const childNumber = Number(cv);
-
-  const travellers =
-    !isNaN(adultNumber) &&
-    !isNaN(childNumber)
-      ? String(adultNumber + childNumber)
-      : "—";
-
-  const destination = textOr(
-    enquiry.destination,
-    "—"
-  );
-
-  const id = textOr(
-    enquiry.id ||
-    enquiry.enquiryId ||
-    enquiry.enquiry_id,
-    "—"
-  );
-
-  const message = textOr(
-    enquiry.message,
-    "No message provided"
-  );
-
-  const received = enquiry.created_at
-    ? new Date(
-        enquiry.created_at
-      ).toLocaleString(
-        "en-IN",
-        {
-          dateStyle:"medium",
-          timeStyle:"short"
-        }
-      )
-    : new Date().toLocaleString(
-        "en-IN",
-        {
-          dateStyle:"medium",
-          timeStyle:"short"
-        }
-      );
-
-  const messageHtml =
-    escapeHtml(message)
-      .replace(/\n/g, "<br>");
-
-  return `
-<!DOCTYPE html>
-
-<html lang="en">
-
+return `<!doctype html>
+<html>
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="x-apple-disable-message-reformatting">
-
-<title>
-New Enquiry - ${escapeHtml(company)}
-</title>
+<title>New Enquiry Received</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-html,
-body{
-  margin:0!important;
-  padding:0!important;
-  width:100%!important;
-  background:#ffffff!important;
+html,body{
+margin:0!important;
+padding:0!important;
+width:100%!important;
 }
 
 body{
-  font-family:
-  -apple-system,
-  BlinkMacSystemFont,
-  "Segoe UI",
-  Arial,
-  Helvetica,
-  sans-serif;
-  color:#111827;
+font-family:Inter,Arial,Helvetica,sans-serif!important;
+background:#f1f3f6;
+color:#172033;
 }
 
 table{
-  border-collapse:separate;
-  border-spacing:0;
-}
-
-a{
-  color:#111827!important;
-  text-decoration:none!important;
+border-collapse:collapse;
 }
 
 @media only screen and (max-width:600px){
 
-  .outer{
-    padding:0!important;
-  }
-
-  .card{
-    width:100%!important;
-    max-width:100%!important;
-    border-radius:10px!important;
-  }
-
-  .header{
-    padding:12px 9px!important;
-  }
-
-  .content{
-    padding:11px 7px!important;
-  }
-
-  .header-title{
-    font-size:18px!important;
-    line-height:21px!important;
-  }
-
+.outer-pad{
+padding:7px 5px!important;
 }
 
-</style>
+.main-pad{
+padding:22px 13px 17px!important;
+}
 
+.brand-name{
+font-size:25px!important;
+letter-spacing:1.5px!important;
+}
+
+.tagline{
+font-size:12px!important;
+}
+
+.hero-title{
+font-size:25px!important;
+}
+
+.intro{
+font-size:14px!important;
+}
+
+.details-label,
+.details-value{
+font-size:12px!important;
+padding:8px 9px!important;
+}
+
+.section-title{
+font-size:11px!important;
+}
+
+}
+</style>
 </head>
 
-<body>
+<body style="margin:0;padding:0;background:#f1f3f6;font-family:Inter,Arial,Helvetica,sans-serif;">
 
-<table
-role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:100%;
-  background:#ffffff;
-">
-
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f1f3f6;">
 <tr>
+<td align="center" class="outer-pad" style="padding:10px 8px;">
 
-<td
-class="outer"
-align="center"
-style="
-  padding:0;
-  background:#ffffff;
-">
-
-
-<!-- MAIN CARD -->
-
-<table
-role="presentation"
-class="card"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:100%;
-  max-width:600px;
-  margin:0 auto;
-  background:#ffffff;
-  border:2px solid #111827;
-  border-radius:12px;
-  overflow:hidden;
-">
-
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+style="width:100%;max-width:760px;background:#fff;border:1px solid #cfd5dd;border-radius:10px;overflow:hidden;">
 
 <!-- HEADER -->
 
 <tr>
+<td align="center" style="background:#111827;color:#fff;padding:14px 14px 16px;text-align:center;">
 
-<td
-class="header"
-style="
-  padding:13px 10px;
-  background:#111827;
-">
+<div style="width:40px;height:40px;margin:0 auto 6px;border:1.5px solid #fff;border-radius:9px;text-align:center;line-height:40px;font-size:23px;font-family:Arial,Helvetica,sans-serif;">
+&#9993;
+</div>
 
-<table
-role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-<tr>
-
-<!-- HEADER ICON -->
-
-<td
-width="38"
-style="
-  width:38px;
-  padding:0 7px 0 0;
-  vertical-align:middle;
-">
-
-<table
-role="presentation"
-width="32"
-height="32"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:32px;
-  height:32px;
-  border:1px solid #ffffff;
-  border-radius:8px;
-">
-
-<tr>
-
-<td
-align="center"
-valign="middle"
-style="
-  width:32px;
-  height:32px;
-  text-align:center;
-  vertical-align:middle;
-">
-
-${icon("mail")}
-
-</td>
-
-</tr>
-
-</table>
-
-</td>
-
-
-<!-- HEADER TEXT -->
-
-<td
-valign="middle"
-style="
-  vertical-align:middle;
-  padding:0;
-">
-
-<div
-class="header-title"
-style="
-  font-size:20px;
-  line-height:23px;
-  font-weight:800;
-  letter-spacing:.2px;
-  color:#ffffff;
-  margin:0;
-  padding:0;
-">
-
+<div class="brand-name" style="font-size:27px;line-height:1.15;font-weight:800;letter-spacing:2px;text-align:center;">
 ${escapeHtml(company)}
-
 </div>
 
-<div
-style="
-  margin:1px 0 0;
-  padding:0;
-  font-size:10px;
-  line-height:13px;
-  color:#d1d5db;
-">
-
+<div class="tagline" style="margin-top:4px;font-size:12px;line-height:1.3;letter-spacing:1.3px;font-weight:500;text-align:center;color:#e5e7eb;">
 ${escapeHtml(tag)}
-
 </div>
 
 </td>
-
 </tr>
-
-</table>
-
-</td>
-
-</tr>
-
 
 <!-- CONTENT -->
 
 <tr>
+<td class="main-pad" style="padding:24px 26px 18px;text-align:left;">
 
-<td
-class="content"
-style="
-  padding:13px 7px;
-  background:#ffffff;
-">
-
-
-<table
-role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-<tr>
-
-<td style="
-  font-size:9px;
-  line-height:12px;
-  font-weight:800;
-  letter-spacing:1.4px;
-  color:#737981;
-">
-
+<div style="font-size:11px;line-height:1.3;font-weight:800;letter-spacing:2px;color:#6b7280;text-align:left;">
 WEBSITE ENQUIRY
+</div>
 
-</td>
-
-</tr>
-
-<tr>
-
-<td style="
-  padding-top:3px;
-  font-size:21px;
-  line-height:25px;
-  font-weight:800;
-  color:#111827;
-">
-
+<h1 class="hero-title" style="margin:8px 0 6px;font-size:27px;line-height:1.18;font-weight:800;color:#111827;text-align:left;">
 New Enquiry Received
+</h1>
 
-</td>
-
-</tr>
-
-<tr>
-
-<td style="
-  padding-top:3px;
-  font-size:11px;
-  line-height:16px;
-  color:#737981;
-">
-
+<p class="intro" style="margin:0;font-size:14px;line-height:1.45;color:#6b7280;text-align:left;">
 A new travel enquiry has been received from your website.
-
-</td>
-
-</tr>
-
-</table>
-
+</p>
 
 <!-- CUSTOMER DETAILS -->
 
-<table
-role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0"
-style="
-  width:100%;
-  margin-top:10px;
-  border:1px solid #d8dce1;
-  border-radius:9px;
-  background:#ffffff;
-  overflow:hidden;
-">
+<div style="margin-top:16px;border:1px solid #d9dee6;border-radius:10px;overflow:hidden;background:#fff;">
 
-<tr>
-
-<td style="
-  padding:7px 8px;
-  background:#f4f5f7;
-  border-bottom:1px solid #e1e4e8;
-">
-
-<table
-role="presentation"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-<tr>
-
-<td
-width="23"
-style="
-  width:23px;
-  padding-right:5px;
-  vertical-align:middle;
-">
-
-${icon("user")}
-
-</td>
-
-<td style="
-  font-size:10px;
-  line-height:13px;
-  font-weight:800;
-  letter-spacing:.8px;
-  color:#111827;
-  vertical-align:middle;
-">
-
+<div class="section-title" style="padding:10px 13px;font-size:12px;line-height:1.3;font-weight:800;letter-spacing:.09em;color:#172033;background:#f5f6f8;border-bottom:1px solid #d9dee6;text-align:left;">
 CUSTOMER DETAILS
+</div>
 
-</td>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout:fixed;">
 
-</tr>
-
-</table>
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="padding:0;">
-
-<table
-role="presentation"
-width="100%"
-cellspacing="0"
-cellpadding="0"
-border="0">
-
-${buildRow("Guest Name",guest,"user")}
-${buildRow("Email Address",email,"email")}
-${buildRow("Phone / WhatsApp",phone,"phone")}
-${buildRow("Travel Date",travelDate,"calendar")}
-${buildRow("Adults",av,"users")}
-${buildRow("Children",cv,"users")}
-${buildRow("Travellers",travellers,"users")}
-${buildRow("Destination",destination,"location")}
-${buildRow("Package",packageName,"package")}
-${buildRow("Enquiry ID",id,"id",true)}
-${buildRow("Received",received,"clock")}
+${row("Guest Name",guest)}
+${row("Email Address",email)}
+${row("Phone / WhatsApp",phone)}
+${row("Travel Date",travel)}
+${row("Adults",av)}
+${row("Children",cv)}
+${row("Travellers",travellers)}
+${row("Destination",dest)}
+${row("Package",pkg)}
+${row("Enquiry ID",id,true)}
+${row("Received",received)}
 
 </table>
+</div>
 
-</td>
-
-</tr>
-
-</table>
-
-
-${buildBox(
-  "CUSTOMER MESSAGE",
-  messageHtml,
-  "message"
+${box(
+"CUSTOMER MESSAGE",
+escapeHtml(msg).replace(/\n/g,"<br>")
 )}
 
-
-${buildBox(
-  "FOLLOW-UP",
-  "Contact the guest to discuss travel plans, availability and package options.",
-  "phone"
+${box(
+"FOLLOW-UP RECOMMENDED",
+"Contact the guest to discuss travel plans, availability and package options."
 )}
 
-
 </td>
-
 </tr>
-
 
 <!-- FOOTER -->
 
 <tr>
+<td style="border-top:1px solid #e1e5ea;padding:14px 16px 16px;text-align:center;background:#fff;">
 
-<td
-style="
-  padding:9px 10px 10px;
-  background:#111827;
-  text-align:center;
-">
-
-<div style="
-  font-size:12px;
-  line-height:15px;
-  font-weight:800;
-  color:#ffffff;
-">
-
+<div style="font-size:14px;line-height:1.3;font-weight:800;letter-spacing:1.2px;color:#172033;text-align:center;">
 ${escapeHtml(company)}
-
 </div>
 
-<div style="
-  margin-top:1px;
-  font-size:9px;
-  line-height:12px;
-  color:#cfd3d8;
-">
-
+<div style="margin-top:3px;font-size:11px;line-height:1.35;color:#6b7280;text-align:center;">
 ${escapeHtml(tag)}
-
 </div>
 
 </td>
-
 </tr>
-
 
 </table>
 
 </td>
-
 </tr>
-
 </table>
 
 </body>
-
-</html>
-`;
+</html>`;
 }
 
+async function sendEnquiry(request,env){
 
-/* =========================
-   SEND ENQUIRY
-========================= */
+try{
 
-async function sendEnquiry(request, env) {
+const apiKey=env.RESEND_API_KEY;
+const receiver=env.ENQUIRY_RECEIVER_EMAIL;
 
-  try {
+if(!apiKey){
+console.error("BlueVows email error: RESEND_API_KEY is missing");
 
-    const apiKey =
-      String(
-        env?.RESEND_API_KEY || ""
-      ).trim();
-
-    const receiver =
-      String(
-        env?.ENQUIRY_RECEIVER_EMAIL || ""
-      ).trim();
-
-    if (!apiKey || !receiver) {
-
-      const missing = [];
-
-      if (!apiKey)
-        missing.push("RESEND_API_KEY");
-
-      if (!receiver)
-        missing.push("ENQUIRY_RECEIVER_EMAIL");
-
-      return json(
-        {
-          ok:false,
-          error:
-            `Email service is not configured. Missing: ${missing.join(", ")}`
-        },
-        500
-      );
-    }
-
-    const payload =
-      await request.json();
-
-    const enquiry =
-      payload?.enquiry || {};
-
-    const customerEmail =
-      String(
-        enquiry.email || ""
-      ).trim();
-
-    const siteName =
-      textOr(
-        payload.siteName,
-        "BlueVows Travel"
-      );
-
-    const tagline =
-      textOr(
-        payload.tagline,
-        "Explore Andaman With Us"
-      );
-
-    const from =
-      String(
-        env.RESEND_FROM_EMAIL ||
-        "BlueVows Website <onboarding@resend.dev>"
-      ).trim();
-
-    const body = {
-
-      from,
-
-      to:[receiver],
-
-      subject:
-        `New Enquiry Received — ${textOr(
-          enquiry.destination,
-          "Andaman"
-        )} — ${textOr(
-          enquiry.name,
-          "Website Guest"
-        )}`,
-
-      html:
-        buildHtml({
-          enquiry,
-          adults:payload.adults,
-          children:payload.children,
-          siteName,
-          tagline
-        })
-
-    };
-
-    if (customerEmail) {
-      body.reply_to =
-        customerEmail;
-    }
-
-    const response =
-      await fetch(
-        "https://api.resend.com/emails",
-        {
-          method:"POST",
-
-          headers:{
-            Authorization:
-              `Bearer ${apiKey}`,
-
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(body)
-        }
-      );
-
-    const raw =
-      await response.text();
-
-    let data = {};
-
-    try {
-      data =
-        raw ? JSON.parse(raw) : {};
-    } catch {
-      data = { raw };
-    }
-
-    if (!response.ok) {
-
-      console.error(
-        "Resend rejected BlueVows email",
-        {
-          status:response.status,
-          response:data
-        }
-      );
-
-      return json(
-        {
-          ok:false,
-          error:
-            data?.message ||
-            data?.error ||
-            raw ||
-            `Resend returned HTTP ${response.status}`,
-          resendStatus:
-            response.status
-        },
-        502
-      );
-    }
-
-    return json({
-      ok:true,
-      id:data?.id || null
-    });
-
-  } catch (error) {
-
-    console.error(
-      "BlueVows enquiry email function failed",
-      error?.stack || error
-    );
-
-    return json(
-      {
-        ok:false,
-        error:
-          error?.message ||
-          "Unable to send enquiry email."
-      },
-      500
-    );
-  }
+return json(
+{
+ok:false,
+error:"RESEND_API_KEY is missing in Cloudflare."
+},
+500,
+corsHeaders
+);
 }
 
+if(!receiver){
+console.error("BlueVows email error: ENQUIRY_RECEIVER_EMAIL is missing");
 
-/* =========================
-   CLOUDFLARE WORKER
-========================= */
+return json(
+{
+ok:false,
+error:"ENQUIRY_RECEIVER_EMAIL is missing in Cloudflare."
+},
+500,
+corsHeaders
+);
+}
 
-export default {
+let payload;
 
-  async fetch(request, env) {
+try{
+payload=await request.json();
+}
+catch{
+return json(
+{
+ok:false,
+error:"Invalid enquiry request data."
+},
+400,
+corsHeaders
+);
+}
 
-    const url =
-      new URL(request.url);
+const enquiry=payload?.enquiry||{};
 
+const guest=textOr(
+enquiry.name,
+"Website Guest"
+);
 
-    if (
-      request.method ===
-      "OPTIONS"
-    ) {
-      return json(
-        { ok:true },
-        204
-      );
-    }
+const customerEmail=String(
+enquiry.email||""
+).trim();
 
+const siteName=textOr(
+payload.siteName,
+"BlueVows"
+);
 
-    if (
-      url.pathname ===
-      "/api/email-status" &&
-      request.method ===
-      "GET"
-    ) {
+const tagline=textOr(
+payload.tagline,
+"Explore Andaman With Us"
+);
 
-      const hasApiKey =
-        Boolean(
-          String(
-            env?.RESEND_API_KEY || ""
-          ).trim()
-        );
+const from=
+env.RESEND_FROM_EMAIL||
+"BlueVows Website <onboarding@resend.dev>";
 
-      const hasReceiver =
-        Boolean(
-          String(
-            env?.ENQUIRY_RECEIVER_EMAIL || ""
-          ).trim()
-        );
+const body={
+from,
+to:[receiver],
 
-      const hasFrom =
-        Boolean(
-          String(
-            env?.RESEND_FROM_EMAIL || ""
-          ).trim()
-        );
+subject:
+`New Enquiry Received — ${textOr(
+enquiry.destination,
+"Andaman"
+)} — ${guest}`,
 
-      return json({
+html:buildHtml({
+enquiry,
+adults:payload.adults,
+children:payload.children,
+siteName,
+tagline
+})
+};
 
-        ok:
-          hasApiKey &&
-          hasReceiver,
+if(customerEmail){
+body.reply_to=customerEmail;
+}
 
-        bindings:{
+let r;
 
-          RESEND_API_KEY:
-            hasApiKey,
+try{
 
-          ENQUIRY_RECEIVER_EMAIL:
-            hasReceiver,
+r=await fetch(
+"https://api.resend.com/emails",
+{
+method:"POST",
 
-          RESEND_FROM_EMAIL:
-            hasFrom,
+headers:{
+Authorization:`Bearer ${apiKey}`,
+"Content-Type":"application/json"
+},
 
-          ASSETS:
-            Boolean(env?.ASSETS)
+body:JSON.stringify(body)
+}
+);
 
-        },
+}
+catch(e){
 
-        from:
-          hasFrom
-            ? "BlueVows Website <configured>"
-            : "BlueVows Website <onboarding@resend.dev>"
+console.error(
+"Resend connection error",
+e
+);
 
-      });
-    }
+return json(
+{
+ok:false,
+error:"Could not connect to Resend."
+},
+502,
+corsHeaders
+);
 
+}
 
-    if (
-      url.pathname ===
-      "/api/send-enquiry"
-    ) {
+const txt=await r.text();
 
-      if (
-        request.method ===
-        "POST"
-      ) {
+let data={};
 
-        return sendEnquiry(
-          request,
-          env
-        );
-      }
+try{
+data=txt?JSON.parse(txt):{};
+}
+catch{}
 
-      return json(
-        {
-          ok:false,
-          error:"Method not allowed"
-        },
-        405
-      );
-    }
+if(!r.ok){
 
+console.error(
+"Resend error",
+{
+status:r.status,
+message:data?.message||null,
+name:data?.name||null
+}
+);
 
-    return env.ASSETS.fetch(
-      request
-    );
-  }
+return json(
+{
+ok:false,
+error:
+data?.message||
+data?.name||
+`Resend returned HTTP ${r.status}.`,
+resendStatus:r.status
+},
+502,
+corsHeaders
+);
+
+}
+
+console.log(
+"BlueVows enquiry email sent",
+{
+id:data?.id||null,
+guest
+}
+);
+
+return json(
+{
+ok:true,
+id:data?.id||null
+},
+200,
+corsHeaders
+);
+
+}
+
+catch(e){
+
+console.error(
+"BlueVows enquiry email failed",
+e
+);
+
+return json(
+{
+ok:false,
+error:
+e?.message||
+"Unable to send enquiry email."
+},
+500,
+corsHeaders
+);
+
+}
+}
+
+export default{
+
+async fetch(request,env){
+
+const url=new URL(request.url);
+
+if(url.pathname==="/api/send-enquiry"){
+
+if(request.method==="OPTIONS"){
+
+return new Response(
+null,
+{
+status:204,
+headers:corsHeaders
+}
+);
+
+}
+
+if(request.method==="POST"){
+
+return sendEnquiry(
+request,
+env
+);
+
+}
+
+return json(
+{
+ok:false,
+error:"Method not allowed"
+},
+405,
+corsHeaders
+);
+
+}
+
+return env.ASSETS.fetch(request);
+
+}
+
 };
